@@ -225,329 +225,666 @@ class GIModule:
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GI Portal - Beanthentic Coffee</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         }
         
         body {
-            color: #25130c;
-            background: #fff9f2;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: #1a1a1a;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             line-height: 1.6;
+            min-height: 100vh;
         }
         
         .container {
-            max-width: 1100px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 2rem 1.5rem;
+            padding: 0 20px;
         }
         
         .header {
-            background: #147539;
+            background: linear-gradient(135deg, #147539 0%, #0f5a2c 100%);
             color: white;
-            padding: 1rem 0;
-            margin-bottom: 2rem;
+            padding: 3rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.03)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.03)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.1;
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
         }
         
         .header h1 {
-            text-align: center;
-            font-size: 2rem;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .header-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #4ade80;
+        }
+        
+        .main-content {
+            padding: 3rem 0;
+        }
+        
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #147539;
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .back-link:hover {
+            color: #0f5a2c;
+            transform: translateX(-3px);
         }
         
         .tabs {
             display: flex;
-            border-bottom: 2px solid #ddd;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+            padding: 0.5rem;
             margin-bottom: 2rem;
+            gap: 0.5rem;
         }
         
         .tab {
-            padding: 1rem 2rem;
+            flex: 1;
+            padding: 1rem 1.5rem;
             background: none;
             border: none;
             cursor: pointer;
             font-size: 1rem;
-            color: #666;
-            border-bottom: 3px solid transparent;
+            font-weight: 500;
+            color: #6b7280;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .tab:hover {
+            background: #f9fafb;
+            color: #374151;
         }
         
         .tab.active {
-            color: #147539;
-            border-bottom-color: #147539;
+            background: linear-gradient(135deg, #147539 0%, #0f5a2c 100%);
+            color: white;
+            box-shadow: 0 2px 4px rgba(20, 117, 57, 0.3);
         }
         
         .tab-content {
             display: none;
+            animation: fadeIn 0.5s ease;
         }
         
         .tab-content.active {
             display: block;
         }
         
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid #f3f4f6;
+        }
+        
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #147539 0%, #0f5a2c 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+        
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .card-subtitle {
+            color: #6b7280;
+            font-size: 0.95rem;
+            margin-top: 0.25rem;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
         .form-group {
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
         }
         
         .form-group label {
             display: block;
             margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: #333;
+            font-weight: 500;
+            color: #374151;
+            font-size: 0.95rem;
         }
         
-        .form-group input, .form-group select, .form-group textarea {
+        .required {
+            color: #ef4444;
+        }
+        
+        .form-group input, 
+        .form-group select, 
+        .form-group textarea {
             width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            padding: 0.875rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
             font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+        
+        .form-group input:focus, 
+        .form-group select:focus, 
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #147539;
+            box-shadow: 0 0 0 3px rgba(20, 117, 57, 0.1);
         }
         
         .form-group textarea {
-            height: 100px;
+            min-height: 120px;
             resize: vertical;
         }
         
+        .form-help {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+        }
+        
         .btn {
-            background: linear-gradient(135deg, #8b4a2b, #3ea642);
+            background: linear-gradient(135deg, #147539 0%, #0f5a2c 100%);
             color: white;
-            padding: 0.75rem 1.5rem;
+            padding: 0.875rem 2rem;
             border: none;
-            border-radius: 25px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 1rem;
-            font-weight: 600;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 6px rgba(20, 117, 57, 0.2);
         }
         
         .btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 12px rgba(20, 117, 57, 0.3);
         }
         
-        .card {
-            background: white;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-secondary {
+            background: #6b7280;
+            box-shadow: 0 4px 6px rgba(107, 114, 128, 0.2);
+        }
+        
+        .btn-secondary:hover {
+            background: #4b5563;
+            box-shadow: 0 8px 12px rgba(107, 114, 128, 0.3);
         }
         
         .status-badge {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 15px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.375rem 0.875rem;
+            border-radius: 20px;
             font-size: 0.875rem;
-            font-weight: 600;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
         }
         
         .status-pending {
-            background: #fff3cd;
-            color: #856404;
+            background: #fef3c7;
+            color: #92400e;
         }
         
         .status-approved {
-            background: #d4edda;
-            color: #155724;
+            background: #d1fae5;
+            color: #065f46;
         }
         
         .status-rejected {
-            background: #f8d7da;
-            color: #721c24;
+            background: #fee2e2;
+            color: #991b1b;
         }
         
         .application-item {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 1rem;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .application-item:hover {
+            border-color: #147539;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        
+        .application-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
             margin-bottom: 1rem;
         }
         
-        .back-link {
-            display: inline-block;
-            margin-bottom: 2rem;
-            color: #147539;
-            text-decoration: none;
+        .application-title {
+            font-size: 1.125rem;
             font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .application-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .detail-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 0.25rem;
+        }
+        
+        .detail-value {
+            font-weight: 500;
+            color: #1f2937;
         }
         
         .alert {
-            padding: 1rem;
-            border-radius: 4px;
-            margin-bottom: 1rem;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
         }
         
         .alert-success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
         }
         
         .alert-error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+        
+        .alert-icon {
+            font-size: 1.25rem;
+        }
+        
+        .progress-bar {
+            background: #e5e7eb;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #147539 0%, #4ade80 100%);
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #147539;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .card {
+                padding: 1.5rem;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
     <div class="header">
         <div class="container">
-            <h1>Geographical Indications Portal</h1>
-            <p style="text-align: center; margin-top: 0.5rem;">Register your farm and apply for GI certification</p>
+            <div class="header-content">
+                <div class="header-icon">
+                    <i class="fas fa-certificate"></i>
+                </div>
+                <h1>Geographical Indications Portal</h1>
+                <p>Register your farm and apply for GI certification to protect and promote your unique coffee heritage</p>
+            </div>
         </div>
     </div>
     
-    <div class="container">
-        <a href="/" class="back-link">← Back to Home</a>
-        
-        <div class="tabs">
-            <button class="tab active" onclick="showTab('register')">Register Farm</button>
-            <button class="tab" onclick="showTab('apply')">Apply for GI</button>
-            <button class="tab" onclick="showTab('status')">Check Status</button>
-        </div>
-        
-        <div id="register" class="tab-content active">
-            <div class="card">
-                <h2>Farmer Registration</h2>
-                <form id="farmerForm">
-                    <div class="form-group">
-                        <label for="farmerName">Full Name *</label>
-                        <input type="text" id="farmerName" name="name" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="farmerEmail">Email *</label>
-                        <input type="email" id="farmerEmail" name="email" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="farmerPhone">Phone Number</label>
-                        <input type="tel" id="farmerPhone" name="phone">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="region">Region *</label>
-                        <select id="region" name="region" required>
-                            <option value="">Select Region</option>
-                            <option value="Ilocos Region">Ilocos Region (Region I)</option>
-                            <option value="Cagayan Valley">Cagayan Valley (Region II)</option>
-                            <option value="Central Luzon">Central Luzon (Region III)</option>
-                            <option value="CALABARZON">CALABARZON (Region IV-A)</option>
-                            <option value="MIMAROPA">MIMAROPA (Region IV-B)</option>
-                            <option value="Bicol Region">Bicol Region (Region V)</option>
-                            <option value="Western Visayas">Western Visayas (Region VI)</option>
-                            <option value="Central Visayas">Central Visayas (Region VII)</option>
-                            <option value="Eastern Visayas">Eastern Visayas (Region VIII)</option>
-                            <option value="Zamboanga Peninsula">Zamboanga Peninsula (Region IX)</option>
-                            <option value="Northern Mindanao">Northern Mindanao (Region X)</option>
-                            <option value="Davao Region">Davao Region (Region XI)</option>
-                            <option value="SOCCSKSARGEN">SOCCSKSARGEN (Region XII)</option>
-                            <option value="CARAGA">CARAGA (Region XIII)</option>
-                            <option value="CAR">Cordillera Administrative Region (CAR)</option>
-                            <option value="NCR">National Capital Region (NCR)</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="province">Province *</label>
-                        <input type="text" id="province" name="province" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="municipality">Municipality/City *</label>
-                        <input type="text" id="municipality" name="municipality" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="farmAddress">Farm Address *</label>
-                        <input type="text" id="farmAddress" name="farm_address" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="farmSize">Farm Size (hectares)</label>
-                        <input type="number" id="farmSize" name="farm_size" step="0.01" min="0">
-                    </div>
-                    
-                    <button type="submit" class="btn">Register Farm</button>
-                </form>
+    <div class="main-content">
+        <div class="container">
+            <a href="/" class="back-link">
+                <i class="fas fa-arrow-left"></i>
+                Back to Home
+            </a>
+            
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('register')">
+                    <i class="fas fa-user-plus"></i>
+                    Register Farm
+                </button>
+                <button class="tab" onclick="showTab('apply')">
+                    <i class="fas fa-file-alt"></i>
+                    Apply for GI
+                </button>
+                <button class="tab" onclick="showTab('status')">
+                    <i class="fas fa-search"></i>
+                    Check Status
+                </button>
             </div>
-        </div>
-        
-        <div id="apply" class="tab-content">
-            <div class="card">
-                <h2>GI Certification Application</h2>
-                <form id="applicationForm">
-                    <div class="form-group">
-                        <label for="farmerId">Farmer ID *</label>
-                        <input type="number" id="farmerId" name="farmer_id" required>
-                        <small>Enter the Farmer ID you received after registration</small>
+            
+            <div id="register" class="tab-content active">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <div>
+                            <h2 class="card-title">Farmer Registration</h2>
+                            <p class="card-subtitle">Create your account to start the GI certification process</p>
+                        </div>
                     </div>
                     
-                    <div class="form-group">
-                        <label for="coffeeVariety">Coffee Variety *</label>
-                        <select id="coffeeVariety" name="coffee_variety_id" required>
-                            <option value="">Select Coffee Variety</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="farmLocation">Farm Location Details *</label>
-                        <input type="text" id="farmLocation" name="farm_location" required>
-                        <small>Specific location details that make your farm unique</small>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="elevation">Elevation (meters above sea level)</label>
-                        <input type="number" id="elevation" name="elevation" step="0.01">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="soilType">Soil Type</label>
-                        <input type="text" id="soilType" name="soil_type">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="climateInfo">Climate Information</label>
-                        <textarea id="climateInfo" name="climate_info" placeholder="Describe the climate conditions in your farm area"></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="cultivationMethods">Cultivation Methods</label>
-                        <textarea id="cultivationMethods" name="cultivation_methods" placeholder="Describe your farming practices and cultivation methods"></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="processingMethods">Processing Methods</label>
-                        <textarea id="processingMethods" name="processing_methods" placeholder="Describe how you process your coffee beans"></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="uniqueCharacteristics">Unique Characteristics</label>
-                        <textarea id="uniqueCharacteristics" name="unique_characteristics" placeholder="What makes your coffee unique to your geographical location?"></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="historicalSignificance">Historical Significance</label>
-                        <textarea id="historicalSignificance" name="historical_significance" placeholder="Any historical or cultural significance of coffee farming in your area"></textarea>
-                    </div>
-                    
-                    <button type="submit" class="btn">Submit Application</button>
-                </form>
-            </div>
-        </div>
-        
-        <div id="status" class="tab-content">
-            <div class="card">
-                <h2>Application Status</h2>
-                <div class="form-group">
-                    <label for="statusFarmerId">Enter Farmer ID:</label>
-                    <input type="number" id="statusFarmerId" placeholder="Enter your Farmer ID">
-                    <button type="button" class="btn" onclick="checkApplicationStatus()" style="margin-top: 0.5rem;">Check Status</button>
+                    <form id="farmerForm">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="farmerName">Full Name <span class="required">*</span></label>
+                                <input type="text" id="farmerName" name="name" required placeholder="Enter your full name">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="farmerEmail">Email Address <span class="required">*</span></label>
+                                <input type="email" id="farmerEmail" name="email" required placeholder="your.email@example.com">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="farmerPhone">Phone Number</label>
+                                <input type="tel" id="farmerPhone" name="phone" placeholder="09XXXXXXXXX">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="region">Region <span class="required">*</span></label>
+                                <select id="region" name="region" required>
+                                    <option value="">Select Region</option>
+                                    <option value="Ilocos Region">Ilocos Region (Region I)</option>
+                                    <option value="Cagayan Valley">Cagayan Valley (Region II)</option>
+                                    <option value="Central Luzon">Central Luzon (Region III)</option>
+                                    <option value="CALABARZON">CALABARZON (Region IV-A)</option>
+                                    <option value="MIMAROPA">MIMAROPA (Region IV-B)</option>
+                                    <option value="Bicol Region">Bicol Region (Region V)</option>
+                                    <option value="Western Visayas">Western Visayas (Region VI)</option>
+                                    <option value="Central Visayas">Central Visayas (Region VII)</option>
+                                    <option value="Eastern Visayas">Eastern Visayas (Region VIII)</option>
+                                    <option value="Zamboanga Peninsula">Zamboanga Peninsula (Region IX)</option>
+                                    <option value="Northern Mindanao">Northern Mindanao (Region X)</option>
+                                    <option value="Davao Region">Davao Region (Region XI)</option>
+                                    <option value="SOCCSKSARGEN">SOCCSKSARGEN (Region XII)</option>
+                                    <option value="CARAGA">CARAGA (Region XIII)</option>
+                                    <option value="CAR">Cordillera Administrative Region (CAR)</option>
+                                    <option value="NCR">National Capital Region (NCR)</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="province">Province <span class="required">*</span></label>
+                                <input type="text" id="province" name="province" required placeholder="Enter province name">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="municipality">Municipality/City <span class="required">*</span></label>
+                                <input type="text" id="municipality" name="municipality" required placeholder="Enter municipality or city">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="farmAddress">Complete Farm Address <span class="required">*</span></label>
+                            <input type="text" id="farmAddress" name="farm_address" required placeholder="Enter complete farm address">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="farmSize">Farm Size (hectares)</label>
+                            <input type="number" id="farmSize" name="farm_size" step="0.01" min="0" placeholder="0.00">
+                            <div class="form-help">Optional: Enter your total farm size in hectares</div>
+                        </div>
+                        
+                        <button type="submit" class="btn">
+                            <i class="fas fa-check"></i>
+                            Register Farm
+                        </button>
+                    </form>
                 </div>
-                
-                <div id="statusResults"></div>
+            </div>
+            
+            <div id="apply" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div>
+                            <h2 class="card-title">GI Certification Application</h2>
+                            <p class="card-subtitle">Provide detailed information about your coffee's unique geographical characteristics</p>
+                        </div>
+                    </div>
+                    
+                    <form id="applicationForm">
+                        <div class="form-group">
+                            <label for="farmerId">Farmer ID <span class="required">*</span></label>
+                            <input type="number" id="farmerId" name="farmer_id" required placeholder="Enter your Farmer ID">
+                            <div class="form-help">Enter the Farmer ID you received after registration</div>
+                        </div>
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="coffeeVariety">Coffee Variety <span class="required">*</span></label>
+                                <select id="coffeeVariety" name="coffee_variety_id" required>
+                                    <option value="">Select Coffee Variety</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="elevation">Elevation (meters above sea level)</label>
+                                <input type="number" id="elevation" name="elevation" step="0.01" placeholder="1500">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="farmLocation">Farm Location Details <span class="required">*</span></label>
+                            <input type="text" id="farmLocation" name="farm_location" required placeholder="Specific location details that make your farm unique">
+                        </div>
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="soilType">Soil Type</label>
+                                <input type="text" id="soilType" name="soil_type" placeholder="e.g., Volcanic loam, Clay soil">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="climateInfo">Climate Information</label>
+                                <textarea id="climateInfo" name="climate_info" placeholder="Describe the climate conditions in your farm area"></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="cultivationMethods">Cultivation Methods</label>
+                            <textarea id="cultivationMethods" name="cultivation_methods" placeholder="Describe your farming practices and cultivation methods"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="processingMethods">Processing Methods</label>
+                            <textarea id="processingMethods" name="processing_methods" placeholder="Describe how you process your coffee beans"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="uniqueCharacteristics">Unique Geographical Characteristics</label>
+                            <textarea id="uniqueCharacteristics" name="unique_characteristics" placeholder="What makes your coffee unique to your geographical location?"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="historicalSignificance">Historical Significance</label>
+                            <textarea id="historicalSignificance" name="historical_significance" placeholder="Any historical or cultural significance of coffee farming in your area"></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn">
+                            <i class="fas fa-paper-plane"></i>
+                            Submit Application
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <div id="status" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <div>
+                            <h2 class="card-title">Application Status</h2>
+                            <p class="card-subtitle">Track the progress of your GI certification applications</p>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="statusFarmerId">Enter Farmer ID:</label>
+                        <div style="display: flex; gap: 1rem; align-items: end;">
+                            <input type="number" id="statusFarmerId" placeholder="Enter your Farmer ID" style="flex: 1;">
+                            <button type="button" class="btn" onclick="checkApplicationStatus()">
+                                <i class="fas fa-search"></i>
+                                Check Status
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="statusResults"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -581,7 +918,7 @@ class GIModule:
             
             // Show selected tab
             document.getElementById(tabName).classList.add('active');
-            event.target.classList.add('active');
+            event.target.closest('.tab').classList.add('active');
         }
         
         // Farmer registration form
@@ -667,24 +1004,64 @@ class GIModule:
             const resultsDiv = document.getElementById('statusResults');
             
             if (applications.length === 0) {
-                resultsDiv.innerHTML = '<p>No applications found for this Farmer ID.</p>';
+                resultsDiv.innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: #6b7280;">
+                        <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                        <p>No applications found for this Farmer ID.</p>
+                    </div>
+                `;
                 return;
             }
             
-            let html = '<h3>Your Applications:</h3>';
+            let html = '<h3 style="margin-bottom: 1.5rem; color: #1f2937;">Your Applications</h3>';
             
             applications.forEach(app => {
                 const statusClass = app.status === 'approved' ? 'status-approved' : 
                                   app.status === 'rejected' ? 'status-rejected' : 'status-pending';
                 
+                const statusIcon = app.status === 'approved' ? 'fa-check-circle' : 
+                                  app.status === 'rejected' ? 'fa-times-circle' : 'fa-clock';
+                
                 html += `
                     <div class="application-item">
-                        <h4>Application #${app.id} - ${app.variety_name}</h4>
-                        <p><strong>Status:</strong> <span class="status-badge ${statusClass}">${app.status.toUpperCase()}</span></p>
-                        <p><strong>Submitted:</strong> ${new Date(app.submission_date).toLocaleDateString()}</p>
-                        <p><strong>Farm Location:</strong> ${app.farm_location}</p>
-                        ${app.elevation ? `<p><strong>Elevation:</strong> ${app.elevation}m</p>` : ''}
-                        ${app.reviewer_notes ? `<p><strong>Reviewer Notes:</strong> ${app.reviewer_notes}</p>` : ''}
+                        <div class="application-header">
+                            <div>
+                                <div class="application-title">Application #${app.id}</div>
+                                <div style="color: #6b7280; font-size: 0.875rem; margin-top: 0.25rem;">
+                                    <i class="fas fa-coffee"></i> ${app.variety_name}
+                                </div>
+                            </div>
+                            <div class="status-badge ${statusClass}">
+                                <i class="fas ${statusIcon}"></i>
+                                ${app.status.toUpperCase()}
+                            </div>
+                        </div>
+                        
+                        <div class="application-details">
+                            <div class="detail-item">
+                                <span class="detail-label">Submitted Date</span>
+                                <span class="detail-value">${new Date(app.submission_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Farm Location</span>
+                                <span class="detail-value">${app.farm_location}</span>
+                            </div>
+                            ${app.elevation ? `
+                            <div class="detail-item">
+                                <span class="detail-label">Elevation</span>
+                                <span class="detail-value">${app.elevation}m above sea level</span>
+                            </div>
+                            ` : ''}
+                        </div>
+                        
+                        ${app.reviewer_notes ? `
+                        <div style="margin-top: 1rem; padding: 1rem; background: #f9fafb; border-radius: 8px; border-left: 4px solid #147539;">
+                            <div style="font-weight: 500; color: #374151; margin-bottom: 0.25rem;">
+                                <i class="fas fa-sticky-note"></i> Reviewer Notes
+                            </div>
+                            <div style="color: #6b7280; font-size: 0.875rem;">${app.reviewer_notes}</div>
+                        </div>
+                        ` : ''}
                     </div>
                 `;
             });
@@ -695,13 +1072,21 @@ class GIModule:
         function showAlert(message, type) {
             const alertDiv = document.createElement('div');
             alertDiv.className = `alert alert-${type}`;
-            alertDiv.textContent = message;
+            
+            const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+            alertDiv.innerHTML = `
+                <i class="fas ${icon} alert-icon"></i>
+                <span>${message}</span>
+            `;
             
             const container = document.querySelector('.container');
             container.insertBefore(alertDiv, container.firstChild.nextSibling);
             
             setTimeout(() => {
-                alertDiv.remove();
+                alertDiv.style.opacity = '0';
+                setTimeout(() => {
+                    alertDiv.remove();
+                }, 300);
             }, 5000);
         }
     </script>

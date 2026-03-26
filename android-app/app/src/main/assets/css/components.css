@@ -423,6 +423,12 @@
   color: #2e1910;
 }
 
+.about-main-title {
+  text-align: center;
+  font-size: clamp(1.6rem, 2.2vw, 2.1rem);
+  margin-bottom: 1rem;
+}
+
 .about-card p {
   font-size: 0.9rem;
   color: #6b574b;
@@ -484,6 +490,34 @@
   line-height: 1;
 }
 
+.sidebar-submenu .about-menu-item.is-active::after {
+  /* For homepage sidebar submenu: remove active arrow indicator. */
+  content: none !important;
+}
+
+.sidebar-submenu {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.25rem 0.1rem 0.1rem 0.1rem;
+  margin-top: 0.15rem;
+}
+
+.sidebar-submenu .about-menu-item {
+  justify-content: flex-start;
+  padding: 0.55rem 0.65rem;
+  font-size: 0.92rem;
+  border: 1px solid rgba(20, 117, 57, 0.12);
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.sidebar-submenu .about-menu-item.is-active {
+  border-color: transparent;
+  background: linear-gradient(135deg, rgba(11, 61, 46, 0.95), rgba(62, 166, 66, 0.95));
+  color: #fdfaf6;
+}
+
 .about-topic {
   margin-bottom: 0;
   padding: 0.95rem 1rem;
@@ -506,6 +540,51 @@
 
 .about-topic p:last-child {
   margin-bottom: 0;
+}
+
+/* Emphasize Mission and Vision block (coffee farmer theme) */
+#about-mission-vision {
+  position: relative;
+  overflow: hidden;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+}
+
+/* Extra specificity: override default `.about-topic` frame completely */
+.about-topic#about-mission-vision {
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+}
+
+#about-mission-vision::before {
+  content: none;
+}
+
+#about-mission-vision .mv-banner-wrap {
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+}
+
+#about-mission-vision .mv-banner-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 0;
+}
+
+@media (max-width: 640px) {
+  #about-mission-vision {
+    padding: 0;
+  }
 }
 
 .about-list {

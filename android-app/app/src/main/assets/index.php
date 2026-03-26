@@ -36,23 +36,77 @@
     <div class="nav">
       <a href="#" class="logo" aria-label="Beanthentic home"><span>BEANTHENTIC</span></a>
       <nav class="nav-links">
-        <a href="#">Home</a>
-        <a href="#about">About Beanthentic</a>
-        <a href="#">Dashboard</a>
+        <a href="#home" id="home-nav-toggle" data-no-scroll="true">Home</a>
+        <a
+          href="#about"
+          id="about-nav-toggle"
+          class="about-nav-toggle"
+          aria-haspopup="true"
+          aria-expanded="false"
+          data-no-scroll="true"
+        >About Beanthentic</a>
+        <div
+          id="about-nav-dropdown"
+          class="about-nav-dropdown"
+          hidden
+          aria-hidden="true"
+        >
+          <a
+            href="#about-history-overall"
+            id="about-nav-history-toggle"
+            class="about-menu-item about-nav-item"
+            data-about-history-target="about-history-overall"
+            data-toggle-about-history-nav="true"
+            aria-haspopup="true"
+            aria-expanded="false"
+            data-no-scroll="true"
+            data-no-loader="true"
+          >History</a>
+
+          <div
+            id="about-history-nav-submenu"
+            class="about-history-nav-submenu"
+            hidden
+            aria-hidden="true"
+          >
+            <a
+              href="#about-history-liberica"
+              class="about-menu-item about-nav-item"
+              data-about-history-target="about-history-liberica"
+              data-no-scroll="true"
+              data-no-loader="true"
+            >Liberica</a>
+
+            <a
+              href="#about-history-robusta"
+              class="about-menu-item about-nav-item"
+              data-about-history-target="about-history-robusta"
+              data-no-scroll="true"
+              data-no-loader="true"
+            >Robusta</a>
+
+            <a
+              href="#about-history-excelsa"
+              class="about-menu-item about-nav-item"
+              data-about-history-target="about-history-excelsa"
+              data-no-scroll="true"
+              data-no-loader="true"
+            >Excelsa</a>
+          </div>
+
+          <a
+            href="#about-mission-vision"
+            class="about-menu-item about-nav-item"
+            data-about-target="about-mission-vision"
+            data-no-scroll="true"
+            data-no-loader="true"
+          >Mission and Vision</a>
+        </div>
       </nav>
     </div>
   </header>
 
   <main class="home-layout">
-    <aside class="home-sidebar" aria-label="Homepage sidebar">
-      <h2>Explore</h2>
-      <nav class="sidebar-links">
-        <a href="#home">Home</a>
-        <a href="#about">About Beanthentic</a>
-        <a href="#">Dashboard</a>
-      </nav>
-    </aside>
-
     <div class="home-main-content">
     <section id="home" class="hero">
       <div>
@@ -63,7 +117,6 @@
           learn about the origin, quality, and unique characteristics of each bean.
         </p>
         <div class="hero-cta">
-          <button class="btn-primary" onclick="document.getElementById('about').scrollIntoView({ behavior: 'smooth' })">About Beanthentic</button>
           <p class="hero-note"><strong>Explore the origins of authentic coffee beans and the farmers behind every harvest</strong>.</p>
         </div>
         <div class="hero-slider" aria-label="Featured images">
@@ -94,39 +147,87 @@
       </div>
     </section>
 
-    <section id="about">
+    <section id="about" hidden>
       <div class="about-grid">
         <article class="about-card">
-          <div class="about-pill"><span class="about-pill-dot"></span><span>About Beanthentic</span></div>
-          <h3>About Beanthentic</h3>
-          <p>Beanthentic is an innovative platform designed to support coffee farmers and promote authentic, high-quality coffee.</p>
+          <h3 class="about-main-title">Mission and Vision</h3>
 
-          <div class="about-split" aria-label="About Beanthentic navigation and content">
-            <aside class="about-menu" aria-label="About Beanthentic menu">
-              <div class="about-menu-title">About Beanthentic</div>
-              <a class="about-menu-item is-active" href="#about-history" data-about-target="about-history">History</a>
-              <a class="about-menu-item" href="#about-mission-vision" data-about-target="about-mission-vision">Mission and Vision</a>
-            </aside>
+          <div class="about-content" aria-label="About Beanthentic content">
+            <div id="about-overview" class="about-topic is-active" data-about-panel="about">
+              <p>
+                Beanthentic is an innovative platform designed to support coffee farmers and promote authentic, high-quality coffee.
+                It helps verify the origin and authenticity of coffee products while ensuring transparency and traceability within the coffee industry.
+              </p>
+              <p>
+                Beanthentic integrates modern technology with agricultural practices to evaluate Geographic Indication (GI) eligibility and provide reliable data about coffee farms, production, and quality.
+              </p>
+            </div>
+            <div id="about-history" class="about-topic" data-about-panel="about-history">
+              <div class="about-split about-history-split" aria-label="History submenu and content">
+                <aside class="about-menu about-history-menu" aria-label="History menu">
+                  <div class="about-menu-title">History</div>
+                  <a
+                    href="#about-history-liberica"
+                    class="about-menu-item about-history-menu-item is-active"
+                    data-about-history-target="about-history-liberica"
+                    data-no-scroll="true"
+                    data-no-loader="true"
+                  >Liberica</a>
+                  <a
+                    href="#about-history-robusta"
+                    class="about-menu-item about-history-menu-item"
+                    data-about-history-target="about-history-robusta"
+                    data-no-scroll="true"
+                    data-no-loader="true"
+                  >Robusta</a>
+                  <a
+                    href="#about-history-excelsa"
+                    class="about-menu-item about-history-menu-item"
+                    data-about-history-target="about-history-excelsa"
+                    data-no-scroll="true"
+                    data-no-loader="true"
+                  >Excelsa</a>
+                </aside>
 
-            <div class="about-content" aria-label="About Beanthentic content">
-              <div id="about-history" class="about-topic is-active" data-about-panel="about-history">
-                <h4>History</h4>
-                <p>Beanthentic started as a local initiative focused on giving coffee farmers a fair and visible identity in the market. Over time, it developed into a digital platform that helps track coffee origin, quality, and farming data in one transparent system.</p>
+                <div class="about-content" aria-label="History content">
+                  <div id="about-history-liberica" class="about-topic is-active" data-about-history-panel="about-history-liberica">
+                    <h4>Liberica</h4>
+                    <p>
+                      Liberica became known for its bold character and distinct aroma. Beanthetic tracks its cultivation practices to
+                      help consumers understand its origin and quality traits.
+                    </p>
+                  </div>
+
+                  <div id="about-history-robusta" class="about-topic" data-about-history-panel="about-history-robusta">
+                    <h4>Robusta</h4>
+                    <p>
+                      Robusta is widely grown for its strength and resilience. Through Beanthetic, farmers can record production details
+                      and build traceability across each harvest.
+                    </p>
+                  </div>
+
+                  <div id="about-history-excelsa" class="about-topic" data-about-history-panel="about-history-excelsa">
+                    <h4>Excelsa</h4>
+                    <p>
+                      Excelsa stands out for its unique flavor profile and growing requirements. Beanthetic preserves these details to
+                      support authenticity and informed choices.
+                    </p>
+                  </div>
+                </div>
               </div>
+            </div>
 
-              <div id="about-mission-vision" class="about-topic" data-about-panel="about-mission-vision">
-                <h4>Mission and Vision</h4>
-                <p><strong>Mission:</strong> Empower coffee farmers through technology, promote authentic products, and support sustainable coffee production.</p>
-                <p><strong>Vision:</strong> Become a trusted platform where every cup of coffee is traceable, farmer-centered, and recognized for its true origin and quality.</p>
+            <div id="about-mission-vision" class="about-topic" data-about-panel="about-mission-vision">
+              <div class="mv-banner-wrap" aria-label="Mission and Vision banner">
+                <img
+                  class="mv-banner-img"
+                  src="mission_vision_banner.png"
+                  alt="Mission and Vision"
+                />
               </div>
             </div>
           </div>
 
-          <ul class="about-list">
-            <li><span>•</span><div>Coffee authenticity verification and traceability system.</div></li>
-            <li><span>•</span><div>Evaluation of Geographic Indication (GI) eligibility for coffee farmers.</div></li>
-            <li><span>•</span><div>Support for farmer data management and sustainable coffee production.</div></li>
-          </ul>
         </article>
       </div>
     </section>
@@ -176,16 +277,15 @@
 
         var href = a.getAttribute('href') || '';
         if (!href) return;
+        // Don't show loading overlay for hash navigation (in-page) or sidebar clicks.
+        if (href.indexOf('#') === 0) return;
+        if (a.closest && a.closest('.home-sidebar')) return;
+        if (a.getAttribute('data-no-loader') === 'true') return;
 
         loader.style.display = 'flex';
         startedAt = Date.now();
         if (hideTimer) clearTimeout(hideTimer);
         hideTimer = null;
-
-        // For in-page anchors, don't wait for full reload.
-        if (href.indexOf('#') === 0 || href.indexOf('#about') === 0) {
-          hideTimer = setTimeout(function () { loader.style.display = 'none'; }, 600);
-        }
       });
     })();
   </script>

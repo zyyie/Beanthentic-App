@@ -18,6 +18,12 @@ class Navigation {
       const href = anchor.getAttribute('href');
       if (!href || href === '#') return;
 
+      // Allow other UI handlers to control certain anchors.
+      // (Used for About submenu toggle and About history/mission switching.)
+      if (anchor.hasAttribute('data-no-scroll') || anchor.dataset.noScroll === 'true' || anchor.hasAttribute('data-toggle-about-submenu')) {
+        return;
+      }
+
       const target = document.querySelector(href);
       if (!target) return;
 
@@ -32,7 +38,7 @@ class Navigation {
   setupActiveNavigation() {
     // Highlight active navigation section based on scroll position
     const sections = document.querySelectorAll('section[id]');
-    const navLinks = document.querySelectorAll('.nav-links a[href^="#"], .sidebar-links a[href^="#"]');
+    const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
 
     const observerOptions = {
       rootMargin: '-20% 0px -70% 0px',
@@ -43,7 +49,7 @@ class Navigation {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           navLinks.forEach(link => link.classList.remove('active'));
-          const activeLinks = document.querySelectorAll(`.nav-links a[href="#${entry.target.id}"], .sidebar-links a[href="#${entry.target.id}"]`);
+          const activeLinks = document.querySelectorAll(`.nav-links a[href="#${entry.target.id}"]`);
           activeLinks.forEach(link => link.classList.add('active'));
         }
       });

@@ -6,8 +6,7 @@
   }
 
   .home-sidebar {
-    position: static;
-    top: auto;
+    display: none;
   }
 
   .sidebar-links {

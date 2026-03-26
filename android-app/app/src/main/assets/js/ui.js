@@ -8,6 +8,7 @@ class UIController {
     this.setupAnimations();
     this.setupInteractions();
     this.setupHeroSlider();
+    this.setupAboutMenu();
     this.loadYear();
   }
 
@@ -64,6 +65,44 @@ class UIController {
           ripple.remove();
         }, 600);
       });
+    });
+  }
+
+  setupAboutMenu() {
+    const menu = document.querySelector('.about-menu');
+    const content = document.querySelector('.about-content');
+    if (!menu || !content) return;
+
+    const items = Array.from(menu.querySelectorAll('.about-menu-item[data-about-target]'));
+    const panels = Array.from(content.querySelectorAll('.about-topic[data-about-panel]'));
+    if (items.length === 0 || panels.length === 0) return;
+
+    const setActive = (id) => {
+      items.forEach((a) => a.classList.toggle('is-active', a.dataset.aboutTarget === id));
+      panels.forEach((p) => p.classList.toggle('is-active', p.dataset.aboutPanel === id));
+    };
+
+    // Default active (from markup), but allow deep-link by hash.
+    const hash = (window.location.hash || '').replace('#', '');
+    const hasHashPanel = panels.some(p => p.id === hash);
+    if (hasHashPanel) setActive(hash);
+
+    menu.addEventListener('click', (e) => {
+      const a = e.target.closest('.about-menu-item[data-about-target]');
+      if (!a) return;
+
+      const id = a.dataset.aboutTarget;
+      if (!id) return;
+
+      e.preventDefault();
+      setActive(id);
+
+      // Update hash without jumping the page.
+      if (history && history.replaceState) {
+        history.replaceState(null, '', `#${id}`);
+      } else {
+        window.location.hash = `#${id}`;
+      }
     });
   }
 

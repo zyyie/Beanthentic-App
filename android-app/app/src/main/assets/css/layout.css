@@ -92,6 +92,67 @@ header {
   width: 100%;
 }
 
+.nav-links a.active {
+  font-weight: 600;
+}
+
+/* Homepage sidebar layout */
+.home-layout {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 1.2rem;
+  align-items: start;
+}
+
+.home-main-content {
+  min-width: 0;
+}
+
+.home-sidebar {
+  position: sticky;
+  top: 74px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(198, 157, 125, 0.45);
+  border-radius: 14px;
+  padding: 0.9rem;
+  box-shadow: 0 10px 24px rgba(78, 45, 21, 0.12);
+}
+
+.home-sidebar h2 {
+  font-size: 0.88rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #5c3925;
+  margin-bottom: 0.6rem;
+}
+
+.sidebar-links {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.sidebar-links a {
+  font-size: 0.9rem;
+  color: #4d372b;
+  border-radius: 10px;
+  padding: 0.45rem 0.55rem;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.sidebar-links a:hover {
+  background: rgba(20, 117, 57, 0.1);
+  color: #1f6d38;
+}
+
+.sidebar-links a.active {
+  background: linear-gradient(135deg, rgba(11, 61, 46, 0.95), rgba(62, 166, 66, 0.95));
+  color: #fdfaf6;
+  font-weight: 600;
+}
+
 /* Footer */
 footer {
   margin-top: 3rem;

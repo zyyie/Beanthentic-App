@@ -32,7 +32,7 @@ class Navigation {
   setupActiveNavigation() {
     // Highlight active navigation section based on scroll position
     const sections = document.querySelectorAll('section[id]');
-    const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
+    const navLinks = document.querySelectorAll('.nav-links a[href^="#"], .sidebar-links a[href^="#"]');
 
     const observerOptions = {
       rootMargin: '-20% 0px -70% 0px',
@@ -43,10 +43,8 @@ class Navigation {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           navLinks.forEach(link => link.classList.remove('active'));
-          const activeLink = document.querySelector(`.nav-links a[href="#${entry.target.id}"]`);
-          if (activeLink) {
-            activeLink.classList.add('active');
-          }
+          const activeLinks = document.querySelectorAll(`.nav-links a[href="#${entry.target.id}"], .sidebar-links a[href="#${entry.target.id}"]`);
+          activeLinks.forEach(link => link.classList.add('active'));
         }
       });
     }, observerOptions);

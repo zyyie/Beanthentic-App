@@ -6,7 +6,17 @@
   }
 
   .home-sidebar {
-    display: none;
+    position: static;
+    top: auto;
+    left: auto;
+    right: auto;
+    width: auto;
+    max-width: none;
+    z-index: auto;
+    transform: none;
+    transition: none;
+    pointer-events: auto;
+    display: block;
   }
 
   .sidebar-links {

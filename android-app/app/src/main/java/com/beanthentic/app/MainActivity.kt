@@ -22,9 +22,13 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var webView: WebView
+    private var exitDialog: AlertDialog? = null
 
     @SuppressLint("SetJavaScriptEnabled")
     @Suppress("DEPRECATION")
@@ -34,7 +38,7 @@ class MainActivity : AppCompatActivity() {
         val container = FrameLayout(this)
 
         // Main WebView
-        val webView = WebView(this)
+        webView = WebView(this)
         container.addView(
             webView,
             FrameLayout.LayoutParams(
@@ -132,6 +136,38 @@ class MainActivity : AppCompatActivity() {
 
         loadingOverlay.visibility = View.VISIBLE
         setContentView(container)
+
+        onBackPressedDispatcher.addCallback(
+            this,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    // If WebView has history, go back instead of exiting.
+                    if (::webView.isInitialized && webView.canGoBack()) {
+                        webView.goBack()
+                        return
+                    }
+
+                    // Show exit prompt.
+                    if (exitDialog?.isShowing == true) return
+
+                    exitDialog = AlertDialog.Builder(this@MainActivity)
+                        .setTitle(getString(R.string.app_name))
+                        .setMessage("What do you want to do?")
+                        .setNegativeButton("Cancel") { d, _ -> d.dismiss() }
+                        .setNeutralButton("Minimize") { d, _ ->
+                            d.dismiss()
+                            moveTaskToBack(true)
+                        }
+                        .setPositiveButton("Exit") { d, _ ->
+                            d.dismiss()
+                            finishAffinity()
+                        }
+                        .create()
+
+                    exitDialog?.show()
+                }
+            }
+        )
 
         webView.settings.apply {
             javaScriptEnabled = true

@@ -8,55 +8,13 @@ class UIController {
     this.setupAnimations();
     this.setupInteractions();
     this.setupHeroSlider();
-    this.setupPrimarySectionNavigation();
+    this.setupHomeAboutViewSwitch();
     this.setupAboutSidebarToggle();
     this.setupHomepageSidebarActive();
     this.setupHomepageSidebarDrawer();
     this.setupAboutNavDropdown();
     this.setupAboutMenu();
-    this.setupAboutHistorySubmenu();
     this.loadYear();
-  }
-
-  showAboutOnly() {
-    const homeSection = document.getElementById('home');
-    const aboutSection = document.getElementById('about');
-    if (homeSection) {
-      homeSection.hidden = true;
-      homeSection.setAttribute('hidden', '');
-    }
-    if (!aboutSection) return;
-    aboutSection.hidden = false;
-    aboutSection.removeAttribute('hidden');
-  }
-
-  showHomeOnly() {
-    const homeSection = document.getElementById('home');
-    const aboutSection = document.getElementById('about');
-    if (homeSection) {
-      homeSection.hidden = false;
-      homeSection.removeAttribute('hidden');
-    }
-    if (aboutSection) {
-      aboutSection.hidden = true;
-      aboutSection.setAttribute('hidden', '');
-    }
-  }
-
-  setupPrimarySectionNavigation() {
-    const homeToggle = document.getElementById('home-nav-toggle');
-    if (!homeToggle) return;
-
-    // Homepage-only view on initial load.
-    this.showHomeOnly();
-
-    homeToggle.addEventListener('click', (e) => {
-      e.preventDefault();
-      this.showHomeOnly();
-      if (history && history.replaceState) {
-        history.replaceState(null, '', '#home');
-      }
-    });
   }
 
   setupAboutNavDropdown() {
@@ -64,42 +22,26 @@ class UIController {
     const dropdown = document.getElementById('about-nav-dropdown');
     if (!toggle || !dropdown) return;
 
-    const historyToggle = document.getElementById('about-nav-history-toggle');
-    const historySubmenu = document.getElementById('about-history-nav-submenu');
-
-    const setHistorySubmenuOpen = (shouldOpen) => {
-      if (!historyToggle || !historySubmenu) return;
-      historySubmenu.hidden = !shouldOpen;
-      historySubmenu.setAttribute('aria-hidden', shouldOpen ? 'false' : 'true');
-      historyToggle.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
-    };
+    const historyToggle = document.getElementById('about-history-toggle');
+    const historySubmenu = document.getElementById('about-history-submenu');
 
     const open = () => {
       dropdown.hidden = false;
       dropdown.setAttribute('aria-hidden', 'false');
       toggle.setAttribute('aria-expanded', 'true');
-      // Keep homepage visible while the user is choosing
-      // (History / Mission and Vision) from the dropdown.
-      this.showHomeOnly();
-
-      // Align dropdown under the "About Beanthentic" toggle.
-      // nav-links is position: relative, and dropdown is absolutely positioned inside it.
-      const parent = toggle.parentElement;
-      if (parent) {
-        const left = Math.max(0, Math.min(toggle.offsetLeft, parent.clientWidth - dropdown.offsetWidth));
-        dropdown.style.left = left + 'px';
-      }
-
-      // Default: collapse History submenu inside the navbar dropdown.
-      setHistorySubmenuOpen(false);
     };
 
     const close = () => {
+      if (historySubmenu) {
+        historySubmenu.hidden = true;
+        historySubmenu.setAttribute('aria-hidden', 'true');
+      }
+      if (historyToggle) {
+        historyToggle.setAttribute('aria-expanded', 'false');
+      }
       dropdown.hidden = true;
       dropdown.setAttribute('aria-hidden', 'true');
       toggle.setAttribute('aria-expanded', 'false');
-
-      setHistorySubmenuOpen(false);
     };
 
     const isOpen = () => toggle.getAttribute('aria-expanded') === 'true';
@@ -126,76 +68,100 @@ class UIController {
       if (e.key === 'Escape') close();
     });
 
+    // Nested submenu: History -> Liberica/Robusta/Excelsa
+    if (historyToggle && historySubmenu) {
+      const openHistory = () => {
+        historySubmenu.hidden = false;
+        historySubmenu.setAttribute('aria-hidden', 'false');
+        historyToggle.setAttribute('aria-expanded', 'true');
+      };
+
+      const closeHistory = () => {
+        historySubmenu.hidden = true;
+        historySubmenu.setAttribute('aria-hidden', 'true');
+        historyToggle.setAttribute('aria-expanded', 'false');
+      };
+
+      historyToggle.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const isOpen = historyToggle.getAttribute('aria-expanded') === 'true';
+        if (isOpen) closeHistory();
+        else openHistory();
+      });
+    }
+
     // Close after selecting an item
     dropdown.addEventListener('click', (e) => {
       const link = e.target && e.target.closest ? e.target.closest('a.about-menu-item') : null;
       if (!link) return;
-
-      // Bring About content into view after selecting an item.
-      // Show About content, then close dropdown so it doesn't overlap the About page.
-      this.showAboutOnly();
-      const aboutSection = document.getElementById('about');
-      if (aboutSection && typeof aboutSection.scrollIntoView === 'function') {
-        aboutSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-
-      // Close dropdown after selection.
+      // Don't close if the user is toggling the nested History submenu.
+      if (link.id === 'about-history-toggle') return;
       close();
-
-      // If user clicked a non-history item, collapse the nested submenu.
-      if (historySubmenu && historyToggle && link !== historyToggle && !historySubmenu.contains(link)) {
-        setHistorySubmenuOpen(false);
-      }
     });
-
-    // Toggle nested History submenu
-    if (historyToggle && historySubmenu) {
-      historyToggle.addEventListener('click', (e) => {
-        // Prevent hash jump; we handle activation via About History submenu logic.
-        e.preventDefault();
-        e.stopPropagation();
-        const shouldOpen = historySubmenu.hidden;
-        setHistorySubmenuOpen(shouldOpen);
-      });
-    }
   }
 
-  setupAboutHistorySubmenu() {
-    const items = Array.from(document.querySelectorAll('[data-about-history-target]'));
-    const panels = Array.from(document.querySelectorAll('[data-about-history-panel]'));
+  setupHomeAboutViewSwitch() {
+    const homeSection = document.getElementById('home');
+    const aboutMissionSection = document.getElementById('about-mission-vision');
+    if (!homeSection || !aboutMissionSection) return;
 
-    if (items.length === 0 || panels.length === 0) return;
-
-    const setActive = (id) => {
-      items.forEach((a) => {
-        a.classList.toggle('is-active', a.dataset.aboutHistoryTarget === id);
-      });
-      panels.forEach((p) => {
-        p.classList.toggle('is-active', p.dataset.aboutHistoryPanel === id);
-      });
+    const setView = (view) => {
+      const showHome = view === 'home';
+      homeSection.hidden = !showHome;
+      homeSection.setAttribute('aria-hidden', showHome ? 'false' : 'true');
+      aboutMissionSection.hidden = showHome;
+      aboutMissionSection.setAttribute('aria-hidden', showHome ? 'true' : 'false');
     };
 
-    // Default active (use existing markup if available).
-    const initial = panels.find(p => p.classList.contains('is-active'))?.dataset.aboutHistoryPanel;
-    if (initial) setActive(initial);
+    // Default view: Home only.
+    setView('home');
 
-    // Deep-link by hash (optional).
-    const hash = (window.location.hash || '').replace('#', '');
-    if (hash && panels.some(p => p.id === hash)) setActive(hash);
+    const activateAboutPanel = (id) => {
+      const panels = Array.from(document.querySelectorAll('.about-topic[data-about-panel]'));
+      if (panels.length === 0) return;
 
-    items.forEach((a) => {
-      a.addEventListener('click', (e) => {
+      const hasTarget = panels.some((p) => p.dataset.aboutPanel === id);
+      const fallbackId = 'about-mission-vision';
+      const nextId = hasTarget ? id : fallbackId;
+      panels.forEach((p) => p.classList.toggle('is-active', p.dataset.aboutPanel === nextId));
+    };
+
+    // Deep-link handling: when hash points to any About panel (e.g. about-liberica),
+    // hide Home and show About content.
+    const initialHash = (window.location.hash || '').replace('#', '');
+    if (initialHash && initialHash !== 'home' && initialHash.startsWith('about-')) {
+      setView('about');
+      activateAboutPanel(initialHash);
+    } else if (initialHash === 'home') {
+      setView('home');
+    }
+
+    document.querySelectorAll('.about-menu-item[data-about-target]').forEach((item) => {
+      item.addEventListener('click', (e) => {
         e.preventDefault();
-        const id = a.dataset.aboutHistoryTarget;
-        if (!id) return;
+        setView('about');
 
-        // Ensure only About content is visible when selecting History.
-        this.showAboutOnly();
+        const targetId = item.dataset.aboutTarget || 'about-mission-vision';
+        activateAboutPanel(targetId);
+        if (history && history.replaceState) {
+          history.replaceState(null, '', `#${targetId}`);
+        } else {
+          window.location.hash = `#${targetId}`;
+        }
+      });
+    });
 
-        setActive(id);
+    // Home click switches back to Home view only.
+    document.querySelectorAll('a[href="#home"], .logo').forEach((link) => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        setView('home');
 
         if (history && history.replaceState) {
-          history.replaceState(null, '', `#${id}`);
+          history.replaceState(null, '', '#home');
+        } else {
+          window.location.hash = '#home';
         }
       });
     });

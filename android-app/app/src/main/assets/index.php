@@ -34,79 +34,105 @@
 
   <header>
     <div class="nav">
-      <a href="#" class="logo" aria-label="Beanthentic home"><span>BEANTHENTIC</span></a>
+      <a href="#home" class="logo" aria-label="Beanthentic home">
+        <img
+          class="logo-mark"
+          src="beantHentic_logo.png"
+          alt="Beanthentic logo"
+        />
+        <span>BEANTHENTIC</span>
+      </a>
       <nav class="nav-links">
-        <a href="#home" id="home-nav-toggle" data-no-scroll="true">Home</a>
-        <a
-          href="#about"
-          id="about-nav-toggle"
-          class="about-nav-toggle"
-          aria-haspopup="true"
-          aria-expanded="false"
-          data-no-scroll="true"
-        >About Beanthentic</a>
-        <div
-          id="about-nav-dropdown"
-          class="about-nav-dropdown"
-          hidden
-          aria-hidden="true"
-        >
+        <a href="#home">Home</a>
+        <div class="about-nav">
           <a
-            href="#about-history-overall"
-            id="about-nav-history-toggle"
-            class="about-menu-item about-nav-item"
-            data-about-history-target="about-history-overall"
-            data-toggle-about-history-nav="true"
+            href="#about"
+            id="about-nav-toggle"
+            class="about-nav-toggle"
             aria-haspopup="true"
             aria-expanded="false"
             data-no-scroll="true"
-            data-no-loader="true"
-          >History</a>
+          >About Beanthentic</a>
 
           <div
-            id="about-history-nav-submenu"
-            class="about-history-nav-submenu"
+            id="about-nav-dropdown"
+            class="about-nav-dropdown"
             hidden
             aria-hidden="true"
           >
             <a
-              href="#about-history-liberica"
+              href="#"
+              id="about-history-toggle"
               class="about-menu-item about-nav-item"
-              data-about-history-target="about-history-liberica"
-              data-no-scroll="true"
+              role="button"
+              tabindex="0"
+              aria-expanded="false"
+              data-about-target="about-history"
               data-no-loader="true"
-            >Liberica</a>
+              data-no-scroll="true"
+            >History</a>
 
+            <div
+              id="about-history-submenu"
+              class="about-history-submenu"
+              hidden
+              aria-hidden="true"
+            >
+              <a
+                href="#about-liberica"
+                class="about-menu-item about-nav-item about-history-subitem"
+                data-about-target="about-liberica"
+                data-no-loader="true"
+                data-no-scroll="true"
+              >Liberica</a>
+              <a
+                href="#about-robusta"
+                class="about-menu-item about-nav-item about-history-subitem"
+                data-about-target="about-robusta"
+                data-no-loader="true"
+                data-no-scroll="true"
+              >Robusta</a>
+              <a
+                href="#about-excelsa"
+                class="about-menu-item about-nav-item about-history-subitem"
+                data-about-target="about-excelsa"
+                data-no-loader="true"
+                data-no-scroll="true"
+              >Excelsa</a>
+            </div>
             <a
-              href="#about-history-robusta"
+              href="#about-mission-vision"
               class="about-menu-item about-nav-item"
-              data-about-history-target="about-history-robusta"
-              data-no-scroll="true"
+              data-about-target="about-mission-vision"
               data-no-loader="true"
-            >Robusta</a>
-
+            >Mission and Vision</a>
             <a
-              href="#about-history-excelsa"
+              href="#about-how-to-get-there"
               class="about-menu-item about-nav-item"
-              data-about-history-target="about-history-excelsa"
-              data-no-scroll="true"
+              data-about-target="about-how-to-get-there"
               data-no-loader="true"
-            >Excelsa</a>
+            >How to Get There</a>
           </div>
-
-          <a
-            href="#about-mission-vision"
-            class="about-menu-item about-nav-item"
-            data-about-target="about-mission-vision"
-            data-no-scroll="true"
-            data-no-loader="true"
-          >Mission and Vision</a>
         </div>
+        <a href="#">Dashboard</a>
       </nav>
     </div>
   </header>
 
   <main class="home-layout">
+    <aside id="home-sidebar" class="home-sidebar" aria-label="Homepage sidebar">
+      <h2>Explore</h2>
+      <nav class="sidebar-links">
+        <a href="#home">Home</a>
+        <a href="#about" class="sidebar-about-toggle" data-toggle-about-submenu="true" data-no-scroll="true" aria-expanded="false">About Beanthentic</a>
+        <div id="about-sidebar-submenu" class="sidebar-submenu" aria-hidden="true">
+          <a href="#about-history" class="about-menu-item" data-about-target="about-history" data-no-scroll="true" data-no-loader="true">History</a>
+          <a href="#about-mission-vision" class="about-menu-item" data-about-target="about-mission-vision" data-no-scroll="true" data-no-loader="true">Mission and Vision</a>
+        </div>
+        <a href="#">Dashboard</a>
+      </nav>
+    </aside>
+
     <div class="home-main-content">
     <section id="home" class="hero">
       <div>
@@ -116,9 +142,7 @@
           authenticity of their coffee beans. It showcases different coffee varieties such as Liberica, Robusta, and Excelsa, allowing consumers to
           learn about the origin, quality, and unique characteristics of each bean.
         </p>
-        <div class="hero-cta">
-          <p class="hero-note"><strong>Explore the origins of authentic coffee beans and the farmers behind every harvest</strong>.</p>
-        </div>
+        
         <div class="hero-slider" aria-label="Featured images">
           <div class="hero-slider-viewport">
             <div class="hero-slider-track" role="list">
@@ -147,87 +171,70 @@
       </div>
     </section>
 
-    <section id="about" hidden>
+    <section id="about-mission-vision">
       <div class="about-grid">
         <article class="about-card">
-          <h3 class="about-main-title">Mission and Vision</h3>
-
-          <div class="about-content" aria-label="About Beanthentic content">
-            <div id="about-overview" class="about-topic is-active" data-about-panel="about">
-              <p>
-                Beanthentic is an innovative platform designed to support coffee farmers and promote authentic, high-quality coffee.
-                It helps verify the origin and authenticity of coffee products while ensuring transparency and traceability within the coffee industry.
-              </p>
-              <p>
-                Beanthentic integrates modern technology with agricultural practices to evaluate Geographic Indication (GI) eligibility and provide reliable data about coffee farms, production, and quality.
-              </p>
-            </div>
-            <div id="about-history" class="about-topic" data-about-panel="about-history">
-              <div class="about-split about-history-split" aria-label="History submenu and content">
-                <aside class="about-menu about-history-menu" aria-label="History menu">
-                  <div class="about-menu-title">History</div>
-                  <a
-                    href="#about-history-liberica"
-                    class="about-menu-item about-history-menu-item is-active"
-                    data-about-history-target="about-history-liberica"
-                    data-no-scroll="true"
-                    data-no-loader="true"
-                  >Liberica</a>
-                  <a
-                    href="#about-history-robusta"
-                    class="about-menu-item about-history-menu-item"
-                    data-about-history-target="about-history-robusta"
-                    data-no-scroll="true"
-                    data-no-loader="true"
-                  >Robusta</a>
-                  <a
-                    href="#about-history-excelsa"
-                    class="about-menu-item about-history-menu-item"
-                    data-about-history-target="about-history-excelsa"
-                    data-no-scroll="true"
-                    data-no-loader="true"
-                  >Excelsa</a>
-                </aside>
-
-                <div class="about-content" aria-label="History content">
-                  <div id="about-history-liberica" class="about-topic is-active" data-about-history-panel="about-history-liberica">
-                    <h4>Liberica</h4>
-                    <p>
-                      Liberica became known for its bold character and distinct aroma. Beanthetic tracks its cultivation practices to
-                      help consumers understand its origin and quality traits.
-                    </p>
-                  </div>
-
-                  <div id="about-history-robusta" class="about-topic" data-about-history-panel="about-history-robusta">
-                    <h4>Robusta</h4>
-                    <p>
-                      Robusta is widely grown for its strength and resilience. Through Beanthetic, farmers can record production details
-                      and build traceability across each harvest.
-                    </p>
-                  </div>
-
-                  <div id="about-history-excelsa" class="about-topic" data-about-history-panel="about-history-excelsa">
-                    <h4>Excelsa</h4>
-                    <p>
-                      Excelsa stands out for its unique flavor profile and growing requirements. Beanthetic preserves these details to
-                      support authenticity and informed choices.
-                    </p>
-                  </div>
-                </div>
+          <div class="about-pill"><span class="about-pill-dot"></span><span>Liberica</span></div>
+          <div class="about-topic is-active" data-about-panel="about-mission-vision">
+            <h4>Mission and Vision</h4>
+            <p>Beanthentic's mission and vision guide how we support local coffee farmers through authentic, traceable, and technology-driven coffee systems.</p>
+            <img
+              class="mission-vision-image"
+              src="mission_vision_about.png"
+              alt="Beanthentic mission and vision"
+            />
+          </div>
+          <div class="about-topic" data-about-panel="about-liberica">
+            <h4>The Coffea Liberica</h4>
+            <p>Although most coffee aficionados are well-versed in Arabica and Robusta varieties, there exists a lesser-known third species of coffee bean: Liberica. This particular variety constitutes approximately 2% of global coffee consumption; however, most of this consumption transpires in the nation where Liberica coffee enjoys considerable popularity: the Philippines (Earl of Coffee, 2020).</p>
+            <p>Liberica, or Liberian coffee (Coffea liberica), is frequently referred to as the "third coffee crop species" (after Coffea arabica and Coffea canephora). A commonly misquoted statistic suggests that Liberica comprises approximately 1 per cent of the global coffee supply; however, the production output of this species remains minuscule when compared with that of Arabica and Robusta. Although, during the latter portion of the 19th century, Liberica was positioned alongside Arabica as the second most significant species in the coffee trade (Ralph, 2023), this status has diminished over time.</p>
+            <p>Liberica, a coffee species from Liberia (West Africa), was introduced with remarkable scale and efficiency beginning in the early 1870s. This introduction primarily responded to the devastating coffee leaf rust epidemic that severely impacted Arabica plantations in Sri Lanka. However, shortly thereafter, Liberica was utilized to expand coffee production into low-elevation tropical regions where climatic conditions-characterized by excessive heat and moisture-rendered Arabica cultivation untenable. Consequently, Liberica has cultivated a steadfast following in the Philippines, Malaysia, and Indonesia. Due to an outbreak of coffee rust disease in various regions, the Philippines emerged as one of the foremost exporters of this rare coffee species. This development was significant because Liberica effectively addressed the demand for coffee in areas where Arabica could not flourish.</p>
+            <img
+              class="liberica-types-image"
+              src="liberica_types.png"
+              alt="Types of coffee beans including Liberica"
+            />
+            <p>Researchers, governmental authorities, and cultivators appreciate the dimensions and vigor of Liberica. Liberica beans, which are notably larger, possess an irregular morphology in contrast to Arabica and Robusta beans. They are celebrated for their unique, smoky, and fruity profiles, often infused with subtle floral and woody undertones. Furthermore, these plants are resilient; they can endure elevated temperatures. This distinct flavor profile sets them apart from conventional coffee varieties. There exist multiple varieties of Liberica. These are:</p>
+            <h4>1. Standard or Traditional Liberica</h4>
+            <p>The term "Traditional" or "Standard" Liberica refers to the original and unaltered manifestation of Liberica that thrives naturally in the geographic regions of West Africa and Southeast Asia. It is, indeed, categorically distinct from its counterparts, Arabica and Robusta, particularly when considering variables such as bean size, shape, flavor profile, and resilience. The beans characteristic of Liberica are notably larger than those produced by Arabica and Robusta, presenting an asymmetrical, oval, or almond-like morphology with a pointed apex. However, its structural integrity is more pronounced, showcasing greater hardness and density; this renders the processing of such beans somewhat more arduous.</p>
+            <p>This particular variety of Liberica is indigenous to West Africa-most prominently Liberia, Nigeria, and the Ivory Coast. In contemporary times, it is also cultivated in Ghana and various Southeast Asian localities, specifically in Batangas and Cavite within the Philippines, as well as Johor in Malaysia and regions such as Borneo and Sumatra in Indonesia. It is now predominantly enjoyed within local coffee cultures and is frequently incorporated into coffee blends to augment complexity. This burgeoning interest in specialty coffee markets can be attributed to its distinctive flavor profile, creating a revival because of its unique characteristics.</p>
+            <h4>2. Kapeng Barako (Barako Coffee)</h4>
+            <div class="barako-split">
+              <div class="barako-split-text">
+                <p>Kapeng Barako is a distinct Filipino variety of Coffea liberica, renowned for its potent, robust and fragrant profile. Primarily cultivated in the provinces of Batangas and Cavite within the Philippines, this coffee holds profound cultural and historical relevance.</p>
+                <p>This variety was initially introduced to Batangas at Sitio Abra, situated between Banay-banay of San Jose and Banay-banay of Lipa of the notable Manuel Genato-Agoncillo. According to Morada (1925), the seeds were meticulously planted and nurtured across a three-hectare estate. Subsequently, they disseminated the harvested seeds not only in Batangas (Lipa and Rosario), Laguna (San Pablo), and Quezon (Sariaya and Tiaong) but also in some adjacent towns.</p>
+                <p>Kapeng Barako's beans are comparatively larger than Arabica and Robusta, characterized by an almond shape and asymmetry. Farmers perform specialized processing of Kapeng Barako because the beans exhibit greater hardness and density.</p>
               </div>
+              <img
+                class="barako-image"
+                src="kapeng_barako.png"
+                alt="Kapeng Barako coffee cherries"
+              />
             </div>
-
-            <div id="about-mission-vision" class="about-topic" data-about-panel="about-mission-vision">
-              <div class="mv-banner-wrap" aria-label="Mission and Vision banner">
+            <h4>TYPES OF LIBERICA</h4>
+            <h4>1. Johor Liberica</h4>
+            <div class="johor-split">
+              <div class="johor-split-side">
                 <img
-                  class="mv-banner-img"
-                  src="mission_vision_banner.png"
-                  alt="Mission and Vision"
+                  class="johor-image"
+                  src="johor_liberica.png"
+                  alt="Johor Liberica coffee cherries"
+                />
+              </div>
+              <p><strong>Origin/History:</strong> Johor liberica is a unique Liberica coffee cultivar grown in Johor, Malaysia, one of the few places worldwide producing it commercially. It is known for its smooth, nutty, and chocolatey flavor, making it more refined than the robust, smoky Kapeng Barako from the Philippines.</p>
+              <p><strong>Facts:</strong> The beans are asymmetrical, oval, and almond-shaped. The coffee has nutty and dark chocolate notes with floral and fruity undertones. It is less smoky and bitter than traditional Liberica, offering a smoother, milder experience with a rich, subtly sweet aroma. Johor produces over 90% of Malaysia's coffee and is gaining attention in specialty coffee circles for its distinctive taste.</p>
+              <div class="borneo-inline">
+                <h4>2. Borneo Liberica</h4>
+                <p><strong>Origin/History:</strong> Borneo liberica is a rare Liberica coffee grown on the island of Borneo, including Sabah and Sarawak in Malaysia, Kalimantan in Indonesia, and Brunei. It thrives in lowland tropical forests, and its unique mild, fruity, and floral flavor comes from these specific environmental conditions. Small-scale farms maintain its cultivation, with Malaysia and Indonesia promoting it as a specialty coffee, though it remains a niche variety internationally.</p>
+                <p><strong>Facts:</strong> The coffee has a mild, intricate profile with fruity and floral aromas, hints of tropical fruits, caramel, and subtle spices, and a wine-like acidity. It is less smoky and bitter than traditional Liberica. Beans are naturally processed and sun-dried to enhance sweetness. Borneo Liberica is often brewed via pour-over, drip, or espresso, and sometimes blended with Arabica or Robusta for balance. Experimental fermentation techniques are used to further develop its distinctive flavor.</p>
+                <img
+                  class="borneo-image"
+                  src="borneo_liberica.png"
+                  alt="Borneo Liberica coffee cherries"
                 />
               </div>
             </div>
           </div>
-
         </article>
       </div>
     </section>

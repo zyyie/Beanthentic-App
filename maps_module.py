@@ -1,12 +1,64 @@
 from flask import render_template_string, jsonify
 import csv
 import os
+import re
+
+
+_BARANGAY_SKIP_KEYS = frozenset({
+    "address (barangay)",
+    "batangas",
+    "lipa city",
+    "c-leaseholder",
+    "d-seasonal farm worker",
+})
+
+# CSV spellings / variants → official key in get_barangay_coordinates (one pin per barangay)
+_BARANGAY_ALIASES_TO_OFFICIAL = {
+    "pinagtong ulan": "Pinagtong-Ulan",
+    "pinagtong-ulan": "Pinagtong-Ulan",
+    "pinagtongulan": "Pinagtong-Ulan",
+    "sto nino": "Santo Niño",
+    "sto. nino": "Santo Niño",
+    "mataas na kahoy": "Mataasnakahoy",
+    "pag-olingin west": "Pagolingin",
+    "pag olingin west": "Pagolingin",
+    "sto. toribio": "Santo Toribio",
+    "sto toribio": "Santo Toribio",
+    "malagonlong": "Malagonlong",
+    "rizal/ p. bata": "Rizal",
+}
+
 
 class MapsModule:
     def __init__(self, app):
         self.app = app
         self.setup_routes()
     
+    def _barangay_match_key(self, s):
+        s = (s or "").strip()
+        s = re.sub(r"(?i)^barangay\s+", "", s)
+        s = re.sub(r"\s+", " ", s)
+        return s.lower()
+
+    def _resolve_barangay(self, raw, barangay_coords):
+        """Return (display_name, coords) using one canonical barangay key."""
+        raw = (raw or "").strip()
+        if not raw:
+            return "Unknown", barangay_coords.get("Lipa City Proper", {"lat": 13.9414, "lng": 121.1605})
+        key = self._barangay_match_key(raw)
+        if key in _BARANGAY_SKIP_KEYS:
+            return None, None
+        official = _BARANGAY_ALIASES_TO_OFFICIAL.get(key)
+        if official and official in barangay_coords:
+            return official, barangay_coords[official]
+        if raw in barangay_coords:
+            return raw, barangay_coords[raw]
+        for name in barangay_coords:
+            if self._barangay_match_key(name) == key:
+                return name, barangay_coords[name]
+        disp = raw
+        return disp, barangay_coords.get(disp, {"lat": 13.9414, "lng": 121.1605})
+
     def setup_routes(self):
         """Setup routes for maps module"""
         
@@ -162,8 +214,11 @@ class MapsModule:
                     if not farmer_name or not barangay:
                         continue
                     
-                    # Get coordinates for barangay
-                    coords = barangay_coords.get(barangay, {"lat": 13.9414, "lng": 121.1605})
+                    canon, coords = self._resolve_barangay(barangay, barangay_coords)
+                    if canon is None:
+                        continue
+                    
+                    barangay = canon
                     
                     # Extract production data (columns for Liberica, Excelsa, Robusta)
                     varieties = []
@@ -254,19 +309,17 @@ class MapsModule:
         for i, b in enumerate(sorted(by.keys()), start=1):
             agg = by[b]
             varieties = sorted(agg["varieties"]) or ["Robusta"]
-            n = agg["farm_count"]
             area = agg["total_area"]
             prod = agg["total_production"]
             desc = (
-                f"Barangay {b} — coffee-growing area in Lipa City. "
-                f"This pin shows where to go; the dataset lists {n} farm record(s) here. "
-                f"Varieties reported: {', '.join(varieties)}. "
+                f"Barangay {b} is a coffee-growing area in Lipa City. "
+                f"Varieties grown here include {', '.join(varieties)}."
             )
             if area > 0:
-                desc += f"Combined farm area (where reported): about {area:.2f} hectares. "
+                desc += f" Combined farm area (where reported): about {area:.2f} hectares."
             if prod > 0:
-                desc += f"Approx. combined annual production (where reported): {prod:.0f} kg. "
-            desc += "Individual farmer names are not shown on the map."
+                desc += f" Approx. combined annual production (where reported): {prod:.0f} kg."
+            n = agg["farm_count"]
             out.append({
                 "id": i,
                 "barangay": b,
@@ -275,7 +328,7 @@ class MapsModule:
                 "farm_name": b,
                 "farm_count": n,
                 "varieties": varieties,
-                "description": desc,
+                "description": desc.strip(),
             })
         return out
     
@@ -295,8 +348,8 @@ class MapsModule:
                     "farm_count": 1,
                     "varieties": ["Robusta"],
                     "description": (
-                        "Barangay Pinagtong-Ulan — sample location. "
-                        "Individual farmer names are not shown on the map."
+                        "Barangay Pinagtong-Ulan is a coffee-growing area in Lipa City. "
+                        "Varieties grown here include Robusta."
                     ),
                 }
             ]
@@ -715,33 +768,229 @@ class MapsModule:
         }
         
         .legend-marker {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #8B4513;
-            border: 2px solid #fff;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            width: 14px;
+            height: 18px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='18' viewBox='0 0 20 26'%3E%3Cpath fill='%23147539' stroke='%23ffffff' stroke-width='1.2' d='M10 1.2c-4.02 0-7.2 3.18-7.2 7.1 0 4.65 7.2 14.7 7.2 14.7s7.2-10.05 7.2-14.7c0-3.92-3.18-7.1-7.2-7.1z'/%3E%3Ccircle cx='10' cy='8.3' r='2.35' fill='%23ffffff'/%3E%3C/svg%3E") center/contain no-repeat;
+            filter: drop-shadow(0 1px 2px rgba(0,0,0,0.25));
         }
         
-        .coffee-marker {
-            background: #8B4513;
-            border: 2px solid white;
-            border-radius: 50%;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            width: 28px;
-            height: 28px;
+        #map {
+            --popup-scale: 1;
         }
         
-        .coffee-marker .cup {
-            color: white;
-            font-size: 13px;
-            line-height: 1;
+        .coffee-marker.leaflet-div-icon {
+            background: transparent !important;
+            border: none !important;
+        }
+        
+        .barangay-pin-svg {
+            display: block;
+            line-height: 0;
+            filter: drop-shadow(0 1px 3px rgba(0,0,0,0.35));
         }
         
         .selected-farm {
-            background: #147539 !important;
-            color: white !important;
-            border: 2px solid #147539 !important;
+            background: linear-gradient(155deg, #147539 0%, #0b5c2e 100%) !important;
+            color: #f8fafc !important;
+            border: 1px solid rgba(255,255,255,0.35) !important;
+            box-shadow: 0 8px 24px rgba(20, 117, 57, 0.35);
+        }
+        
+        .farm-card.selected-farm .farm-name {
+            color: #ffffff !important;
+        }
+        
+        .farm-card.selected-farm .farm-location {
+            color: rgba(248, 250, 252, 0.92) !important;
+        }
+        
+        .farm-card.selected-farm .farm-description {
+            color: rgba(252, 252, 252, 0.98) !important;
+        }
+        
+        .farm-card.selected-farm .variety-tag {
+            background: rgba(255, 255, 255, 0.22) !important;
+            color: #ffffff !important;
+            border: 1px solid rgba(255, 255, 255, 0.45) !important;
+        }
+        
+        .beanthentic-popup .leaflet-popup-content-wrapper {
+            padding: 0;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 32px rgba(17, 24, 39, 0.2);
+            max-width: min(calc(100vw - 24px), calc(200px + 130px * var(--popup-scale))) !important;
+        }
+        
+        .beanthentic-popup .leaflet-popup-content {
+            margin: 0;
+            width: auto !important;
+            min-width: 0;
+        }
+        
+        /* Leaflet sets .leaflet-container a { color: #0078A8 } — higher specificity for action buttons */
+        .leaflet-container .beanthentic-popup a.bp-btn,
+        .leaflet-container .beanthentic-popup a.bp-btn:hover,
+        .leaflet-container .beanthentic-popup a.bp-btn:visited,
+        .leaflet-container .beanthentic-popup a.bp-btn:focus,
+        .leaflet-container .beanthentic-popup a.bp-btn:active {
+            color: #ffffff !important;
+            text-decoration: none !important;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .leaflet-container .beanthentic-popup a.bp-btn-primary:hover {
+            filter: brightness(1.08);
+        }
+        
+        .leaflet-container .beanthentic-popup a.bp-btn-secondary:hover {
+            filter: brightness(1.1);
+        }
+        
+        .bp-popup {
+            max-width: min(calc(100vw - 24px), calc(200px + 130px * var(--popup-scale)));
+            box-sizing: border-box;
+        }
+        
+        .bp-popup-header {
+            background: linear-gradient(145deg, #147539 0%, #0a3d1f 100%);
+            padding: calc(10px * var(--popup-scale)) calc(12px * var(--popup-scale));
+        }
+        
+        .bp-popup-header h3 {
+            margin: 0;
+            font-size: calc(15px * var(--popup-scale));
+            font-weight: 600;
+            color: #ffffff !important;
+            line-height: 1.25;
+        }
+        
+        .bp-popup-header .bp-sub {
+            margin: 5px 0 0 0;
+            font-size: calc(11px * var(--popup-scale));
+            color: rgba(248, 250, 252, 0.95) !important;
+            line-height: 1.35;
+        }
+        
+        .bp-badge {
+            flex-shrink: 0;
+            background: rgba(255,255,255,0.22);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: calc(9px * var(--popup-scale));
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #ffffff !important;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        
+        .bp-popup-body {
+            padding: calc(8px * var(--popup-scale)) calc(10px * var(--popup-scale)) calc(10px * var(--popup-scale));
+            background: #ffffff;
+            max-height: min(42vh, calc(240px + 80px * var(--popup-scale)));
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+        }
+        
+        .bp-section {
+            margin-bottom: calc(7px * var(--popup-scale));
+        }
+        
+        .bp-section:last-of-type {
+            margin-bottom: calc(5px * var(--popup-scale));
+        }
+        
+        .bp-h4 {
+            margin: 0 0 6px 0;
+            font-size: calc(10px * var(--popup-scale));
+            font-weight: 700;
+            color: #374151;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        
+        .bp-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        
+        .bp-tag {
+            background: rgba(20, 117, 57, 0.12);
+            color: #0f3d24;
+            border: 1px solid rgba(20, 117, 57, 0.28);
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: calc(10px * var(--popup-scale));
+            font-weight: 600;
+        }
+        
+        .bp-about {
+            margin: 0;
+            color: #374151;
+            font-size: calc(12px * var(--popup-scale));
+            line-height: 1.5;
+        }
+        
+        .bp-preview-wrap {
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .bp-preview-img {
+            width: 100%;
+            height: auto;
+            max-height: 88px;
+            object-fit: cover;
+            display: block;
+            background: #f3f4f6;
+        }
+        
+        .bp-coords {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 5px 8px;
+            text-align: center;
+            font-size: calc(10px * var(--popup-scale));
+        }
+        
+        .bp-popup-footer {
+            padding: 0 calc(10px * var(--popup-scale)) calc(10px * var(--popup-scale));
+            background: #ffffff;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .bp-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        
+        .bp-btn {
+            flex: 1;
+            min-width: 96px;
+            text-align: center;
+            text-decoration: none !important;
+            padding: calc(8px * var(--popup-scale)) 10px;
+            border-radius: 8px;
+            font-size: calc(11px * var(--popup-scale));
+            font-weight: 600;
+            color: #ffffff !important;
+            display: inline-block;
+            box-sizing: border-box;
+        }
+        
+        .bp-btn-primary {
+            background: #147539;
+            color: #ffffff !important;
+        }
+        
+        .bp-btn-secondary {
+            background: #4b5563;
+            color: #ffffff !important;
         }
         
         .loading {
@@ -951,6 +1200,69 @@ class MapsModule:
             d.textContent = s;
             return d.innerHTML;
         }
+        
+        function getPopupScale() {
+            if (!map) return 1;
+            const z = map.getZoom();
+            const zoomPart = Math.max(0.56, Math.min(1.02, 1.14 - (z - 10) * 0.065));
+            const vhPart = Math.min(1.08, Math.max(0.88, window.innerHeight / 720));
+            return zoomPart * vhPart;
+        }
+        
+        function applyPopupScale() {
+            const el = document.getElementById('map');
+            if (el) el.style.setProperty('--popup-scale', getPopupScale().toFixed(3));
+        }
+        
+        function popupBindingOptions() {
+            const s = getPopupScale();
+            const cap = Math.min(window.innerWidth - 24, 340);
+            const w = Math.max(200, Math.min(cap, Math.round(195 + 135 * s)));
+            return { className: 'beanthentic-popup', maxWidth: w };
+        }
+        
+        function createBarangayPinIcon() {
+            const html = '<div class="barangay-pin-svg" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="26" viewBox="0 0 20 26"><path fill="#147539" stroke="#ffffff" stroke-width="1.25" d="M10 1.25c-4.04 0-7.25 3.21-7.25 7.15 0 4.7 7.25 14.85 7.25 14.85s7.25-10.15 7.25-14.85c0-3.94-3.21-7.15-7.25-7.15z"/><circle cx="10" cy="8.35" r="2.4" fill="#fff"/></svg></div>';
+            return L.divIcon({
+                html,
+                className: 'coffee-marker',
+                iconSize: [20, 26],
+                iconAnchor: [10, 26],
+                popupAnchor: [0, -24]
+            });
+        }
+        
+        function buildPopupHtml(props, latlng) {
+            const pname = escapeHtml(props.name);
+            const pbar = escapeHtml(props.barangay);
+            const pdesc = escapeHtml(props.description);
+            const lat = latlng.lat;
+            const lng = latlng.lng;
+            const staticMap = 'https://staticmap.openstreetmap.de/staticmap.php?center=' + lat + ',' + lng + '&zoom=15&size=240x96&maptype=mapnik';
+            return (
+                '<div class="bp-popup">' +
+                '<div class="bp-popup-header">' +
+                '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">' +
+                '<div><h3>' + pname + '</h3>' +
+                '<p class="bp-sub">📍 ' + pbar + ' · Lipa City</p></div>' +
+                '<span class="bp-badge">Barangay</span></div></div>' +
+                '<div class="bp-popup-body">' +
+                '<div class="bp-section"><h4 class="bp-h4">Varieties</h4><div class="bp-tags">' +
+                (props.varieties || []).map(function(v) { return '<span class="bp-tag">' + escapeHtml(v) + '</span>'; }).join('') +
+                '</div></div>' +
+                '<div class="bp-section"><h4 class="bp-h4">About</h4><p class="bp-about">' + pdesc + '</p></div>' +
+                '<div class="bp-section"><h4 class="bp-h4">Preview</h4><div class="bp-preview-wrap">' +
+                '<img class="bp-preview-img" src="' + staticMap + '" alt="" width="240" height="96" loading="lazy" decoding="async" />' +
+                '<div class="bp-coords">' + lat.toFixed(5) + ', ' + lng.toFixed(5) + '</div></div></div>' +
+                '</div>' +
+                '<div class="bp-popup-footer">' +
+                '<div class="bp-actions">' +
+                '<a class="bp-btn bp-btn-primary" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=' + lat + ',' + lng + '" target="_blank" rel="noopener noreferrer">Street View</a>' +
+                '<a class="bp-btn bp-btn-secondary" href="https://www.google.com/maps/search/?api=1&query=' + lat + ',' + lng + '" target="_blank" rel="noopener noreferrer">Google Maps</a>' +
+                '</div></div></div>'
+            );
+        }
+        
         function refreshIcons(root) {
             if (window.lucide) lucide.createIcons({ attrs: { 'stroke-width': 2 }, root: root || document.body });
         }
@@ -1008,46 +1320,22 @@ class MapsModule:
         }
         
         function addCoffeeMarkers() {
-            // Add coffee cup markers for fallback mode
-            const coffeeIcon = L.divIcon({
-                html: '<div style="background: #8B4513; color: white; width: 28px; height: 28px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center;"><span class="cup" style="font-size:14px;line-height:1">☕</span></div>',
-                iconSize: [28, 28],
-                className: 'coffee-marker',
-                iconAnchor: [14, 14],
-                popupAnchor: [0, -14]
-            });
+            const coffeeIcon = createBarangayPinIcon();
+            applyPopupScale();
             
             farms.forEach(farm => {
                 const marker = L.marker([farm.latitude, farm.longitude], { icon: coffeeIcon })
                     .addTo(map);
                 
-                // Create popup content with working street view links
-                const popupContent = `
-                    <div style="padding: 10px; max-width: 250px;">
-                        <h4 style="margin: 0 0 8px 0; color: #1f2937;">${escapeHtml(farm.farm_name)}</h4>
-                        <p style="margin: 4px 0; color: #6b7280; font-size: 14px;">
-                            📍 ${escapeHtml(farm.barangay)}
-                        </p>
-                        <div style="margin: 8px 0;">
-                            ${farm.varieties.map(v => `<span style="background: #f3f4f6; padding: 2px 6px; border-radius: 10px; font-size: 12px; margin-right: 4px;">${escapeHtml(v)}</span>`).join('')}
-                        </div>
-                        <p style="margin: 8px 0 0 0; color: #6b7280; font-size: 13px; line-height: 1.4;">${escapeHtml(farm.description)}</p>
-                        <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #e5e7eb;">
-                            <a href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${farm.latitude},${farm.longitude}" 
-                               target="_blank" rel="noopener noreferrer"
-                               style="color: #147539; text-decoration: none; font-size: 12px; font-weight: 500; display: inline-block; margin-right: 10px;">
-                                Street View
-                            </a>
-                            <a href="https://www.google.com/maps/search/?api=1&query=${farm.latitude},${farm.longitude}" 
-                               target="_blank" rel="noopener noreferrer"
-                               style="color: #147539; text-decoration: none; font-size: 12px; font-weight: 500;">
-                                Open in Maps
-                            </a>
-                        </div>
-                    </div>
-                `;
+                const ll = L.latLng(farm.latitude, farm.longitude);
+                const popupContent = buildPopupHtml({
+                    name: farm.farm_name,
+                    barangay: farm.barangay,
+                    description: farm.description,
+                    varieties: farm.varieties
+                }, ll);
                 
-                marker.bindPopup(popupContent);
+                marker.bindPopup(popupContent, popupBindingOptions());
                 marker.on('click', () => selectFarm(farm.id));
                 
                 marker.farmId = farm.id;
@@ -1083,73 +1371,17 @@ class MapsModule:
             if (map && geojson) {
                 L.geoJSON(geojson, {
                     pointToLayer: function(feature, latlng) {
-                        // Create coffee bean/leaf icon
-                        const coffeeIcon = L.divIcon({
-                            html: '<div style="background: #8B4513; width: 24px; height: 24px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; font-size: 12px; position: relative;"><div style="background: #654321; width: 12px; height: 12px; border-radius: 50%; position: absolute; top: 6px; left: 6px;"></div><div style="background: #228B22; width: 8px; height: 8px; border-radius: 50%; position: absolute; top: 8px; left: 8px;"></div></div>',
-                            iconSize: [28, 28],
-                            className: 'coffee-marker',
-                            iconAnchor: [14, 14],
-                            popupAnchor: [0, -14]
-                        });
-                        
+                        const coffeeIcon = createBarangayPinIcon();
                         const marker = L.marker(latlng, { icon: coffeeIcon });
+                        const props = feature.properties;
+                        const popupContent = buildPopupHtml({
+                            name: props.name,
+                            barangay: props.barangay,
+                            description: props.description,
+                            varieties: props.varieties
+                        }, latlng);
                         
-                        // Create compact professional popup content
-                        const pname = escapeHtml(feature.properties.name);
-                        const pbar = escapeHtml(feature.properties.barangay);
-                        const fc = feature.properties.farm_count || 1;
-                        const pdesc = escapeHtml(feature.properties.description);
-                        const staticMap = 'https://staticmap.openstreetmap.de/staticmap.php?center=' + latlng.lat + ',' + latlng.lng + '&zoom=15&size=240x128&maptype=mapnik';
-                        const popupContent = `
-                            <div style="padding: 0; max-width: 268px; font-family: 'DM Sans', system-ui, sans-serif;">
-                                <div style="background: linear-gradient(135deg, #8B4513 0%, #654321 100%); color: white; padding: 12px 16px; border-radius: 8px 8px 0 0;">
-                                    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 8px;">
-                                        <div>
-                                            <h3 style="margin: 0; font-size: 16px; font-weight: 600;">${pname}</h3>
-                                            <p style="margin: 4px 0 0 0; font-size: 12px; opacity: 0.95;">📍 ${pbar} · ${fc} farm record(s) in data</p>
-                                        </div>
-                                        <span style="background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;">Barangay</span>
-                                    </div>
-                                </div>
-                                <div style="padding: 14px 16px 16px;">
-                                    <div style="margin-bottom: 12px;">
-                                        <h4 style="margin: 0 0 6px 0; font-size: 12px; font-weight: 600; color: #374151; text-transform: uppercase; letter-spacing: 0.04em;">Varieties</h4>
-                                        <div style="display: flex; flex-wrap: wrap; gap: 4px;">
-                                            ${feature.properties.varieties.map(v => `
-                                                <span style="background: #147539; color: white; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 500;">
-                                                    ${escapeHtml(v)}
-                                                </span>
-                                            `).join('')}
-                                        </div>
-                                    </div>
-                                    <div style="margin-bottom: 12px;">
-                                        <h4 style="margin: 0 0 6px 0; font-size: 12px; font-weight: 600; color: #374151;">About</h4>
-                                        <p style="margin: 0; color: #6b7280; font-size: 12px; line-height: 1.45;">${pdesc}</p>
-                                    </div>
-                                    <div style="margin-bottom: 12px;">
-                                        <h4 style="margin: 0 0 6px 0; font-size: 12px; font-weight: 600; color: #374151;">Preview</h4>
-                                        <div style="border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb;">
-                                            <img src="${staticMap}" alt="Map preview" width="240" height="128" style="width: 100%; height: auto; display: block; object-fit: cover;" loading="lazy">
-                                            <div style="background: #1f2937; color: white; padding: 6px 8px; text-align: center; font-size: 11px;">
-                                                ${latlng.lat.toFixed(5)}, ${latlng.lng.toFixed(5)}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: stretch;">
-                                        <a href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${latlng.lat},${latlng.lng}" target="_blank" rel="noopener noreferrer"
-                                           style="flex: 1; min-width: 120px; text-align: center; background: #147539; color: white; text-decoration: none; padding: 10px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;">
-                                            Street View
-                                        </a>
-                                        <a href="https://www.google.com/maps/search/?api=1&query=${latlng.lat},${latlng.lng}" target="_blank" rel="noopener noreferrer"
-                                           style="flex: 1; min-width: 120px; text-align: center; background: #4b5563; color: white; text-decoration: none; padding: 10px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;">
-                                            Google Maps
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                        
-                        marker.bindPopup(popupContent);
+                        marker.bindPopup(popupContent, popupBindingOptions());
                         marker.on('click', () => selectFarm(feature.properties.id));
                         marker.farmId = feature.properties.id;
                         markers.push(marker);
@@ -1211,6 +1443,9 @@ class MapsModule:
                 metric: true,
                 imperial: false
             }).addTo(map);
+            
+            applyPopupScale();
+            map.on('zoom zoomend', applyPopupScale);
         }
         
         function populateFarmList() {
@@ -1218,7 +1453,7 @@ class MapsModule:
             const farmCards = farms.map(farm => `
                 <div class="farm-card" onclick="selectFarm(${farm.id})" id="farm-${farm.id}">
                     <div class="farm-name">Barangay ${escapeHtml(farm.farm_name)}</div>
-                    <div class="farm-location">${farm.farm_count || 1} farm record(s) · Lipa City</div>
+                    <div class="farm-location">Lipa City · Coffee-growing barangay</div>
                     <div class="farm-varieties">
                         ${farm.varieties.map(v => `<span class="variety-tag">${escapeHtml(v)}</span>`).join('')}
                     </div>

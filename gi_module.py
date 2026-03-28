@@ -47,6 +47,8 @@ def validate_farmer_payload(data):
         errors["name"] = "Enter your full legal name (at least 3 characters)."
     elif len(name) > 120:
         errors["name"] = "Name must be at most 120 characters."
+    elif not any(ch.isalpha() for ch in name):
+        errors["name"] = "Name must include letters (a real person’s name, not numbers-only or symbols)."
     if not EMAIL_RE.match(email):
         errors["email"] = "Enter a valid email address."
     if not phone:
@@ -57,8 +59,12 @@ def validate_farmer_payload(data):
         errors["region"] = "Select a valid region from the list."
     if len(province) < 2 or len(province) > 80:
         errors["province"] = "Province must be 2–80 characters."
+    elif re.fullmatch(r"\d+", province.strip()):
+        errors["province"] = "Enter a valid province name (not numbers only)."
     if len(municipality) < 2 or len(municipality) > 80:
         errors["municipality"] = "City or municipality must be 2–80 characters."
+    elif re.fullmatch(r"\d+", municipality.strip()):
+        errors["municipality"] = "Enter a valid city or municipality (not numbers only)."
     if len(farm_address) < 20 or len(farm_address) > 500:
         errors["farm_address"] = "Enter the complete farm address (at least 20 characters): sitio/purok, barangay, landmarks."
 
@@ -1179,7 +1185,7 @@ class GIModule:
                     <i data-lucide="user-plus"></i>
                     Register Farm
                 </button>
-                <button type="button" class="tab" onclick="showTab('apply', this)" role="tab" aria-selected="false">
+                <button type="button" class="tab" id="tabGiApply" onclick="showTab('apply', this)" role="tab" aria-selected="false" title="Available after successful farmer registration">
                     <i data-lucide="file-text"></i>
                     Apply for GI
                 </button>
@@ -1477,12 +1483,15 @@ class GIModule:
             let farm_size = d.farm_size;
             if (name.length < 3) err.name = 'Enter your full legal name (at least 3 characters).';
             else if (name.length > 120) err.name = 'Name must be at most 120 characters.';
+            else if (!/[A-Za-z]/.test(name)) err.name = 'Name must include letters (not numbers-only).';
             if (!EMAIL_RE.test(email)) err.email = 'Enter a valid email address.';
             if (!phone) err.phone = 'Mobile number is required (09XXXXXXXXX).';
             else if (!/^09\\d{9}$/.test(phone)) err.phone = 'Use Philippine mobile format: 09XXXXXXXXX.';
             if (!PH_REGIONS.has(region)) err.region = 'Select a valid region.';
             if (province.length < 2 || province.length > 80) err.province = 'Province must be 2–80 characters.';
+            else if (/^\\d+$/.test(province)) err.province = 'Enter a valid province name (not numbers only).';
             if (municipality.length < 2 || municipality.length > 80) err.municipality = 'City or municipality must be 2–80 characters.';
+            else if (/^\\d+$/.test(municipality)) err.municipality = 'Enter a valid city or municipality (not numbers only).';
             if (farm_address.length < 20 || farm_address.length > 500) err.farm_address = 'Farm address must be at least 20 characters (complete sitio/purok and landmarks).';
             if (farm_size !== '' && farm_size != null) {
                 const fs = parseFloat(farm_size);
@@ -1536,7 +1545,20 @@ class GIModule:
                 }
             });
 
+        const GI_REG_OK = 'gi_registration_ok';
+        const GI_FARMER_ID = 'gi_farmer_id';
+
+        function hasCompletedRegistration() {
+            return sessionStorage.getItem(GI_REG_OK) === '1';
+        }
+
         function showTab(tabName, btn) {
+            if (tabName === 'apply' && !hasCompletedRegistration()) {
+                showAlert('Complete Step 1 first: register your farm with all required fields marked with * and submit successfully. You will then be able to apply for GI.', 'error');
+                const regBtn = document.querySelector('.tab[onclick*="register"]');
+                if (regBtn) { regBtn.focus(); }
+                return;
+            }
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.querySelectorAll('.tab').forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
             const panel = document.getElementById(tabName);
@@ -1544,6 +1566,11 @@ class GIModule:
             if (btn) {
                 btn.classList.add('active');
                 btn.setAttribute('aria-selected', 'true');
+            }
+            if (tabName === 'apply') {
+                const fid = sessionStorage.getItem(GI_FARMER_ID);
+                const inp = document.getElementById('farmerId');
+                if (fid && inp && !inp.value.trim()) inp.value = fid;
             }
             refreshIcons();
         }
@@ -1579,7 +1606,9 @@ class GIModule:
             .then(({ ok, body }) => {
                 if (body.success) {
                     farmerId = body.farmer_id;
-                    showAlert('Registration successful! Your Farmer ID is: ' + farmerId, 'success');
+                    sessionStorage.setItem(GI_REG_OK, '1');
+                    sessionStorage.setItem(GI_FARMER_ID, String(farmerId));
+                    showAlert('Registration successful! Your Farmer ID is: ' + farmerId + '. You may now open the Apply for GI tab.', 'success');
                     this.reset();
                     clearErrors(this);
                 } else {
@@ -1592,6 +1621,10 @@ class GIModule:
 
         document.getElementById('applicationForm').addEventListener('submit', function(e) {
             e.preventDefault();
+            if (!hasCompletedRegistration()) {
+                showAlert('Complete farmer registration first (Step 1) and submit successfully before applying for GI.', 'error');
+                return;
+            }
             clearErrors(this);
             const fd = new FormData(this);
             const data = Object.fromEntries(fd.entries());

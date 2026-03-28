@@ -3,8 +3,8 @@
 header {
   position: sticky;
   top: 0;
-  z-index: 10;
-  background: #147539; /* user-selected coffee green */
+  z-index: 30;
+  background: #2e6f1c; /* updated navbar green */
   border-bottom: 1px solid rgba(0, 0, 0, 0.25);
   padding-top: env(safe-area-inset-top);
 }
@@ -12,10 +12,12 @@ header {
 .nav {
   max-width: 1100px;
   margin: 0 auto;
-  padding: 0.55rem 1.5rem;
-  display: flex;
+  padding: 0.8rem 1.5rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
+  gap: 0.5rem 0.75rem;
+  position: relative;
 }
 
 .logo {
@@ -27,6 +29,39 @@ header {
   font-size: 1rem;
   text-transform: uppercase;
   color: #fdfaf6;
+  min-width: 0;
+}
+
+.logo span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@keyframes logoPopIn {
+  0% {
+    transform: translateY(10px) scale(0.6);
+    opacity: 0;
+  }
+  60% {
+    transform: translateY(-2px) scale(1.12);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.logo-mark {
+  width: 64px;
+  height: 48px;
+  object-fit: cover;
+  /* Crop away the bottom text, keep the icon area */
+  object-position: center top;
+  display: block;
+  animation: logoPopIn 0.55s ease-out 0.05s both;
 }
 
 .logo-img {
@@ -44,6 +79,31 @@ header {
   filter: none;
 }
 
+
+/* Main nav links — row on desktop, collapsible panel on narrow screens */
+.nav-menu-toggle {
+  display: inline-flex;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid rgba(253, 250, 246, 0.35);
+  background: rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 5px;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.nav-menu-toggle-line {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: #fdfaf6;
+  border-radius: 999px;
+}
 
 /* Large text “Menu” / “Close” — no confusing X icon (farmer-friendly) */
 .nav-toggle {
@@ -79,7 +139,238 @@ header {
 }
 
 .nav-links {
+  grid-column: 1 / -1;
+  display: none;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.35rem;
+  font-size: 0.95rem;
+  padding: 0.5rem 0 0.25rem;
+  margin: 0;
+  list-style: none;
+}
+
+.nav-links.is-open {
   display: flex;
+}
+
+.nav-mobile-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: rgba(12, 7, 3, 0.4);
+  border: 0;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  pointer-events: none;
+}
+
+.nav-mobile-overlay.is-visible {
+  display: block;
+  pointer-events: auto;
+}
+
+body.nav-menu-open {
+  overflow: hidden;
+}
+
+@media (min-width: 901px) {
+  .nav {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .nav-menu-toggle {
+    display: none !important;
+  }
+
+  .nav-links {
+    grid-column: auto;
+    display: flex !important;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 1.5rem;
+    padding: 0;
+  }
+
+  .nav-links.is-open {
+    display: flex !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .nav-links {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 6px);
+    z-index: 31;
+    background: #215e14;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 0 0 12px 12px;
+    border-top: 1px solid rgba(0, 0, 0, 0.15);
+    padding: 0.65rem 0.85rem 0.75rem;
+    margin-top: 0;
+  }
+
+  .logo-mark {
+    width: 48px;
+    height: 40px;
+  }
+
+  .logo {
+    font-size: 0.82rem;
+    letter-spacing: 0.06em;
+  }
+
+  .nav-links .about-nav {
+    width: 100%;
+  }
+
+  .nav-links > a {
+    padding: 0.55rem 0.4rem;
+    border-radius: 10px;
+  }
+
+  .about-nav-dropdown {
+    position: static;
+    left: auto;
+    right: auto;
+    top: auto;
+    width: 100%;
+    margin-top: 0.35rem;
+    max-height: min(55vh, 360px);
+  }
+}
+
+/* Top bar burger (mobile) */
+.sidebar-burger {
+  display: inline-flex;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid rgba(253, 250, 246, 0.35);
+  background: rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 5px;
+  padding: 0;
+}
+
+.sidebar-burger-line {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: #fdfaf6;
+  border-radius: 999px;
+  margin: 0;
+}
+
+.home-sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(12, 7, 3, 0.35);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 55;
+}
+
+.home-sidebar-overlay.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+body.no-scroll {
+  overflow: hidden;
+}
+
+/* About dropdown (top nav) */
+.about-nav {
+  position: relative;
+}
+
+.about-nav-toggle {
+  position: relative;
+}
+
+.about-nav-toggle[aria-expanded="true"]::after {
+  /* Use the same underline as other nav links */
+  width: 100%;
+}
+
+.about-nav-dropdown {
+  position: absolute;
+  left: 0;
+  right: auto;
+  top: calc(100% + 10px);
+  width: 260px;
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid rgba(20, 117, 57, 0.18);
+  border-radius: 14px;
+  box-shadow: 0 18px 40px rgba(61, 33, 16, 0.18);
+  padding: 0.35rem 0;
+  z-index: 70;
+  max-height: min(70vh, 420px);
+  overflow: auto;
+}
+
+.about-nav-dropdown .about-nav-item {
+  /* Use about-menu-item base look, but without the right arrow. */
+  display: block;
+}
+
+.about-nav-dropdown .about-menu-item::after {
+  /* Remove the right-side arrow indicator entirely in top-nav dropdown. */
+  content: none !important;
+}
+
+.about-nav-dropdown .about-menu-item {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border-radius: 0;
+  border: 0;
+  background: transparent;
+  color: #147539;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+.about-nav-dropdown .about-menu-item:hover {
+  background: rgba(20, 117, 57, 0.08);
+}
+
+.about-nav-dropdown .about-menu-item.is-active {
+  background: rgba(20, 117, 57, 0.1);
+  color: #0b3d2e;
+}
+
+.about-history-submenu {
+  padding: 0.15rem 0.75rem 0.5rem;
+  display: grid;
+  gap: 0.3rem;
+}
+
+.about-history-submenu[hidden] {
+  display: none;
+}
+
+.about-history-submenu .about-history-subitem {
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  cursor: pointer;
   gap: 1.5rem;
   font-size: 0.95rem;
   align-items: center;
@@ -127,14 +418,123 @@ header {
   width: 100%;
 }
 
+.nav-links a.active {
+  font-weight: 600;
+}
+
+/* Homepage sidebar layout */
+.home-layout {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.2rem;
+  align-items: start;
+}
+
+.home-main-content {
+  min-width: 0;
+}
+
+.home-sidebar {
+  position: sticky;
+  top: 74px;
+  width: auto;
+  transform: none;
+  pointer-events: auto;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(198, 157, 125, 0.45);
+  border-radius: 14px;
+  padding: 0.9rem;
+  box-shadow: 0 10px 24px rgba(78, 45, 21, 0.12);
+}
+
+.home-sidebar.is-drawer-open {
+  /* no-op on desktop: sidebar is always visible */
+  transform: none;
+}
+
+.home-sidebar h2 {
+  font-size: 0.88rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #5c3925;
+  margin-bottom: 0.6rem;
+}
+
+.sidebar-links {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.sidebar-links a {
+  font-size: 0.9rem;
+  color: #4d372b;
+  border-radius: 10px;
+  padding: 0.45rem 0.55rem;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.sidebar-links a:hover {
+  background: rgba(20, 117, 57, 0.1);
+  color: #1f6d38;
+}
+
+.sidebar-links a.active {
+  background: linear-gradient(135deg, rgba(11, 61, 46, 0.95), rgba(62, 166, 66, 0.95));
+  color: #fdfaf6;
+  font-weight: 600;
+}
+
+/* About expandable toggle arrow (homepage sidebar) */
+.home-sidebar .sidebar-about-toggle {
+  position: relative;
+  padding-right: 2.2rem;
+}
+
+.home-sidebar .sidebar-about-toggle::after {
+  content: "›";
+  position: absolute;
+  right: 0.85rem;
+  top: 50%;
+  transform: translateY(-50%) rotate(0deg);
+  transition: transform 0.2s ease;
+  font-size: 1.15rem;
+  color: currentColor;
+  pointer-events: none;
+}
+
+.home-sidebar .sidebar-about-toggle[aria-expanded="true"]::after {
+  transform: translateY(-50%) rotate(90deg);
+}
+
+/* Slide down submenu (Home sidebar -> About) */
+.home-sidebar .sidebar-submenu {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transform: translateY(-6px);
+  transition: max-height 0.25s ease, opacity 0.18s ease, transform 0.25s ease;
+  pointer-events: none;
+}
+
+.home-sidebar .sidebar-submenu.is-open {
+  max-height: 220px;
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
 /* Footer */
 footer {
   margin-top: 3rem;
   padding: 1.5rem max(1.5rem, env(safe-area-inset-left)) max(2.5rem, calc(1.5rem + env(safe-area-inset-bottom))) max(1.5rem, env(safe-area-inset-right));
   border-top: 1px solid rgba(0, 0, 0, 0.06);
   font-size: 0.83rem;
-  color: #7a6a5f;
-  background: linear-gradient(to bottom, rgba(246, 237, 228, 0.9), #f2e7dd);
+  color: #fdfaf6;
+  background: #2e6f1c;
+  border-top-color: rgba(255, 255, 255, 0.18);
 }
 
 .footer-inner {

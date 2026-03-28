@@ -47,6 +47,12 @@ class Navigation {
       const href = anchor.getAttribute('href');
       if (!href || href === '#') return;
 
+      // Allow other UI handlers to control certain anchors.
+      // (Used for About submenu toggle and About history/mission switching.)
+      if (anchor.hasAttribute('data-no-scroll') || anchor.dataset.noScroll === 'true' || anchor.hasAttribute('data-toggle-about-submenu')) {
+        return;
+      }
+
       const target = document.querySelector(href);
       if (!target) return;
 
@@ -72,10 +78,8 @@ class Navigation {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           navLinks.forEach(link => link.classList.remove('active'));
-          const activeLink = document.querySelector(`.nav-links a[href="#${entry.target.id}"]`);
-          if (activeLink) {
-            activeLink.classList.add('active');
-          }
+          const activeLinks = document.querySelectorAll(`.nav-links a[href="#${entry.target.id}"]`);
+          activeLinks.forEach(link => link.classList.add('active'));
         }
       });
     }, observerOptions);

@@ -1,4 +1,4 @@
-# Beanthentic – Android app (homepage only)
+A# Beanthentic – Android app (homepage only)
 
 Android project: Beanthentic homepage sa isang WebView, walang server. Hero images from internet kapag may data.
 

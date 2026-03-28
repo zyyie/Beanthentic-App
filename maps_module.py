@@ -773,6 +773,12 @@ class MapsModule:
             to { transform: rotate(360deg); }
         }
         
+        .loading i {
+            font-size: 2rem;
+            margin-right: 1rem;
+            animation: none;
+        }
+        
         .api-notice {
             background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
             border: 1px solid rgba(245, 158, 11, 0.35);

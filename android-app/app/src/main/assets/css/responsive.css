@@ -1,6 +1,28 @@
 /* Responsive styles */
 
 @media (max-width: 860px) {
+  .home-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .home-sidebar {
+    position: static;
+    top: auto;
+    left: auto;
+    right: auto;
+    width: auto;
+    max-width: none;
+    z-index: auto;
+    transform: none;
+    transition: none;
+    pointer-events: auto;
+    display: block;
+  }
+
+  .sidebar-links {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
   .hero {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -19,6 +41,15 @@
 
   header {
     position: static;
+  }
+
+  .about-split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .about-menu {
+    position: static;
+    top: auto;
   }
 }
 
@@ -66,6 +97,14 @@
 }
 
 @media (max-width: 640px) {
+  .home-layout {
+    padding-inline: 1.1rem;
+  }
+
+  .sidebar-links {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .nav-links {
     font-size: 0.92rem;
   }
@@ -84,13 +123,21 @@
     text-align: center;
   }
 
-  main {
+  main:not(.home-layout) {
     padding-inline: 1.1rem;
     padding-top: 1.5rem;
   }
 
   footer {
     padding-inline: 1.1rem;
+  }
+
+  .about-grid {
+    padding-inline: 0;
+  }
+
+  .about-card {
+    padding: 1rem;
   }
 
   .footer-inner {

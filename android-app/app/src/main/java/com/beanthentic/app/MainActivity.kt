@@ -6,11 +6,13 @@ import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.os.SystemClock
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
+import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -150,21 +152,7 @@ class MainActivity : AppCompatActivity() {
                     // Show exit prompt.
                     if (exitDialog?.isShowing == true) return
 
-                    exitDialog = AlertDialog.Builder(this@MainActivity)
-                        .setTitle(getString(R.string.app_name))
-                        .setMessage("What do you want to do?")
-                        .setNegativeButton("Cancel") { d, _ -> d.dismiss() }
-                        .setNeutralButton("Minimize") { d, _ ->
-                            d.dismiss()
-                            moveTaskToBack(true)
-                        }
-                        .setPositiveButton("Exit") { d, _ ->
-                            d.dismiss()
-                            finishAffinity()
-                        }
-                        .create()
-
-                    exitDialog?.show()
+                    showExitOptionsDialog()
                 }
             }
         )
@@ -183,10 +171,18 @@ class MainActivity : AppCompatActivity() {
 
         var loadStartTimeMs = 0L
         var hideScheduled = false
-        var minVisibleMs = 1200L
+        var minVisibleMs = 300L
         var progressReached100 = false
-        val maxFallbackMs = 5000L
+        val maxFallbackMs = 2000L
         var hideRunnable: Runnable? = null
+
+        fun stripFragment(url: String?): String = (url ?: "").substringBefore('#')
+
+        fun isInPageAnchorNavigation(currentUrl: String?, requestUrl: String?): Boolean {
+            val req = requestUrl ?: return false
+            if (!req.contains("#")) return false
+            return stripFragment(req) == stripFragment(currentUrl)
+        }
 
         fun showLoading() {
             hideScheduled = false
@@ -228,13 +224,22 @@ class MainActivity : AppCompatActivity() {
                     view: WebView?,
                     request: WebResourceRequest?
                 ): Boolean {
-                    // Any navigation inside the WebView should show loading.
-                    showLoading()
+                    // Avoid blocking UI for in-page hash navigation (About tabs, etc.).
+                    val currentUrl = view?.url
+                    val requestUrl = request?.url?.toString()
+                    val samePageAnchorNav = isInPageAnchorNavigation(currentUrl, requestUrl)
+                    if (!samePageAnchorNav) {
+                        showLoading()
+                    }
                     return false
                 }
 
                 override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
-                    showLoading()
+                    // Keep hash-only updates smooth and interactive.
+                    val samePageAnchorNav = isInPageAnchorNavigation(view?.url, url)
+                    if (!samePageAnchorNav) {
+                        showLoading()
+                    }
                     super.onPageStarted(view, url, favicon)
                 }
 
@@ -272,4 +277,81 @@ class MainActivity : AppCompatActivity() {
             bounceAnimatorSet.cancel()
         }
     }
+
+    private fun showExitOptionsDialog() {
+        val card = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(20), dp(20), dp(20), dp(16))
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                cornerRadius = dp(22).toFloat()
+                setColor(Color.WHITE)
+            }
+        }
+
+        val title = TextView(this).apply {
+            text = getString(R.string.app_name)
+            setTextColor(Color.parseColor("#111827"))
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f)
+            paint.isFakeBoldText = true
+        }
+
+        val message = TextView(this).apply {
+            text = "What do you want to do?"
+            setTextColor(Color.parseColor("#374151"))
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f)
+            setPadding(0, dp(10), 0, dp(16))
+        }
+
+        val actions = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER
+        }
+
+        val buttonLayoutParams = LinearLayout.LayoutParams(0, dp(46), 1f).apply {
+            marginStart = dp(6)
+            marginEnd = dp(6)
+        }
+
+        fun createActionButton(label: String, colorHex: String, onClick: () -> Unit): Button {
+            return Button(this).apply {
+                text = label
+                setAllCaps(false)
+                setTextColor(Color.WHITE)
+                setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f)
+                background = GradientDrawable().apply {
+                    shape = GradientDrawable.RECTANGLE
+                    cornerRadius = dp(23).toFloat()
+                    setColor(Color.parseColor(colorHex))
+                }
+                layoutParams = buttonLayoutParams
+                setOnClickListener { onClick() }
+            }
+        }
+
+        val cancelBtn = createActionButton("Cancel", "#6B7280") {
+            exitDialog?.dismiss()
+        }
+        val exitBtn = createActionButton("Exit", "#059669") {
+            exitDialog?.dismiss()
+            finishAffinity()
+        }
+
+        actions.addView(cancelBtn)
+        actions.addView(exitBtn)
+
+        card.addView(title)
+        card.addView(message)
+        card.addView(actions)
+
+        exitDialog = AlertDialog.Builder(this)
+            .setView(card)
+            .setCancelable(true)
+            .create()
+
+        exitDialog?.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        exitDialog?.show()
+    }
+
+    private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
 }

@@ -3,7 +3,7 @@
 header {
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 30;
   background: #2e6f1c; /* updated navbar green */
   border-bottom: 1px solid rgba(0, 0, 0, 0.25);
 }
@@ -12,9 +12,10 @@ header {
   max-width: 1100px;
   margin: 0 auto;
   padding: 0.8rem 1.5rem;
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
+  gap: 0.5rem 0.75rem;
   position: relative;
 }
 
@@ -27,6 +28,14 @@ header {
   font-size: 1rem;
   text-transform: uppercase;
   color: #fdfaf6;
+  min-width: 0;
+}
+
+.logo span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 @keyframes logoPopIn {
@@ -70,10 +79,141 @@ header {
 }
 
 
+/* Main nav links — row on desktop, collapsible panel on narrow screens */
+.nav-menu-toggle {
+  display: inline-flex;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid rgba(253, 250, 246, 0.35);
+  background: rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 5px;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.nav-menu-toggle-line {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: #fdfaf6;
+  border-radius: 999px;
+}
+
 .nav-links {
-  display: flex;
-  gap: 1.5rem;
+  grid-column: 1 / -1;
+  display: none;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.35rem;
   font-size: 0.95rem;
+  padding: 0.5rem 0 0.25rem;
+  margin: 0;
+  list-style: none;
+}
+
+.nav-links.is-open {
+  display: flex;
+}
+
+.nav-mobile-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: rgba(12, 7, 3, 0.4);
+  border: 0;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  pointer-events: none;
+}
+
+.nav-mobile-overlay.is-visible {
+  display: block;
+  pointer-events: auto;
+}
+
+body.nav-menu-open {
+  overflow: hidden;
+}
+
+@media (min-width: 901px) {
+  .nav {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .nav-menu-toggle {
+    display: none !important;
+  }
+
+  .nav-links {
+    grid-column: auto;
+    display: flex !important;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 1.5rem;
+    padding: 0;
+  }
+
+  .nav-links.is-open {
+    display: flex !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .nav-links {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 6px);
+    z-index: 31;
+    background: #215e14;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 0 0 12px 12px;
+    border-top: 1px solid rgba(0, 0, 0, 0.15);
+    padding: 0.65rem 0.85rem 0.75rem;
+    margin-top: 0;
+  }
+
+  .logo-mark {
+    width: 48px;
+    height: 40px;
+  }
+
+  .logo {
+    font-size: 0.82rem;
+    letter-spacing: 0.06em;
+  }
+
+  .nav-links .about-nav {
+    width: 100%;
+  }
+
+  .nav-links > a {
+    padding: 0.55rem 0.4rem;
+    border-radius: 10px;
+  }
+
+  .about-nav-dropdown {
+    position: static;
+    left: auto;
+    right: auto;
+    top: auto;
+    width: 100%;
+    margin-top: 0.35rem;
+    max-height: min(55vh, 360px);
+  }
 }
 
 /* Top bar burger (mobile) */
@@ -251,7 +391,7 @@ body.no-scroll {
   margin: 0 auto;
   padding: 2rem 1.5rem 3rem;
   display: grid;
-  grid-template-columns: 220px minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: 1.2rem;
   align-items: start;
 }

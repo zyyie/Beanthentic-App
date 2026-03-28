@@ -32,6 +32,7 @@
     <div style="margin-top:12px; color:#777777; font-family:inherit; font-size:14px;">Please wait for a moment.</div>
   </div>
 
+  <button type="button" id="nav-mobile-overlay" class="nav-mobile-overlay" hidden aria-hidden="true" tabindex="-1"></button>
   <header>
     <div class="nav">
       <a href="#home" class="logo" aria-label="Beanthentic home">
@@ -42,7 +43,19 @@
         />
         <span>BEANTHENTIC</span>
       </a>
-      <nav class="nav-links">
+      <button
+        type="button"
+        id="nav-menu-toggle"
+        class="nav-menu-toggle"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="main-nav-links"
+      >
+        <span class="nav-menu-toggle-line" aria-hidden="true"></span>
+        <span class="nav-menu-toggle-line" aria-hidden="true"></span>
+        <span class="nav-menu-toggle-line" aria-hidden="true"></span>
+      </button>
+      <nav class="nav-links" id="main-nav-links">
         <a href="#home">Home</a>
         <div class="about-nav">
           <a
@@ -114,25 +127,14 @@
             >How to Get There</a>
           </div>
         </div>
-        <a href="#">Dashboard</a>
+        <a href="#about-mission-vision" data-no-loader="true">Dashboard</a>
+        <a href="login.php" data-no-loader="true">Login</a>
+        <a href="signup.php" data-no-loader="true">Sign up</a>
       </nav>
     </div>
   </header>
 
   <main class="home-layout">
-    <aside id="home-sidebar" class="home-sidebar" aria-label="Homepage sidebar">
-      <h2>Explore</h2>
-      <nav class="sidebar-links">
-        <a href="#home">Home</a>
-        <a href="#about" class="sidebar-about-toggle" data-toggle-about-submenu="true" data-no-scroll="true" aria-expanded="false">About Beanthentic</a>
-        <div id="about-sidebar-submenu" class="sidebar-submenu" aria-hidden="true">
-          <a href="#about-history" class="about-menu-item" data-about-target="about-history" data-no-scroll="true" data-no-loader="true">History</a>
-          <a href="#about-mission-vision" class="about-menu-item" data-about-target="about-mission-vision" data-no-scroll="true" data-no-loader="true">Mission and Vision</a>
-        </div>
-        <a href="#">Dashboard</a>
-      </nav>
-    </aside>
-
     <div class="home-main-content">
     <section id="home" class="hero">
       <div>
@@ -234,6 +236,15 @@
                 />
               </div>
             </div>
+          </div>
+          <div class="about-topic" data-about-panel="about-how-to-get-there">
+            <h4>How to Get There</h4>
+            <p>Coffee Bean Farms in Lipa City, Batangas can be reached by land transportation from Manila and other nearby areas via Sto. Tomas and Tanauan, Batangas. It is accessible through buses, jeepneys, and other public utility vehicles passing along South Luzon Expressway (SLEX) and Maharlika Highway going to Lipa City. The usual route follows Manila to Sto. Tomas, Sto. Tomas to Tanauan, and Tanauan to Lipa City proper. Travel time is approximately 2 to 3 hours depending on traffic conditions.</p>
+            <p>Commuting options include buses and jeepneys that regularly ply routes from Manila to Batangas. From Manila, passengers may ride buses bound for Lipa City or Batangas Grand Terminal. These buses pass through Sto. Tomas and Tanauan before reaching Lipa City. Jeepneys are also available for inter-town travel once inside Batangas.</p>
+            <p>The major terminals in the area are the following:</p>
+            <p>Buendia Bus Terminals (Manila)<br>Sto. Tomas Public Terminal<br>Tanauan City Transport Terminal<br>Lipa City Grand Terminal</p>
+            <p>These terminals are utilized for passenger transport and the movement of goods and services between Metro Manila and Batangas, as well as within nearby municipalities.</p>
+            <p>The transport system in Lipa City is supported by buses, jeepneys, and tricycles that accommodate passengers going to commercial and agricultural destinations such as Coffee Bean Farms. These vehicles operate daily with regular trips along the Manila-Sto. Tomas-Tanauan-Lipa route, ensuring convenient access for commuters and visitors.</p>
           </div>
         </article>
       </div>

@@ -14,7 +14,69 @@ class UIController {
     this.setupHomepageSidebarDrawer();
     this.setupAboutNavDropdown();
     this.setupAboutMenu();
+    this.setupMobileMainNav();
     this.loadYear();
+  }
+
+  setupMobileMainNav() {
+    const toggle = document.getElementById('nav-menu-toggle');
+    const navLinks = document.getElementById('main-nav-links');
+    const overlay = document.getElementById('nav-mobile-overlay');
+    if (!toggle || !navLinks) return;
+
+    const isDesktop = () => window.matchMedia('(min-width: 901px)').matches;
+
+    const close = () => {
+      navLinks.classList.remove('is-open');
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.setAttribute('aria-label', 'Open menu');
+      if (overlay) {
+        overlay.classList.remove('is-visible');
+        overlay.hidden = true;
+        overlay.setAttribute('aria-hidden', 'true');
+      }
+      document.body.classList.remove('nav-menu-open');
+    };
+
+    const open = () => {
+      navLinks.classList.add('is-open');
+      toggle.setAttribute('aria-expanded', 'true');
+      toggle.setAttribute('aria-label', 'Close menu');
+      if (overlay) {
+        overlay.classList.add('is-visible');
+        overlay.hidden = false;
+        overlay.setAttribute('aria-hidden', 'false');
+      }
+      document.body.classList.add('nav-menu-open');
+    };
+
+    toggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (isDesktop()) return;
+      if (navLinks.classList.contains('is-open')) close();
+      else open();
+    });
+
+    if (overlay) {
+      overlay.addEventListener('click', () => close());
+    }
+
+    window.addEventListener('resize', () => {
+      if (isDesktop()) close();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') close();
+    });
+
+    // Close on link selection (keep About toggles open until user picks a destination)
+    navLinks.addEventListener('click', (e) => {
+      if (isDesktop()) return;
+      const a = e.target && e.target.closest ? e.target.closest('a') : null;
+      if (!a || !navLinks.contains(a)) return;
+      if (a.id === 'about-nav-toggle' || a.id === 'about-history-toggle') return;
+      setTimeout(close, 80);
+    });
   }
 
   setupAboutNavDropdown() {
@@ -340,6 +402,13 @@ class UIController {
         if (!id) return;
 
         setActive(id);
+
+        // Keep About navigation behavior consistent: every About item
+        // should bring the About section into view.
+        const aboutSection = document.getElementById('about-mission-vision');
+        if (aboutSection && typeof aboutSection.scrollIntoView === 'function') {
+          aboutSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
 
         // Update hash without jumping the page.
         if (history && history.replaceState) {

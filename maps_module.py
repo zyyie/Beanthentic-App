@@ -589,12 +589,7 @@ class MapsModule:
         .loading i {
             font-size: 2rem;
             margin-right: 1rem;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+            animation: none;
         }
         
         .api-notice {

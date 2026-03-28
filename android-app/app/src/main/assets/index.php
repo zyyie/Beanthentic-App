@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#2e6f1c" />
   <title>Beanthentic Coffee</title>
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">
@@ -21,7 +22,7 @@
     }
   </style>
 </head>
-<body>
+<body class="has-app-bottom-nav">
   <!-- Loading overlay (shown on open and on navigation clicks) -->
   <div id="page-loader" style="position:fixed; inset:0; background:#ffffff; display:flex; align-items:center; justify-content:center; flex-direction:column; z-index:99999;">
     <img
@@ -32,7 +33,6 @@
     <div style="margin-top:12px; color:#777777; font-family:inherit; font-size:14px;">Please wait for a moment.</div>
   </div>
 
-  <button type="button" id="nav-mobile-overlay" class="nav-mobile-overlay" hidden aria-hidden="true" tabindex="-1"></button>
   <header>
     <div class="nav">
       <a href="#home" class="logo" aria-label="Beanthentic home">
@@ -45,92 +45,13 @@
       </a>
       <button
         type="button"
-        id="nav-menu-toggle"
-        class="nav-menu-toggle"
-        aria-label="Open menu"
-        aria-expanded="false"
-        aria-controls="main-nav-links"
+        id="header-notifications-btn"
+        class="header-notifications-btn"
+        aria-label="Notifications"
+        title="Notifications"
       >
-        <span class="nav-menu-toggle-line" aria-hidden="true"></span>
-        <span class="nav-menu-toggle-line" aria-hidden="true"></span>
-        <span class="nav-menu-toggle-line" aria-hidden="true"></span>
+        <svg class="header-notifications-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
       </button>
-      <nav class="nav-links" id="main-nav-links">
-        <a href="#home">Home</a>
-        <div class="about-nav">
-          <a
-            href="#about"
-            id="about-nav-toggle"
-            class="about-nav-toggle"
-            aria-haspopup="true"
-            aria-expanded="false"
-            data-no-scroll="true"
-          >About Beanthentic</a>
-
-          <div
-            id="about-nav-dropdown"
-            class="about-nav-dropdown"
-            hidden
-            aria-hidden="true"
-          >
-            <a
-              href="#"
-              id="about-history-toggle"
-              class="about-menu-item about-nav-item"
-              role="button"
-              tabindex="0"
-              aria-expanded="false"
-              data-about-target="about-history"
-              data-no-loader="true"
-              data-no-scroll="true"
-            >History</a>
-
-            <div
-              id="about-history-submenu"
-              class="about-history-submenu"
-              hidden
-              aria-hidden="true"
-            >
-              <a
-                href="#about-liberica"
-                class="about-menu-item about-nav-item about-history-subitem"
-                data-about-target="about-liberica"
-                data-no-loader="true"
-                data-no-scroll="true"
-              >Liberica</a>
-              <a
-                href="#about-robusta"
-                class="about-menu-item about-nav-item about-history-subitem"
-                data-about-target="about-robusta"
-                data-no-loader="true"
-                data-no-scroll="true"
-              >Robusta</a>
-              <a
-                href="#about-excelsa"
-                class="about-menu-item about-nav-item about-history-subitem"
-                data-about-target="about-excelsa"
-                data-no-loader="true"
-                data-no-scroll="true"
-              >Excelsa</a>
-            </div>
-            <a
-              href="#about-mission-vision"
-              class="about-menu-item about-nav-item"
-              data-about-target="about-mission-vision"
-              data-no-loader="true"
-            >Mission and Vision</a>
-            <a
-              href="#about-how-to-get-there"
-              class="about-menu-item about-nav-item"
-              data-about-target="about-how-to-get-there"
-              data-no-loader="true"
-            >How to Get There</a>
-          </div>
-        </div>
-        <a href="#about-mission-vision" data-no-loader="true">Dashboard</a>
-        <a href="login.php" data-no-loader="true">Login</a>
-        <a href="signup.php" data-no-loader="true">Sign up</a>
-      </nav>
     </div>
   </header>
 
@@ -259,6 +180,41 @@
     </div>
   </footer>
 
+  <nav class="app-bottom-nav" aria-label="Quick navigation">
+    <div class="app-bottom-nav-inner">
+      <a href="#home" class="app-bottom-nav-link is-active" aria-current="page">
+        <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
+          <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </span>
+        <span class="app-bottom-nav-label">Home</span>
+      </a>
+      <a href="#about-mission-vision" class="app-bottom-nav-link">
+        <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
+          <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        </span>
+        <span class="app-bottom-nav-label">About</span>
+      </a>
+      <a href="/gi" class="app-bottom-nav-link app-bottom-nav-link--featured">
+        <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
+          <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+        </span>
+        <span class="app-bottom-nav-label">GI Portal</span>
+      </a>
+      <a href="/maps" class="app-bottom-nav-link">
+        <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
+          <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+        </span>
+        <span class="app-bottom-nav-label">Map</span>
+      </a>
+      <a href="login.php" class="app-bottom-nav-link">
+        <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
+          <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </span>
+        <span class="app-bottom-nav-label">Sign in</span>
+      </a>
+    </div>
+  </nav>
+
   <script src="js/navigation.js"></script>
   <script src="js/ui.js"></script>
 
@@ -305,6 +261,29 @@
         if (hideTimer) clearTimeout(hideTimer);
         hideTimer = null;
       });
+    })();
+  </script>
+  <script>
+    (function () {
+      function syncAppBottomNav() {
+        var bar = document.querySelector('.app-bottom-nav');
+        if (!bar) return;
+        var hash = location.hash || '#home';
+        var aboutActive = /^#about/.test(hash);
+        bar.querySelectorAll('a[href^="#"]').forEach(function (a) {
+          a.classList.remove('is-active');
+          a.removeAttribute('aria-current');
+        });
+        if (aboutActive) {
+          var ab = bar.querySelector('a[href="#about-mission-vision"]');
+          if (ab) { ab.classList.add('is-active'); ab.setAttribute('aria-current', 'page'); }
+        } else {
+          var hm = bar.querySelector('a[href="#home"]');
+          if (hm) { hm.classList.add('is-active'); hm.setAttribute('aria-current', 'page'); }
+        }
+      }
+      syncAppBottomNav();
+      window.addEventListener('hashchange', syncAppBottomNav);
     })();
   </script>
 </body>

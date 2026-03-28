@@ -432,7 +432,7 @@ class GIModule:
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#147539">
+    <meta name="theme-color" content="#2e6f1c">
     <meta name="color-scheme" content="light">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -582,31 +582,32 @@ class GIModule:
         }
         
         .header h1 {
-            font-size: 2.5rem;
+            font-size: clamp(1.35rem, 3.5vw, 1.65rem);
             font-weight: 700;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.35rem;
             text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
         .header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-            max-width: 600px;
+            font-size: 0.95rem;
+            opacity: 0.92;
+            max-width: 36rem;
             margin: 0 auto;
+            line-height: 1.45;
         }
         
         .header-icon {
             display: flex;
             justify-content: center;
-            margin-bottom: 1rem;
-            color: #86efac;
+            margin-bottom: 0.5rem;
+            color: #b8e8c4;
         }
         .header-icon svg, .card-icon svg, .back-link svg, .btn svg, .tab svg {
             width: 1.25rem;
             height: 1.25rem;
             flex-shrink: 0;
         }
-        .header-icon svg { width: 3rem; height: 3rem; }
+        .header-icon svg { width: 2rem; height: 2rem; }
         .card-icon svg { width: 1.5rem; height: 1.5rem; }
         .field-error {
             display: block;
@@ -622,7 +623,7 @@ class GIModule:
         .status-badge svg { width: 1rem; height: 1rem; vertical-align: middle; margin-right: 0.25rem; }
         
         .main-content {
-            padding: 3rem 0;
+            padding: 1.25rem 0 1.75rem;
         }
         
         .back-link {
@@ -1069,14 +1070,14 @@ class GIModule:
         
         @media (max-width: 768px) {
             .header {
-                padding: 2rem 0;
+                padding: 0.85rem 0 1rem;
             }
             .header h1 {
-                font-size: clamp(1.35rem, 5vw, 2rem);
+                font-size: clamp(1.22rem, 4.5vw, 1.45rem);
                 padding: 0 0.5rem;
             }
-            .header p { font-size: 1rem; padding: 0 0.5rem; }
-            .main-content { padding: 1.75rem 0; }
+            .header p { font-size: 0.88rem; padding: 0 0.5rem; }
+            .main-content { padding: 1rem 0 1.5rem; }
             .container { padding: 0 16px; }
             .tabs {
                 gap: 0.35rem;

@@ -439,7 +439,7 @@ class MapsModule:
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#147539">
+    <meta name="theme-color" content="#2e6f1c">
     <meta name="color-scheme" content="light">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <title>Coffee Farms Map - Lipa City | Beanthentic</title>
@@ -450,8 +450,8 @@ class MapsModule:
     <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
     <style>
         :root {
-            --brand: #147539;
-            --brand-dark: #0f5a2c;
+            --brand: #2e6f1c;
+            --brand-dark: #245818;
             --surface: #ffffff;
             --text: #111827;
             --muted: #6b7280;
@@ -473,7 +473,7 @@ class MapsModule:
             min-height: 100vh;
             min-height: 100dvh;
             padding: max(0px, env(safe-area-inset-top)) max(0px, env(safe-area-inset-right)) max(0px, env(safe-area-inset-bottom)) max(0px, env(safe-area-inset-left));
-            -webkit-tap-highlight-color: rgba(20, 117, 57, 0.12);
+            -webkit-tap-highlight-color: rgba(46, 111, 28, 0.14);
         }
         
         .container {
@@ -543,9 +543,9 @@ class MapsModule:
         }
         
         .header {
-            background: linear-gradient(135deg, #147539 0%, #0f5a2c 100%);
+            background: linear-gradient(135deg, #2e6f1c 0%, #245818 100%);
             color: white;
-            padding: 2rem 0;
+            padding: 1rem 0 1.15rem;
             position: relative;
             overflow: hidden;
         }
@@ -568,41 +568,42 @@ class MapsModule:
         }
         
         .header h1 {
-            font-size: 2.5rem;
+            font-size: clamp(1.35rem, 3.5vw, 1.65rem);
             font-weight: 700;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.35rem;
             text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
         .header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-            max-width: 600px;
+            font-size: 0.95rem;
+            opacity: 0.92;
+            max-width: 36rem;
             margin: 0 auto;
+            line-height: 1.45;
         }
         
         .header-icon {
             display: flex;
             justify-content: center;
-            margin-bottom: 1rem;
-            color: #86efac;
+            margin-bottom: 0.5rem;
+            color: #b8e8c4;
         }
         .header-icon svg, .back-link svg, .sidebar h3 svg, .api-notice svg {
             width: 1.25rem;
             height: 1.25rem;
             flex-shrink: 0;
         }
-        .header-icon svg { width: 3rem; height: 3rem; }
+        .header-icon svg { width: 2rem; height: 2rem; }
         
         .main-content {
-            padding: 2rem 0;
+            padding: 1.25rem 0 1.75rem;
         }
         
         .back-link {
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            color: #147539;
+            color: var(--brand);
             text-decoration: none;
             font-weight: 500;
             margin-bottom: 2rem;
@@ -610,7 +611,7 @@ class MapsModule:
         }
         
         .back-link:hover {
-            color: #0f5a2c;
+            color: var(--brand-dark);
             transform: translateX(-3px);
         }
         
@@ -1061,13 +1062,13 @@ class MapsModule:
             }
         }
         @media (max-width: 768px) {
-            .header { padding: 1.5rem 0; }
+            .header { padding: 0.85rem 0 1rem; }
             .header h1 {
-                font-size: clamp(1.35rem, 5vw, 2rem);
+                font-size: clamp(1.22rem, 4.5vw, 1.45rem);
                 padding: 0 0.25rem;
             }
-            .header p { font-size: 0.95rem; }
-            .main-content { padding: 1.25rem 0 2rem; }
+            .header p { font-size: 0.88rem; }
+            .main-content { padding: 1rem 0 1.5rem; }
             .stats-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
                 gap: 0.75rem;

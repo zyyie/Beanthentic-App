@@ -811,7 +811,7 @@
 }
 
 .auth-switch a {
-  color: #147539;
+  color: var(--beanthentic-green-accent, #147539);
   font-weight: 600;
 }
 

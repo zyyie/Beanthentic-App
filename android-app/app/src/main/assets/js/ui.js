@@ -185,9 +185,6 @@ class UIController {
       aboutMissionSection.setAttribute('aria-hidden', showHome ? 'true' : 'false');
     };
 
-    // Default view: Home only.
-    setView('home');
-
     const activateAboutPanel = (id) => {
       const panels = Array.from(document.querySelectorAll('.about-topic[data-about-panel]'));
       if (panels.length === 0) return;
@@ -198,15 +195,55 @@ class UIController {
       panels.forEach((p) => p.classList.toggle('is-active', p.dataset.aboutPanel === nextId));
     };
 
-    // Deep-link handling: when hash points to any About panel (e.g. about-liberica),
-    // hide Home and show About content.
-    const initialHash = (window.location.hash || '').replace('#', '');
-    if (initialHash && initialHash !== 'home' && initialHash.startsWith('about-')) {
-      setView('about');
-      activateAboutPanel(initialHash);
-    } else if (initialHash === 'home') {
-      setView('home');
-    }
+    const emitHashSync = () => {
+      window.dispatchEvent(new Event('hashchange'));
+    };
+
+    const applyHashToView = () => {
+      const h = (window.location.hash || '').replace(/^#/, '');
+      if (h && h !== 'home' && h.startsWith('about-')) {
+        setView('about');
+        activateAboutPanel(h);
+      } else {
+        setView('home');
+      }
+    };
+
+    applyHashToView();
+    window.addEventListener('hashchange', applyHashToView);
+
+    // Bottom bar & in-page links use href="#about-…" while About section may still be hidden.
+    // Run before navigation.js smooth-scroll so we unhide first (capture phase).
+    document.addEventListener(
+      'click',
+      (e) => {
+        const a = e.target.closest('a[href^="#about-"]');
+        if (!a) return;
+        if (a.dataset.noScroll === 'true' || a.hasAttribute('data-no-scroll')) return;
+        if (a.classList.contains('about-menu-item')) return;
+
+        const id = (a.getAttribute('href') || '').slice(1);
+        if (!id.startsWith('about-')) return;
+
+        e.preventDefault();
+        e.stopImmediatePropagation();
+
+        setView('about');
+        activateAboutPanel(id);
+
+        requestAnimationFrame(() => {
+          aboutMissionSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+
+        if (history && history.replaceState) {
+          history.replaceState(null, '', `#${id}`);
+          emitHashSync();
+        } else {
+          window.location.hash = `#${id}`;
+        }
+      },
+      true
+    );
 
     document.querySelectorAll('.about-menu-item[data-about-target]').forEach((item) => {
       item.addEventListener('click', (e) => {
@@ -217,13 +254,13 @@ class UIController {
         activateAboutPanel(targetId);
         if (history && history.replaceState) {
           history.replaceState(null, '', `#${targetId}`);
+          emitHashSync();
         } else {
           window.location.hash = `#${targetId}`;
         }
       });
     });
 
-    // Home click switches back to Home view only.
     document.querySelectorAll('a[href="#home"], .logo').forEach((link) => {
       link.addEventListener('click', (e) => {
         e.preventDefault();
@@ -231,6 +268,7 @@ class UIController {
 
         if (history && history.replaceState) {
           history.replaceState(null, '', '#home');
+          emitHashSync();
         } else {
           window.location.hash = '#home';
         }

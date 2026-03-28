@@ -437,6 +437,7 @@ class GIModule:
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>GI Portal - Beanthentic Coffee</title>
+    <link rel="stylesheet" href="/android-app/app/src/main/assets/css/layout.css">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
     <style>
         * {
@@ -1107,7 +1108,7 @@ class GIModule:
         }
     </style>
 </head>
-<body>
+<body class="has-app-bottom-nav">
     <div class="header">
         <div class="container">
             <div class="header-content">
@@ -1770,6 +1771,41 @@ class GIModule:
 
         document.addEventListener('DOMContentLoaded', function() { refreshIcons(); });
     </script>
+
+    <nav class="app-bottom-nav" aria-label="Quick navigation">
+        <div class="app-bottom-nav-inner">
+            <a href="/#home" class="app-bottom-nav-link">
+                <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
+                    <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                </span>
+                <span class="app-bottom-nav-label">Home</span>
+            </a>
+            <a href="/#about-mission-vision" class="app-bottom-nav-link">
+                <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
+                    <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                </span>
+                <span class="app-bottom-nav-label">About</span>
+            </a>
+            <a href="/gi" class="app-bottom-nav-link app-bottom-nav-link--featured is-active" aria-current="page">
+                <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
+                    <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                </span>
+                <span class="app-bottom-nav-label">GI Portal</span>
+            </a>
+            <a href="/maps" class="app-bottom-nav-link">
+                <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
+                    <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+                </span>
+                <span class="app-bottom-nav-label">Map</span>
+            </a>
+            <a href="/login.html" class="app-bottom-nav-link">
+                <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
+                    <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </span>
+                <span class="app-bottom-nav-label">Sign in</span>
+            </a>
+        </div>
+    </nav>
 </body>
 </html>
         '''

@@ -15,6 +15,7 @@ class UIController {
     this.setupAboutNavDropdown();
     this.setupAboutMenu();
     this.setupMobileMainNav();
+    this.setupHeaderNotifications();
     this.loadYear();
   }
 
@@ -76,6 +77,14 @@ class UIController {
       if (!a || !navLinks.contains(a)) return;
       if (a.id === 'about-nav-toggle' || a.id === 'about-history-toggle') return;
       setTimeout(close, 80);
+    });
+  }
+
+  setupHeaderNotifications() {
+    const btn = document.getElementById('header-notifications-btn');
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+      this.showNotification('No new notifications yet.', 'info');
     });
   }
 

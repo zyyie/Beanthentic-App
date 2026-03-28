@@ -1,8 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#147539" />
+  <meta name="color-scheme" content="light" />
   <title>Beanthentic Coffee</title>
   <link rel="stylesheet" href="android-app/app/src/main/assets/css/base.css">
   <link rel="stylesheet" href="android-app/app/src/main/assets/css/layout.css">
@@ -10,32 +13,47 @@
   <link rel="stylesheet" href="android-app/app/src/main/assets/css/responsive.css">
   <style>
     @keyframes coffeeJump {
-      0% { transform: translateY(0) rotate(0deg) scale(1); }
-      30% { transform: translateY(-12px) rotate(-8deg) scale(1.05); }
-      60% { transform: translateY(0) rotate(6deg) scale(0.98); }
-      100% { transform: translateY(0) rotate(0deg) scale(1); }
+      0% {
+        transform: translateY(0) rotate(0deg) scale(1);
+      }
+
+      30% {
+        transform: translateY(-12px) rotate(-8deg) scale(1.05);
+      }
+
+      60% {
+        transform: translateY(0) rotate(6deg) scale(0.98);
+      }
+
+      100% {
+        transform: translateY(0) rotate(0deg) scale(1);
+      }
     }
+
     #page-loader img {
       animation: coffeeJump 0.9s ease-in-out infinite;
       transform-origin: center;
     }
   </style>
 </head>
+
 <body>
   <!-- Loading overlay (shown on open and on navigation clicks) -->
-  <div id="page-loader" style="position:fixed; inset:0; background:#ffffff; display:flex; align-items:center; justify-content:center; flex-direction:column; z-index:99999;">
-    <img
-      src="android-app/app/src/main/assets/coffee_bean_loading.png"
-      alt="Coffee bean loading"
-      style="width:96px; height:96px; object-fit:contain;"
-    />
+  <div id="page-loader"
+    style="position:fixed; inset:0; background:#ffffff; display:flex; align-items:center; justify-content:center; flex-direction:column; z-index:99999;">
+    <img src="android-app/app/src/main/assets/coffee_bean_loading.png" alt="Coffee bean loading"
+      style="width:96px; height:96px; object-fit:contain;" />
     <div style="margin-top:12px; color:#777777; font-family:inherit; font-size:14px;">Please wait for a moment.</div>
   </div>
 
   <header>
-    <div class="nav">
+    <div class="nav" id="site-nav">
       <a href="#" class="logo" aria-label="Beanthentic home"><span>BEANTHENTIC</span></a>
-      <nav class="nav-links">
+      <button type="button" class="nav-toggle" id="nav-toggle" aria-label="Open menu" aria-expanded="false"
+        aria-controls="primary-nav">
+        <span class="nav-toggle-label">Menu</span>
+      </button>
+      <nav class="nav-links" id="primary-nav" aria-label="Primary">
         <a href="#">Home</a>
         <a href="#about">About Us</a>
         <a href="/gi">GI Portal</a>
@@ -50,28 +68,38 @@
         <h1 class="hero-title">Welcome to <span>Beanthentic</span> Coffee</h1>
         <p class="hero-subtitle">
           Beanthentic Coffee is a platform that highlights the hard work of local farmers and the
-          authenticity of their coffee beans. It showcases different coffee varieties such as Liberica, Robusta, and Excelsa, allowing consumers to
+          authenticity of their coffee beans. It showcases different coffee varieties such as Liberica, Robusta, and
+          Excelsa, allowing consumers to
           learn about the origin, quality, and unique characteristics of each bean.
         </p>
         <div class="hero-cta">
-          <button class="btn-primary" onclick="document.getElementById('about').scrollIntoView({ behavior: 'smooth' })">About Us</button>
+          <button class="btn-primary"
+            onclick="document.getElementById('about').scrollIntoView({ behavior: 'smooth' })">About Us</button>
           <button class="btn-primary" onclick="window.location.href='/gi'">GI Portal</button>
           <button class="btn-primary" onclick="window.location.href='/maps'">Coffee Farms Map</button>
-          <p class="hero-note"><strong>Explore the origins of authentic coffee beans and the farmers behind every harvest</strong>.</p>
+          <p class="hero-note"><strong>Explore the origins of authentic coffee beans and the farmers behind every
+              harvest</strong>.</p>
         </div>
         <div class="hero-slider" aria-label="Featured images">
           <div class="hero-slider-viewport">
             <div class="hero-slider-track" role="list">
               <div class="hero-slide" role="listitem" data-theme="one">
-                <img class="hero-slide-img" src="https://images.unsplash.com/photo-1517881426553-5d7d3abfbabf?auto=format&fit=crop&w=800&q=80" alt="Coffee beans" />
-                <div class="hero-slide-caption"><strong>Liberica Beans</strong><span>Rich aroma, bold character</span></div>
+                <img class="hero-slide-img"
+                  src="https://images.unsplash.com/photo-1517881426553-5d7d3abfbabf?auto=format&fit=crop&w=800&q=80"
+                  alt="Coffee beans" />
+                <div class="hero-slide-caption"><strong>Liberica Beans</strong><span>Rich aroma, bold character</span>
+                </div>
               </div>
               <div class="hero-slide" role="listitem" data-theme="two">
-                <img class="hero-slide-img" src="https://images.unsplash.com/photo-1754648293032-090b43f4e45b?auto=format&fit=crop&w=800&q=80" alt="Coffee cherries" />
+                <img class="hero-slide-img"
+                  src="https://images.unsplash.com/photo-1754648293032-090b43f4e45b?auto=format&fit=crop&w=800&q=80"
+                  alt="Coffee cherries" />
                 <div class="hero-slide-caption"><strong>Harvest Season</strong><span>From cherries to beans</span></div>
               </div>
               <div class="hero-slide" role="listitem" data-theme="three">
-                <img class="hero-slide-img" src="https://images.unsplash.com/photo-1746623691136-afb227ca4229?auto=format&fit=crop&w=800&q=80" alt="Farmers" />
+                <img class="hero-slide-img"
+                  src="https://images.unsplash.com/photo-1746623691136-afb227ca4229?auto=format&fit=crop&w=800&q=80"
+                  alt="Farmers" />
                 <div class="hero-slide-caption"><strong>Farmers</strong><span>Supporting sustainable coffee</span></div>
               </div>
             </div>
@@ -92,13 +120,24 @@
         <article class="about-card">
           <div class="about-pill"><span class="about-pill-dot"></span><span>About Us</span></div>
           <h3>About Beanthentic</h3>
-          <p>Beanthentic is an innovative platform designed to support coffee farmers and promote authentic, high-quality coffee. The system helps verify the origin and authenticity of coffee products while ensuring transparency and traceability within the coffee industry.</p>
-          <p>Beanthentic integrates modern technology with agricultural practices to evaluate Geographic Indication (GI) eligibility and provide reliable data about coffee farms, production, and quality.</p>
+          <p>Beanthentic is an innovative platform designed to support coffee farmers and promote authentic,
+            high-quality coffee. The system helps verify the origin and authenticity of coffee products while ensuring
+            transparency and traceability within the coffee industry.</p>
+          <p>Beanthentic integrates modern technology with agricultural practices to evaluate Geographic Indication (GI)
+            eligibility and provide reliable data about coffee farms, production, and quality.</p>
           <ul class="about-list">
-            <li><span>•</span><div>Coffee authenticity verification and traceability system.</div></li>
-            <li><span>•</span><div>Evaluation of Geographic Indication (GI) eligibility for coffee farmers.</div></li>
-            <li><span>•</span><div>Support for farmer data management and sustainable coffee production.</div></li>
-            <li><span>•</span><div>GI certification portal for farmers to register and apply for geographical indications.</div></li>
+            <li><span>•</span>
+              <div>Coffee authenticity verification and traceability system.</div>
+            </li>
+            <li><span>•</span>
+              <div>Evaluation of Geographic Indication (GI) eligibility for coffee farmers.</div>
+            </li>
+            <li><span>•</span>
+              <div>Support for farmer data management and sustainable coffee production.</div>
+            </li>
+            <li><span>•</span>
+              <div>GI certification portal for farmers to register and apply for geographical indications.</div>
+            </li>
           </ul>
         </article>
       </div>
@@ -107,7 +146,7 @@
 
   <footer>
     <div class="footer-inner">
-      <span><span class="footer-dot"></span> Beanthentic &copy; <span id="year">2025</span> · Brewed with care.</span>
+      <span><span class="footer-dot"></span> Beanthentic &copy; <span id="year">2026</span> · Brewed with care.</span>
       <span>Serving honest coffee, one cup at a time.</span>
     </div>
   </footer>
@@ -165,4 +204,5 @@
     })();
   </script>
 </body>
+
 </html>

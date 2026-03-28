@@ -7,6 +7,35 @@ class Navigation {
   init() {
     this.setupSmoothScrolling();
     this.setupActiveNavigation();
+    this.setupMobileNav();
+  }
+
+  setupMobileNav() {
+    const nav = document.getElementById('site-nav');
+    const toggle = document.getElementById('nav-toggle');
+    if (!nav || !toggle) return;
+
+    const label = toggle.querySelector('.nav-toggle-label');
+
+    toggle.addEventListener('click', () => {
+      const open = nav.classList.toggle('nav-open');
+      toggle.setAttribute('aria-expanded', String(open));
+      toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+      if (label) {
+        label.textContent = open ? 'Close' : 'Menu';
+      }
+    });
+
+    nav.querySelectorAll('.nav-links a').forEach((a) => {
+      a.addEventListener('click', () => {
+        nav.classList.remove('nav-open');
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.setAttribute('aria-label', 'Open menu');
+        if (label) {
+          label.textContent = 'Menu';
+        }
+      });
+    });
   }
 
   setupSmoothScrolling() {

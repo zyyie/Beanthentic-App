@@ -1,5 +1,4 @@
 from flask import render_template_string, jsonify
-import json
 import csv
 import os
 
@@ -202,16 +201,12 @@ class MapsModule:
                         pass
                     
                     farm_data = {
-                        "id": len(coffee_farms) + 1,
                         "barangay": barangay,
                         "latitude": coords["lat"],
                         "longitude": coords["lng"],
-                        "farm_name": farmer_name,
                         "varieties": varieties,
-                        "description": f"Coffee farmer in {barangay}. Farm area: {farm_area} ha. Annual production: {total_production} kg.",
-                        "farmer_no": farmer_no,
                         "farm_area": farm_area,
-                        "production": total_production
+                        "production": total_production,
                     }
                     
                     coffee_farms.append(farm_data)
@@ -224,14 +219,70 @@ class MapsModule:
             print(f"Error reading CSV file: {e}")
             return []
         
-        return coffee_farms
+        return self._aggregate_by_barangay(coffee_farms)
+    
+    def _aggregate_by_barangay(self, rows):
+        """One map point per barangay—no individual farmer names (privacy & clarity)."""
+        by = {}
+        for f in rows:
+            b = (f.get("barangay") or "").strip()
+            if not b:
+                continue
+            if b not in by:
+                by[b] = {
+                    "barangay": b,
+                    "latitude": f["latitude"],
+                    "longitude": f["longitude"],
+                    "varieties": set(),
+                    "farm_count": 0,
+                    "total_area": 0.0,
+                    "total_production": 0.0,
+                }
+            agg = by[b]
+            agg["farm_count"] += 1
+            for v in f.get("varieties") or []:
+                agg["varieties"].add(v)
+            try:
+                agg["total_area"] += float(f.get("farm_area") or 0)
+            except (TypeError, ValueError):
+                pass
+            try:
+                agg["total_production"] += float(f.get("production") or 0)
+            except (TypeError, ValueError):
+                pass
+        out = []
+        for i, b in enumerate(sorted(by.keys()), start=1):
+            agg = by[b]
+            varieties = sorted(agg["varieties"]) or ["Robusta"]
+            n = agg["farm_count"]
+            area = agg["total_area"]
+            prod = agg["total_production"]
+            desc = (
+                f"Barangay {b} — coffee-growing area in Lipa City. "
+                f"This pin shows where to go; the dataset lists {n} farm record(s) here. "
+                f"Varieties reported: {', '.join(varieties)}. "
+            )
+            if area > 0:
+                desc += f"Combined farm area (where reported): about {area:.2f} hectares. "
+            if prod > 0:
+                desc += f"Approx. combined annual production (where reported): {prod:.0f} kg. "
+            desc += "Individual farmer names are not shown on the map."
+            out.append({
+                "id": i,
+                "barangay": b,
+                "latitude": agg["latitude"],
+                "longitude": agg["longitude"],
+                "farm_name": b,
+                "farm_count": n,
+                "varieties": varieties,
+                "description": desc,
+            })
+        return out
     
     def get_coffee_farms_data(self):
-        """Return coffee farm data from CSV file"""
-        # Try to read from CSV file first
+        """Return barangay-level points (one per barangay) from CSV."""
         coffee_farms = self.read_coffee_database_csv()
         
-        # If CSV data is empty, fall back to sample data
         if not coffee_farms:
             print("Using fallback sample data - CSV file not found or empty")
             coffee_farms = [
@@ -240,9 +291,13 @@ class MapsModule:
                     "barangay": "Pinagtong-Ulan",
                     "latitude": 13.9667,
                     "longitude": 121.1500,
-                    "farm_name": "Sample Farm - Pinagtong-Ulan",
+                    "farm_name": "Pinagtong-Ulan",
+                    "farm_count": 1,
                     "varieties": ["Robusta"],
-                    "description": "Sample coffee farm data"
+                    "description": (
+                        "Barangay Pinagtong-Ulan — sample location. "
+                        "Individual farmer names are not shown on the map."
+                    ),
                 }
             ]
         
@@ -271,8 +326,9 @@ class MapsModule:
                 },
                 "properties": {
                     "id": farm['id'],
-                    "name": farm['farm_name'],
+                    "name": farm['barangay'],
                     "barangay": farm['barangay'],
+                    "farm_count": farm.get('farm_count', 1),
                     "varieties": farm['varieties'],
                     "description": farm['description'],
                     "marker-color": "#8B4513",
@@ -329,13 +385,26 @@ class MapsModule:
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#147539">
+    <meta name="color-scheme" content="light">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <title>Coffee Farms Map - Lipa City | Beanthentic</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
     <style>
+        :root {
+            --brand: #147539;
+            --brand-dark: #0f5a2c;
+            --surface: #ffffff;
+            --text: #111827;
+            --muted: #6b7280;
+            --accent: #8B4513;
+            --radius: 16px;
+            --shadow: 0 10px 40px rgba(17, 24, 39, 0.08);
+        }
         * {
             box-sizing: border-box;
             margin: 0;
@@ -343,17 +412,80 @@ class MapsModule:
         }
         
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            color: #1a1a1a;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+            color: var(--text);
+            background: linear-gradient(165deg, #f0fdf4 0%, #e8eef5 45%, #dbeafe 100%);
             line-height: 1.6;
             min-height: 100vh;
+            min-height: 100dvh;
+            padding: max(0px, env(safe-area-inset-top)) max(0px, env(safe-area-inset-right)) max(0px, env(safe-area-inset-bottom)) max(0px, env(safe-area-inset-left));
+            -webkit-tap-highlight-color: rgba(20, 117, 57, 0.12);
         }
         
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 0 20px;
+            padding-left: max(16px, env(safe-area-inset-left));
+            padding-right: max(16px, env(safe-area-inset-right));
+        }
+        .map-app-intro { margin-bottom: 1.25rem; }
+        .map-lead {
+            font-size: 0.95rem;
+            color: #374151;
+            line-height: 1.55;
+            max-width: 48rem;
+            margin-bottom: 1rem;
+        }
+        .map-detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        .map-detail-tile {
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(17, 24, 39, 0.08);
+            border-radius: 14px;
+            padding: 0.9rem 1rem;
+            font-size: 0.8125rem;
+            color: #4b5563;
+            line-height: 1.45;
+        }
+        .map-detail-tile strong {
+            display: block;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--brand);
+            margin-bottom: 0.35rem;
+        }
+        .map-hint-bar {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+            border: 1px solid rgba(20, 117, 57, 0.2);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            font-size: 0.8125rem;
+            color: #065f46;
+            margin-bottom: 1.25rem;
+        }
+        .map-hint-bar svg {
+            width: 1.1rem;
+            height: 1.1rem;
+            flex-shrink: 0;
+            margin-top: 0.1rem;
+        }
+        .stat-hint {
+            display: block;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: #9ca3af;
+            margin-top: 0.35rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
         }
         
         .header {
@@ -396,10 +528,17 @@ class MapsModule:
         }
         
         .header-icon {
-            font-size: 3rem;
+            display: flex;
+            justify-content: center;
             margin-bottom: 1rem;
-            color: #4ade80;
+            color: #86efac;
         }
+        .header-icon svg, .back-link svg, .sidebar h3 svg, .api-notice svg {
+            width: 1.25rem;
+            height: 1.25rem;
+            flex-shrink: 0;
+        }
+        .header-icon svg { width: 3rem; height: 3rem; }
         
         .main-content {
             padding: 2rem 0;
@@ -429,11 +568,11 @@ class MapsModule:
         }
         
         .map-wrapper {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            background: var(--surface);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
             overflow: hidden;
-            border: 1px solid rgba(0,0,0,0.05);
+            border: 1px solid rgba(17, 24, 39, 0.06);
         }
         
         #map {
@@ -442,13 +581,14 @@ class MapsModule:
         }
         
         .sidebar {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-            padding: 1.5rem;
-            border: 1px solid rgba(0,0,0,0.05);
-            max-height: 600px;
+            background: var(--surface);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 1.25rem 1.5rem;
+            border: 1px solid rgba(17, 24, 39, 0.06);
+            max-height: min(600px, 70vh);
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
         
         .sidebar h3 {
@@ -527,12 +667,17 @@ class MapsModule:
         }
         
         .stat-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            border: 1px solid rgba(0,0,0,0.05);
+            background: var(--surface);
+            padding: 1.35rem 1.25rem;
+            border-radius: 14px;
+            box-shadow: 0 4px 20px rgba(17, 24, 39, 0.06);
+            border: 1px solid rgba(17, 24, 39, 0.05);
             text-align: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(20, 117, 57, 0.12);
         }
         
         .stat-number {
@@ -578,18 +723,49 @@ class MapsModule:
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         
+        .coffee-marker {
+            background: #8B4513;
+            border: 2px solid white;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            width: 28px;
+            height: 28px;
+        }
+        
+        .coffee-marker .cup {
+            color: white;
+            font-size: 13px;
+            line-height: 1;
+        }
+        
+        .selected-farm {
+            background: #147539 !important;
+            color: white !important;
+            border: 2px solid #147539 !important;
+        }
+        
         .loading {
             display: flex;
             align-items: center;
             justify-content: center;
+            gap: 0.75rem;
             height: 600px;
             color: #6b7280;
+            font-size: 0.95rem;
         }
-        
-        .loading i {
-            font-size: 2rem;
-            margin-right: 1rem;
-            animation: spin 1s linear infinite;
+        .loading svg {
+            width: 1.5rem;
+            height: 1.5rem;
+            animation: spin 0.9s linear infinite;
+        }
+        .map-load-spin {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 3px solid #e5e7eb;
+            border-top-color: #147539;
+            animation: spin 0.85s linear infinite;
+            flex-shrink: 0;
         }
         
         @keyframes spin {
@@ -598,40 +774,55 @@ class MapsModule:
         }
         
         .api-notice {
-            background: #fef3c7;
-            border: 1px solid #f59e0b;
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            border: 1px solid rgba(245, 158, 11, 0.35);
             color: #92400e;
-            padding: 1rem;
-            border-radius: 8px;
+            padding: 0.9rem 1rem;
+            border-radius: 10px;
             margin-bottom: 1rem;
-            font-size: 0.875rem;
+            font-size: 0.8125rem;
+            line-height: 1.45;
         }
-        
-        .api-notice strong {
-            display: block;
-            margin-bottom: 0.5rem;
+        .api-notice .notice-title {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-weight: 600;
+            margin-bottom: 0.35rem;
+            color: #78350f;
         }
         
         @media (max-width: 1024px) {
             .maps-container {
                 grid-template-columns: 1fr;
             }
-            
             .sidebar {
-                max-height: 400px;
+                max-height: min(420px, 55vh);
             }
-            
-            #map {
-                height: 400px;
+            #map, .loading {
+                height: min(420px, 50vh);
+                min-height: 280px;
             }
         }
-        
         @media (max-width: 768px) {
+            .header { padding: 1.5rem 0; }
             .header h1 {
-                font-size: 2rem;
+                font-size: clamp(1.35rem, 5vw, 2rem);
+                padding: 0 0.25rem;
             }
-            
+            .header p { font-size: 0.95rem; }
+            .main-content { padding: 1.25rem 0 2rem; }
             .stats-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 0.75rem;
+            }
+            .stat-number { font-size: 1.5rem; }
+        }
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .map-detail-grid {
                 grid-template-columns: 1fr;
             }
         }
@@ -642,10 +833,10 @@ class MapsModule:
         <div class="container">
             <div class="header-content">
                 <div class="header-icon">
-                    <i class="fas fa-map-marked-alt"></i>
+                    <i data-lucide="map-pin"></i>
                 </div>
                 <h1>Lipa City Coffee Farms Map</h1>
-                <p>Discover coffee farms across Lipa City barangays with our interactive map</p>
+                <p>Tap the map or list to open farm details, varieties, and quick links—like a native maps app.</p>
             </div>
         </div>
     </div>
@@ -653,60 +844,88 @@ class MapsModule:
     <div class="main-content">
         <div class="container">
             <a href="/" class="back-link">
-                <i class="fas fa-arrow-left"></i>
+                <i data-lucide="arrow-left"></i>
                 Back to Home
             </a>
+
+            <div class="map-app-intro">
+                <p class="map-lead">
+                    Each <strong>pin is one barangay</strong> (neighborhood)—not individual farms. Names of farmers are <strong>not</strong> shown; you only see where coffee is grown so you can plan visits and directions safely and privately.
+                </p>
+                <div class="map-detail-grid">
+                    <div class="map-detail-tile">
+                        <strong>Interact</strong>
+                        Pan and zoom the map, switch base layers (top-right), and tap any marker for farm name, varieties, and external map links.
+                    </div>
+                    <div class="map-detail-tile">
+                        <strong>List</strong>
+                        Scroll the farm cards on the right (below the map on phones). Selecting a card centers the map and opens the popup.
+                    </div>
+                    <div class="map-detail-tile">
+                        <strong>Data</strong>
+                        Counts and varieties are combined per barangay from the project file. One marker per barangay keeps the map simple and protects farmer privacy.
+                    </div>
+                </div>
+                <div class="map-hint-bar">
+                    <i data-lucide="smartphone"></i>
+                    <span><strong>Mobile:</strong> use two fingers to zoom the map. Scroll the barangay list below the map; the row you tap highlights in green.</span>
+                </div>
+            </div>
             
             <div class="stats-grid">
-                <div class="stat-card">
+                    <div class="stat-card">
                     <div class="stat-number" id="totalFarms">-</div>
-                    <div class="stat-label">Total Coffee Farms</div>
+                    <div class="stat-label">Barangays on map</div>
+                    <span class="stat-hint">One pin each</span>
                 </div>
                 <div class="stat-card">
                     <div class="stat-number" id="totalBarangays">-</div>
-                    <div class="stat-label">Barangays Covered</div>
+                    <div class="stat-label">Farm records (file)</div>
+                    <span class="stat-hint">All rows summed</span>
                 </div>
                 <div class="stat-card">
                     <div class="stat-number" id="totalVarieties">-</div>
                     <div class="stat-label">Coffee Varieties</div>
+                    <span class="stat-hint">Distinct tags</span>
                 </div>
                 <div class="stat-card">
                     <div class="stat-number" id="avgElevation">-</div>
-                    <div class="stat-label">Avg. Elevation (m)</div>
+                    <div class="stat-label">Region elevation</div>
+                    <span class="stat-hint">Typical Batangas highland</span>
                 </div>
             </div>
             
             <div class="maps-container">
                 <div class="map-wrapper">
                     <div id="map" class="loading">
-                        <i class="fas fa-spinner"></i>
-                        Loading map...
+                        <i data-lucide="loader-2"></i>
+                        <span>Loading map…</span>
                     </div>
                 </div>
                 
                 <div class="sidebar">
                     <h3>
-                        <i class="fas fa-coffee"></i>
-                        Coffee Farms
+                        <i data-lucide="map-pin"></i>
+                        Barangays (Lipa City)
                     </h3>
                     
                     <div class="api-notice">
-                        <strong><i class="fas fa-info-circle"></i> Demo Mode Active</strong>
-                        Using OpenStreetMap (Leaflet) for demo. For Google Maps, add your API key to maps_module.py
+                        <div class="notice-title"><i data-lucide="info"></i> Map data</div>
+                        Base map and tiles are served via OpenStreetMap contributors. Popups link to Google Maps for directions and Street View where available.
                     </div>
                     
                     <div class="legend">
                         <div class="legend-title">Legend</div>
                         <div class="legend-item">
                             <div class="legend-marker"></div>
-                            <span>Coffee Farm Location</span>
+                            <span>Barangay (one pin each)</span>
                         </div>
                     </div>
                     
                     <div class="farm-list" id="farmList">
                         <div class="loading">
-                            <i class="fas fa-spinner"></i>
-                            Loading farms...
+                            <i data-lucide="loader-2"></i>
+                            <span>Loading farms…</span>
                         </div>
                     </div>
                 </div>
@@ -719,9 +938,19 @@ class MapsModule:
         let markers = [];
         let farms = [];
         let selectedFarm = null;
+
+        function escapeHtml(s) {
+            if (s == null || s === undefined) return '';
+            const d = document.createElement('div');
+            d.textContent = s;
+            return d.innerHTML;
+        }
+        function refreshIcons(root) {
+            if (window.lucide) lucide.createIcons({ attrs: { 'stroke-width': 2 }, root: root || document.body });
+        }
         
-        // Initialize map when page loads
         document.addEventListener('DOMContentLoaded', function() {
+            refreshIcons();
             loadCoffeeFarms();
         });
         
@@ -729,7 +958,8 @@ class MapsModule:
             // Show loading state
             const mapContainer = document.getElementById('map');
             if (mapContainer) {
-                mapContainer.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; background: #f9fafb; color: #6b7280; font-size: 16px;"><i class="fas fa-coffee"></i> Loading coffee farms...</div>';
+                mapContainer.className = 'loading';
+                mapContainer.innerHTML = '<span class="map-load-spin" aria-hidden="true"></span><span>Loading coffee farms…</span>';
             }
             
             // Load GeoJSON data for coffee farms
@@ -749,6 +979,7 @@ class MapsModule:
                                 populateFarmList();
                                 updateStatistics();
                                 addCoffeeMarkers();
+                                refreshIcons();
                             } else {
                                 showError('Failed to load coffee farms data');
                             }
@@ -771,40 +1002,40 @@ class MapsModule:
         }
         
         function addCoffeeMarkers() {
-            // Add location pin markers for fallback mode
-            const locationIcon = L.divIcon({
-                html: '<div style="position: relative;"><div style="background: #8B4513; width: 20px; height: 20px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div><div style="position: absolute; top: 2px; left: 2px; width: 6px; height: 6px; background: white; border-radius: 50%; transform: rotate(-45deg);"></div></div>',
-                iconSize: [24, 24],
-                className: 'location-marker',
-                iconAnchor: [12, 24],
-                popupAnchor: [0, -24]
+            // Add coffee cup markers for fallback mode
+            const coffeeIcon = L.divIcon({
+                html: '<div style="background: #8B4513; color: white; width: 28px; height: 28px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center;"><span class="cup" style="font-size:14px;line-height:1">☕</span></div>',
+                iconSize: [28, 28],
+                className: 'coffee-marker',
+                iconAnchor: [14, 14],
+                popupAnchor: [0, -14]
             });
             
             farms.forEach(farm => {
-                const marker = L.marker([farm.latitude, farm.longitude], { icon: locationIcon })
+                const marker = L.marker([farm.latitude, farm.longitude], { icon: coffeeIcon })
                     .addTo(map);
                 
                 // Create popup content with working street view links
                 const popupContent = `
                     <div style="padding: 10px; max-width: 250px;">
-                        <h4 style="margin: 0 0 8px 0; color: #1f2937;">${farm.farm_name}</h4>
+                        <h4 style="margin: 0 0 8px 0; color: #1f2937;">${escapeHtml(farm.farm_name)}</h4>
                         <p style="margin: 4px 0; color: #6b7280; font-size: 14px;">
-                            <i class="fas fa-map-marker-alt"></i> ${farm.barangay}
+                            📍 ${escapeHtml(farm.barangay)}
                         </p>
                         <div style="margin: 8px 0;">
-                            ${farm.varieties.map(v => `<span style="background: #f3f4f6; padding: 2px 6px; border-radius: 10px; font-size: 12px; margin-right: 4px;">${v}</span>`).join('')}
+                            ${farm.varieties.map(v => `<span style="background: #f3f4f6; padding: 2px 6px; border-radius: 10px; font-size: 12px; margin-right: 4px;">${escapeHtml(v)}</span>`).join('')}
                         </div>
-                        <p style="margin: 8px 0 0 0; color: #6b7280; font-size: 13px; line-height: 1.4;">${farm.description}</p>
+                        <p style="margin: 8px 0 0 0; color: #6b7280; font-size: 13px; line-height: 1.4;">${escapeHtml(farm.description)}</p>
                         <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #e5e7eb;">
                             <a href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${farm.latitude},${farm.longitude}" 
-                               target="_blank" 
+                               target="_blank" rel="noopener noreferrer"
                                style="color: #147539; text-decoration: none; font-size: 12px; font-weight: 500; display: inline-block; margin-right: 10px;">
-                                <i class="fas fa-street-view"></i> Street View
+                                Street View
                             </a>
                             <a href="https://www.google.com/maps/search/?api=1&query=${farm.latitude},${farm.longitude}" 
-                               target="_blank" 
+                               target="_blank" rel="noopener noreferrer"
                                style="color: #147539; text-decoration: none; font-size: 12px; font-weight: 500;">
-                                <i class="fas fa-map"></i> Google Maps
+                                Open in Maps
                             </a>
                         </div>
                     </div>
@@ -826,6 +1057,7 @@ class MapsModule:
                 latitude: feature.geometry.coordinates[1],
                 longitude: feature.geometry.coordinates[0],
                 farm_name: feature.properties.name,
+                farm_count: feature.properties.farm_count || 1,
                 varieties: feature.properties.varieties,
                 description: feature.properties.description
             }));
@@ -839,44 +1071,74 @@ class MapsModule:
             
             populateFarmList();
             updateStatistics();
+            refreshIcons();
             
             // Add GeoJSON layer to map
             if (map && geojson) {
                 L.geoJSON(geojson, {
                     pointToLayer: function(feature, latlng) {
-                        // Create location pin icon like in the image
-                        const locationIcon = L.divIcon({
-                            html: '<div style="position: relative;"><div style="background: #8B4513; width: 20px; height: 20px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div><div style="position: absolute; top: 2px; left: 2px; width: 6px; height: 6px; background: white; border-radius: 50%; transform: rotate(-45deg);"></div></div>',
-                            iconSize: [24, 24],
-                            className: 'location-marker',
-                            iconAnchor: [12, 24],
-                            popupAnchor: [0, -24]
+                        // Create coffee bean/leaf icon
+                        const coffeeIcon = L.divIcon({
+                            html: '<div style="background: #8B4513; width: 24px; height: 24px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; font-size: 12px; position: relative;"><div style="background: #654321; width: 12px; height: 12px; border-radius: 50%; position: absolute; top: 6px; left: 6px;"></div><div style="background: #228B22; width: 8px; height: 8px; border-radius: 50%; position: absolute; top: 8px; left: 8px;"></div></div>',
+                            iconSize: [28, 28],
+                            className: 'coffee-marker',
+                            iconAnchor: [14, 14],
+                            popupAnchor: [0, -14]
                         });
                         
-                        const marker = L.marker(latlng, { icon: locationIcon });
+                        const marker = L.marker(latlng, { icon: coffeeIcon });
                         
-                        // Create popup content with working street view link
+                        // Create compact professional popup content
+                        const pname = escapeHtml(feature.properties.name);
+                        const pbar = escapeHtml(feature.properties.barangay);
+                        const fc = feature.properties.farm_count || 1;
+                        const pdesc = escapeHtml(feature.properties.description);
+                        const staticMap = 'https://staticmap.openstreetmap.de/staticmap.php?center=' + latlng.lat + ',' + latlng.lng + '&zoom=15&size=240x128&maptype=mapnik';
                         const popupContent = `
-                            <div style="padding: 10px; max-width: 250px;">
-                                <h4 style="margin: 0 0 8px 0; color: #1f2937;">${feature.properties.name}</h4>
-                                <p style="margin: 4px 0; color: #6b7280; font-size: 14px;">
-                                    <i class="fas fa-map-marker-alt"></i> ${feature.properties.barangay}
-                                </p>
-                                <div style="margin: 8px 0;">
-                                    ${feature.properties.varieties.map(v => `<span style="background: #f3f4f6; padding: 2px 6px; border-radius: 10px; font-size: 12px; margin-right: 4px;">${v}</span>`).join('')}
+                            <div style="padding: 0; max-width: 268px; font-family: 'DM Sans', system-ui, sans-serif;">
+                                <div style="background: linear-gradient(135deg, #8B4513 0%, #654321 100%); color: white; padding: 12px 16px; border-radius: 8px 8px 0 0;">
+                                    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 8px;">
+                                        <div>
+                                            <h3 style="margin: 0; font-size: 16px; font-weight: 600;">${pname}</h3>
+                                            <p style="margin: 4px 0 0 0; font-size: 12px; opacity: 0.95;">📍 ${pbar} · ${fc} farm record(s) in data</p>
+                                        </div>
+                                        <span style="background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;">Barangay</span>
+                                    </div>
                                 </div>
-                                <p style="margin: 8px 0 0 0; color: #6b7280; font-size: 13px; line-height: 1.4;">${feature.properties.description}</p>
-                                <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #e5e7eb;">
-                                    <a href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${latlng.lat},${latlng.lng}" 
-                                       target="_blank" 
-                                       style="color: #147539; text-decoration: none; font-size: 12px; font-weight: 500; display: inline-block; margin-right: 10px;">
-                                        <i class="fas fa-street-view"></i> Street View
-                                    </a>
-                                    <a href="https://www.google.com/maps/search/?api=1&query=${latlng.lat},${latlng.lng}" 
-                                       target="_blank" 
-                                       style="color: #147539; text-decoration: none; font-size: 12px; font-weight: 500;">
-                                        <i class="fas fa-map"></i> Google Maps
-                                    </a>
+                                <div style="padding: 14px 16px 16px;">
+                                    <div style="margin-bottom: 12px;">
+                                        <h4 style="margin: 0 0 6px 0; font-size: 12px; font-weight: 600; color: #374151; text-transform: uppercase; letter-spacing: 0.04em;">Varieties</h4>
+                                        <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+                                            ${feature.properties.varieties.map(v => `
+                                                <span style="background: #147539; color: white; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 500;">
+                                                    ${escapeHtml(v)}
+                                                </span>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                    <div style="margin-bottom: 12px;">
+                                        <h4 style="margin: 0 0 6px 0; font-size: 12px; font-weight: 600; color: #374151;">About</h4>
+                                        <p style="margin: 0; color: #6b7280; font-size: 12px; line-height: 1.45;">${pdesc}</p>
+                                    </div>
+                                    <div style="margin-bottom: 12px;">
+                                        <h4 style="margin: 0 0 6px 0; font-size: 12px; font-weight: 600; color: #374151;">Preview</h4>
+                                        <div style="border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb;">
+                                            <img src="${staticMap}" alt="Map preview" width="240" height="128" style="width: 100%; height: auto; display: block; object-fit: cover;" loading="lazy">
+                                            <div style="background: #1f2937; color: white; padding: 6px 8px; text-align: center; font-size: 11px;">
+                                                ${latlng.lat.toFixed(5)}, ${latlng.lng.toFixed(5)}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: stretch;">
+                                        <a href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${latlng.lat},${latlng.lng}" target="_blank" rel="noopener noreferrer"
+                                           style="flex: 1; min-width: 120px; text-align: center; background: #147539; color: white; text-decoration: none; padding: 10px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;">
+                                            Street View
+                                        </a>
+                                        <a href="https://www.google.com/maps/search/?api=1&query=${latlng.lat},${latlng.lng}" target="_blank" rel="noopener noreferrer"
+                                           style="flex: 1; min-width: 120px; text-align: center; background: #4b5563; color: white; text-decoration: none; padding: 10px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;">
+                                            Google Maps
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         `;
@@ -884,7 +1146,7 @@ class MapsModule:
                         marker.bindPopup(popupContent);
                         marker.on('click', () => selectFarm(feature.properties.id));
                         marker.farmId = feature.properties.id;
-                        
+                        markers.push(marker);
                         return marker;
                     }
                 }).addTo(map);
@@ -907,96 +1169,91 @@ class MapsModule:
         }
         
         function initializeMap(center) {
-            // Initialize Leaflet map (OpenStreetMap - free alternative to Google Maps)
-            const mapContainer = document.getElementById('map');
-            if (mapContainer) {
-                map = L.map('map').setView([center.lat, center.lng], 12);
-                
-                // Add OpenStreetMap tiles
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            const el = document.getElementById('map');
+            el.classList.remove('loading');
+            el.innerHTML = '';
+            map = L.map('map').setView([center.lat, center.lng], 12);
+            
+            // Add OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors | Beanthentic Coffee',
+                maxZoom: 19
+            }).addTo(map);
+            
+            // Add Google Street View layer
+            const googleStreets = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors, Tiles style by Humanitarian OpenStreetMap Team',
+                maxZoom: 19
+            });
+            
+            // Add layer control for street view toggle
+            const baseMaps = {
+                "Default": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     attribution: '© OpenStreetMap contributors | Beanthentic Coffee',
                     maxZoom: 19
-                }).addTo(map);
-                
-                // Add Google Street View layer
-                const googleStreets = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap contributors, Tiles style by Humanitarian OpenStreetMap Team',
-                    maxZoom: 19
-                });
-                
-                // Add layer control for street view toggle
-                const baseMaps = {
-                    "Standard": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                        attribution: '© OpenStreetMap contributors | Beanthentic Coffee',
-                        maxZoom: 19
-                    }),
-                    "Street View": googleStreets
-                };
-                
-                L.control.layers(baseMaps, null, {
-                    position: 'topright'
-                }).addTo(map);
-                
-                // Add scale control
-                L.control.scale({
-                    position: 'bottomleft',
-                    metric: true,
-                    imperial: false
-                }).addTo(map);
-            }
+                }),
+                "Humanitarian": googleStreets
+            };
+            
+            L.control.layers(baseMaps, null, {
+                position: 'topright'
+            }).addTo(map);
+            
+            // Add scale control
+            L.control.scale({
+                position: 'bottomleft',
+                metric: true,
+                imperial: false
+            }).addTo(map);
         }
         
         function populateFarmList() {
             const farmList = document.getElementById('farmList');
-            
             const farmCards = farms.map(farm => `
                 <div class="farm-card" onclick="selectFarm(${farm.id})" id="farm-${farm.id}">
-                    <div class="farm-name">${farm.farm_name}</div>
-                    <div class="farm-location">
-                        <i class="fas fa-map-marker-alt"></i> ${farm.barangay}
-                    </div>
+                    <div class="farm-name">Barangay ${escapeHtml(farm.farm_name)}</div>
+                    <div class="farm-location">${farm.farm_count || 1} farm record(s) · Lipa City</div>
                     <div class="farm-varieties">
-                        ${farm.varieties.map(v => `<span class="variety-tag">${v}</span>`).join('')}
+                        ${farm.varieties.map(v => `<span class="variety-tag">${escapeHtml(v)}</span>`).join('')}
                     </div>
-                    <div class="farm-description">${farm.description}</div>
+                    <div class="farm-description">${escapeHtml(farm.description)}</div>
                 </div>
             `).join('');
-            
             farmList.innerHTML = farmCards;
         }
         
         function selectFarm(farmId) {
-            // Remove active class from all cards
+            // Remove previous selection
             document.querySelectorAll('.farm-card').forEach(card => {
-                card.classList.remove('active');
+                card.classList.remove('selected-farm');
             });
             
-            // Add active class to selected card
-            const selectedCard = document.getElementById(`farm-${farmId}`);
-            if (selectedCard) {
-                selectedCard.classList.add('active');
-            }
-            
-            // Find and center map on selected farm
-            const farm = farms.find(f => f.id === farmId);
-            if (farm) {
-                map.setView([farm.latitude, farm.longitude], 15);
-                
-                // Open popup for the marker
-                const marker = markers.find(m => m.farmId === farmId);
-                if (marker) {
-                    marker.openPopup();
+            // Add selection to new farm (sidebar only)
+            selectedFarm = farms.find(farm => farm.id === farmId);
+            if (selectedFarm) {
+                // Highlight sidebar
+                const sidebarCard = document.getElementById(`farm-${farmId}`);
+                if (sidebarCard) {
+                    sidebarCard.classList.add('selected-farm');
+                    sidebarCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
+                
+                // Center map on selected farm
+                map.setView([selectedFarm.latitude, selectedFarm.longitude], 15);
+                
+                // Open popup
+                markers.forEach(marker => {
+                    if (marker.farmId === farmId) {
+                        marker.openPopup();
+                    }
+                });
             }
-            
-            selectedFarm = farmId;
         }
         
         function updateStatistics() {
             document.getElementById('totalFarms').textContent = farms.length;
-            
-            const uniqueBarangays = [...new Set(farms.map(f => f.barangay))];
-            document.getElementById('totalBarangays').textContent = uniqueBarangays.length;
+            const totalRecords = farms.reduce(function(s, f) { return s + (f.farm_count || 1); }, 0);
+            document.getElementById('totalBarangays').textContent = totalRecords;
             
             const allVarieties = farms.flatMap(f => f.varieties);
             const uniqueVarieties = [...new Set(allVarieties)];
@@ -1008,12 +1265,8 @@ class MapsModule:
         
         function showError(message) {
             const mapElement = document.getElementById('map');
-            mapElement.innerHTML = `
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #ef4444;">
-                    <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 1rem;"></i>
-                    <p>${message}</p>
-                </div>
-            `;
+            mapElement.className = 'loading';
+            mapElement.innerHTML = '<span style="color:#dc2626;font-size:2rem;line-height:1">⚠</span><p style="color:#b91c1c;text-align:center;max-width:280px;padding:0 12px">' + escapeHtml(message) + '</p>';
         }
     </script>
 </body>

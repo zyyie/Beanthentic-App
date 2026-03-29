@@ -1,6 +1,8 @@
 package com.beanthentic.app
 
 import android.annotation.SuppressLint
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
@@ -25,6 +27,7 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.OnBackPressedCallback
+import android.net.Uri
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 
@@ -181,6 +184,54 @@ class MainActivity : AppCompatActivity() {
 
         fun stripFragment(url: String?): String = (url ?: "").substringBefore('#')
 
+        fun tryOpenExternalView(uri: Uri): Boolean {
+            return try {
+                val intent = Intent(Intent.ACTION_VIEW, uri)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(intent)
+                true
+            } catch (_: ActivityNotFoundException) {
+                false
+            }
+        }
+
+        /**
+         * WebView cannot load intent:// URLs (ERR_UNKNOWN_URL_SCHEME). Chrome turns some Maps
+         * links into intent://; we launch the resolved app or an https VIEW intent.
+         */
+        fun tryHandleIntentOrMapsUrl(url: String): Boolean {
+            if (url.startsWith("intent:", ignoreCase = true)) {
+                try {
+                    val intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME)
+                    intent.addCategory(Intent.CATEGORY_BROWSABLE)
+                    intent.component = null
+                    if (intent.resolveActivity(packageManager) != null) {
+                        startActivity(intent)
+                        return true
+                    }
+                    val fb = intent.getStringExtra("browser_fallback_url")
+                    if (fb != null && tryOpenExternalView(Uri.parse(fb))) return true
+                } catch (_: Throwable) { /* fall through */ }
+                val httpsInString = Regex("https://www\\.google\\.com/maps[^\\s#'\"]*").find(url)
+                if (httpsInString != null && tryOpenExternalView(Uri.parse(httpsInString.value))) {
+                    return true
+                }
+                val vp = Regex("viewpoint=([0-9.+-]+),([0-9.+-]+)").find(url)
+                if (vp != null) {
+                    val pano =
+                        "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${vp.groupValues[1]},${vp.groupValues[2]}"
+                    if (tryOpenExternalView(Uri.parse(pano))) return true
+                }
+                return false
+            }
+            if (url.contains("map_action=pano") &&
+                (url.contains("google.com/maps") || url.contains("maps.google.com"))
+            ) {
+                return tryOpenExternalView(Uri.parse(url))
+            }
+            return false
+        }
+
         fun isInPageAnchorNavigation(currentUrl: String?, requestUrl: String?): Boolean {
             val req = requestUrl ?: return false
             if (!req.contains("#")) return false
@@ -232,6 +283,10 @@ class MainActivity : AppCompatActivity() {
                     request: WebResourceRequest?
                 ): Boolean {
                     val uri = request?.url
+                    if (uri != null) {
+                        val full = uri.toString()
+                        if (tryHandleIntentOrMapsUrl(full)) return true
+                    }
                     // file:// → http(s):// often needs explicit loadUrl; Flask serves GI/Map from Python modules.
                     if (uri != null) {
                         val sch = uri.scheme?.lowercase() ?: ""

@@ -32,6 +32,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var webView: WebView
     private var exitDialog: AlertDialog? = null
 
+    /** Same default as assets/index.php; use PC LAN IP for physical device + Flask on host. */
+    private val flaskDefaultBase: String = "http://10.0.2.2:5000"
+
     @SuppressLint("SetJavaScriptEnabled")
     @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -220,10 +223,38 @@ class MainActivity : AppCompatActivity() {
 
         try {
             webView.webViewClient = object : WebViewClient() {
+                /**
+                 * file:// → http:// navigation often does nothing unless we load explicitly.
+                 * GI/Map are served by Flask (gi_module.py / maps_module.py) at /gi and /maps.
+                 */
                 override fun shouldOverrideUrlLoading(
                     view: WebView?,
                     request: WebResourceRequest?
                 ): Boolean {
+                    val uri = request?.url
+                    // file:// → http(s):// often needs explicit loadUrl; Flask serves GI/Map from Python modules.
+                    if (uri != null) {
+                        val sch = uri.scheme?.lowercase() ?: ""
+                        val fromAssets = view?.url?.startsWith("file:") == true
+                        if ((sch == "http" || sch == "https") && fromAssets) {
+                            if (request?.isForMainFrame != false) {
+                                view?.loadUrl(uri.toString())
+                                return true
+                            }
+                        }
+                    }
+                    // file:///gi or file:///maps from old /gi links — send to Flask (gi_module / maps_module).
+                    if (uri != null && uri.scheme == "file") {
+                        val path = uri.path?.trimEnd('/') ?: ""
+                        if (path == "/gi") {
+                            view?.loadUrl("$flaskDefaultBase/gi")
+                            return true
+                        }
+                        if (path == "/maps") {
+                            view?.loadUrl("$flaskDefaultBase/maps")
+                            return true
+                        }
+                    }
                     // Avoid blocking UI for in-page hash navigation (About tabs, etc.).
                     val currentUrl = view?.url
                     val requestUrl = request?.url?.toString()

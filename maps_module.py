@@ -443,7 +443,10 @@ class MapsModule:
     <meta name="color-scheme" content="light">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <title>Coffee Farms Map - Lipa City | Beanthentic</title>
-    <link rel="stylesheet" href="/android-app/app/src/main/assets/css/layout.css">
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/responsive.css">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -1539,7 +1542,7 @@ class MapsModule:
                 </span>
                 <span class="app-bottom-nav-label">Map</span>
             </a>
-            <a href="/login.html" class="app-bottom-nav-link">
+            <a href="/login.php" id="nav-signin" class="app-bottom-nav-link app-bottom-nav-link--signin" data-no-loader="true">
                 <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
                     <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                 </span>

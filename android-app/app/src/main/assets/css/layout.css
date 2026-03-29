@@ -33,7 +33,7 @@ header {
 .logo {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0;
   font-weight: 700;
   letter-spacing: 0.08em;
   font-size: 1rem;
@@ -41,13 +41,6 @@ header {
   color: var(--beanthentic-cream);
   min-width: 0;
   margin-right: auto;
-}
-
-.logo span {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 @keyframes logoPopIn {
@@ -66,11 +59,10 @@ header {
 }
 
 .logo-mark {
-  width: 64px;
-  height: 48px;
-  object-fit: cover;
-  /* Crop away the bottom text, keep the icon area */
-  object-position: center top;
+  width: 92px;
+  height: 78px;
+  object-fit: contain;
+  object-position: center center;
   display: block;
   animation: logoPopIn 0.55s ease-out 0.05s both;
 }
@@ -227,8 +219,8 @@ body.nav-menu-open {
   }
 
   .logo-mark {
-    width: 48px;
-    height: 40px;
+    width: 72px;
+    height: 54px;
   }
 
   .logo {
@@ -656,11 +648,91 @@ body.has-app-bottom-nav {
   justify-content: space-between;
   gap: 0.125rem;
   padding: 0.35rem max(0.35rem, env(safe-area-inset-left)) 0.45rem max(0.35rem, env(safe-area-inset-right));
+  /* Let Map + Sign in stay above the raised GI tab so they stay visible/tappable */
+  position: relative;
+}
+
+/* About tab: opens in-page section menu (History / Mission & Vision / How to get there) */
+.app-bottom-nav-about {
+  flex: 1 1 0;
+  min-width: 0;
+  position: relative;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.app-bottom-nav-about-btn {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  text-align: center;
+}
+
+.app-bottom-nav-about-menu {
+  position: fixed;
+  left: max(0.5rem, env(safe-area-inset-left));
+  right: max(0.5rem, env(safe-area-inset-right));
+  bottom: calc(3.75rem + env(safe-area-inset-bottom, 0px));
+  z-index: 1150;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0.35rem 0;
+  border-radius: 14px;
+  background: rgba(253, 250, 246, 0.98);
+  border: 1px solid rgba(46, 111, 28, 0.14);
+  box-shadow: 0 -4px 18px rgba(22, 38, 28, 0.1), 0 8px 24px rgba(22, 38, 28, 0.1);
+  max-height: min(36vh, 9rem);
+  overflow: auto;
+}
+
+.app-bottom-nav-about-menu[hidden] {
+  display: none !important;
+}
+
+.app-bottom-nav-about-item {
+  display: block;
+  padding: 0.65rem 1rem;
+  font-size: 0.812rem;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  line-height: 1.25;
+  color: #3d4a38 !important;
+  text-decoration: none !important;
+  border: none;
+  border-bottom: 1px solid rgba(46, 111, 28, 0.06);
+  transition: background 0.15s ease;
+}
+
+.app-bottom-nav-about-item:last-child {
+  border-bottom: none;
+}
+
+.app-bottom-nav-about-item:hover,
+.app-bottom-nav-about-item:focus-visible {
+  background: rgba(46, 111, 28, 0.08);
+  outline: none;
+}
+
+@media (min-width: 901px) {
+  .app-bottom-nav-about-menu {
+    bottom: calc(4rem + env(safe-area-inset-bottom, 0px));
+  }
 }
 
 .app-bottom-nav-link {
   flex: 1 1 0;
   min-width: 0;
+  position: relative;
+  z-index: 4;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -680,6 +752,19 @@ body.has-app-bottom-nav {
     background 0.18s ease,
     color 0.18s ease,
     transform 0.12s ease;
+}
+
+/* Keep Sign in / Map from shrinking too much on narrow screens */
+.app-bottom-nav-inner > a:nth-child(4),
+.app-bottom-nav-inner > a:nth-child(5) {
+  min-width: 3.25rem;
+}
+
+/* Sign in tab: stay tappable above GI pill (all pages with app-bottom-nav) */
+.app-bottom-nav a.app-bottom-nav-link--signin {
+  position: relative;
+  z-index: 15;
+  pointer-events: auto;
 }
 
 .app-bottom-nav-icon-wrap {
@@ -729,11 +814,24 @@ body.has-app-bottom-nav {
   stroke-width: 2.25px;
 }
 
+.app-bottom-nav-about-btn.is-active:not(.app-bottom-nav-link--featured),
+.app-bottom-nav-about-btn[aria-current="page"]:not(.app-bottom-nav-link--featured) {
+  color: var(--beanthentic-green) !important;
+  background: rgba(46, 111, 28, 0.11);
+}
+
+.app-bottom-nav-about-btn.is-active:not(.app-bottom-nav-link--featured) .app-bottom-nav-icon,
+.app-bottom-nav-about-btn[aria-current="page"]:not(.app-bottom-nav-link--featured) .app-bottom-nav-icon {
+  opacity: 1;
+  stroke-width: 2.25px;
+}
+
 /* Center “GI Portal” tab — always emphasized (app-style) */
 .app-bottom-nav-link--featured {
   position: relative;
-  z-index: 2;
+  z-index: 2; /* below other tabs so Home / About / Map / Sign in stay visible on overlap */
   align-self: flex-end;
+  max-width: 28%;
   margin-bottom: 0.15rem;
   margin-top: -16px;
   padding: 0.55rem 0.2rem 0.45rem !important;

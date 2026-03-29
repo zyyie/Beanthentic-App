@@ -1,0 +1,396 @@
+{
+  "success": true,
+  "farms": [
+    {
+      "id": 1,
+      "barangay": "Adya",
+      "latitude": 13.98,
+      "longitude": 121.12,
+      "farm_name": "Adya",
+      "farm_count": 2,
+      "varieties": [
+        "Excelsa",
+        "Liberica",
+        "Robusta"
+      ],
+      "description": "Barangay Adya is a coffee-growing area in Lipa City. Varieties grown here include Excelsa, Liberica, Robusta. Approx. combined annual production (where reported): 1382 kg."
+    },
+    {
+      "id": 2,
+      "barangay": "Antipolo del Sur",
+      "latitude": 13.9678,
+      "longitude": 121.1456,
+      "farm_name": "Antipolo del Sur",
+      "farm_count": 2,
+      "varieties": [
+        "Excelsa",
+        "Liberica",
+        "Robusta"
+      ],
+      "description": "Barangay Antipolo del Sur is a coffee-growing area in Lipa City. Varieties grown here include Excelsa, Liberica, Robusta. Approx. combined annual production (where reported): 1072 kg."
+    },
+    {
+      "id": 3,
+      "barangay": "Bagong Pook",
+      "latitude": 13.94,
+      "longitude": 121.16,
+      "farm_name": "Bagong Pook",
+      "farm_count": 6,
+      "varieties": [
+        "Excelsa",
+        "Liberica",
+        "Robusta"
+      ],
+      "description": "Barangay Bagong Pook is a coffee-growing area in Lipa City. Varieties grown here include Excelsa, Liberica, Robusta. Approx. combined annual production (where reported): 1923 kg."
+    },
+    {
+      "id": 4,
+      "barangay": "Bulacnin",
+      "latitude": 13.98,
+      "longitude": 121.15,
+      "farm_name": "Bulacnin",
+      "farm_count": 1,
+      "varieties": [
+        "Liberica",
+        "Robusta"
+      ],
+      "description": "Barangay Bulacnin is a coffee-growing area in Lipa City. Varieties grown here include Liberica, Robusta. Approx. combined annual production (where reported): 424 kg."
+    },
+    {
+      "id": 5,
+      "barangay": "Halang",
+      "latitude": 13.95,
+      "longitude": 121.16,
+      "farm_name": "Halang",
+      "farm_count": 1,
+      "varieties": [
+        "Excelsa",
+        "Liberica",
+        "Robusta"
+      ],
+      "description": "Barangay Halang is a coffee-growing area in Lipa City. Varieties grown here include Excelsa, Liberica, Robusta. Approx. combined annual production (where reported): 135 kg."
+    },
+    {
+      "id": 6,
+      "barangay": "Kayumanggi",
+      "latitude": 13.93,
+      "longitude": 121.12,
+      "farm_name": "Kayumanggi",
+      "farm_count": 2,
+      "varieties": [
+        "Excelsa",
+        "Liberica",
+        "Robusta"
+      ],
+      "description": "Barangay Kayumanggi is a coffee-growing area in Lipa City. Varieties grown here include Excelsa, Liberica, Robusta. Approx. combined annual production (where reported): 960 kg."
+    },
+    {
+      "id": 7,
+      "barangay": "Latag",
+      "latitude": 13.96,
+      "longitude": 121.19,
+      "farm_name": "Latag",
+      "farm_count": 1,
+      "varieties": [
+        "Liberica",
+        "Robusta"
+      ],
+      "description": "Barangay Latag is a coffee-growing area in Lipa City. Varieties grown here include Liberica, Robusta. Approx. combined annual production (where reported): 500 kg."
+    },
+    {
+      "id": 8,
+      "barangay": "Lodlod",
+      "latitude": 13.94,
+      "longitude": 121.18,
+      "farm_name": "Lodlod",
+      "farm_count": 15,
+      "varieties": [
+        "Excelsa",
+        "Liberica",
+        "Robusta"
+      ],
+      "description": "Barangay Lodlod is a coffee-growing area in Lipa City. Varieties grown here include Excelsa, Liberica, Robusta. Approx. combined annual production (where reported): 5362 kg."
+    },
+    {
+      "id": 9,
+      "barangay": "Lumbang",
+      "latitude": 13.97,
+      "longitude": 121.11,
+      "farm_name": "Lumbang",
+      "farm_count": 6,
+      "varieties": [
+        "Excelsa",
+        "Liberica",
+        "Robusta"
+      ],
+      "description": "Barangay Lumbang is a coffee-growing area in Lipa City. Varieties grown here include Excelsa, Liberica, Robusta. Approx. combined annual production (where reported): 1920 kg."
+    },
+    {
+      "id": 10,
+      "barangay": "Malagonlong",
+      "latitude": 13.98,
+      "longitude": 121.18,
+      "farm_name": "Malagonlong",
+      "farm_count": 1,
+      "varieties": [
+        "Excelsa",
+        "Liberica",
+        "Robusta"
+      ],
+      "description": "Barangay Malagonlong is a coffee-growing area in Lipa City. Varieties grown here include Excelsa, Liberica, Robusta. Approx. combined annual production (where reported): 361 kg."
+    },
+    {
+      "id": 11,
+      "barangay": "Malitlit",
+      "latitude": 13.98,
+      "longitude": 121.16,
+      "farm_name": "Malitlit",
+      "farm_count": 12,
+      "varieties": [
+        "Excelsa",
+        "Liberica",
+        "Robusta"
+      ],
+      "description": "Barangay Malitlit is a coffee-growing area in Lipa City. Varieties grown here include Excelsa, Liberica, Robusta. Approx. combined annual production (where reported): 2799 kg."
+    },
+    {
+      "id": 12,
+      "barangay": "Pagolingin",
+      "latitude": 13.97,
+      "longitude": 121.15,
+      "farm_name": "Pagolingin",
+      "farm_count": 9,
+      "varieties": [
+        "Excelsa",
+        "Liberica",
+        "Robusta"
+      ],
+      "description": "Barangay Pagolingin is a coffee-growing area in Lipa City. Varieties grown here include Excelsa, Liberica, Robusta. Approx. combined annual production (where reported): 1031 kg."
+    },
+    {
+      "id": 13,
+      "barangay": "Pangao",
+      "latitude": 13.96,
+      "longitude": 121.12,
+      "farm_name": "Pangao",
+      "farm_count": 5,
+      "varieties": [
+        "Excelsa",
+        "Liberica",
+        "Robusta"
+      ],
+      "description": "Barangay Pangao is a coffee-growing area in Lipa City. Varieties grown here include Excelsa, Liberica, Robusta. Approx. combined annual production (where reported): 667 kg."
+    },
+    {
+      "id": 14,
+      "barangay": "Pinagkawitan",
+      "latitude": 13.93,
+      "longitude": 121.17,
+      "farm_name": "Pinagkawitan",
+      "farm_count": 3,
+      "varieties": [
+        "Robusta"
+      ],
+      "description": "Barangay Pinagkawitan is a coffee-growing area in Lipa City. Varieties grown here include Robusta. Approx. combined annual production (where reported): 708 kg."
+    },
+    {
+      "id": 15,
+      "barangay": "Pinagtong-Ulan",
+      "latitude": 13.9667,
+      "longitude": 121.15,
+      "farm_name": "Pinagtong-Ulan",
+      "farm_count": 25,
+      "varieties": [
+        "Excelsa",
+        "Liberica",
+        "Robusta"
+      ],
+      "description": "Barangay Pinagtong-Ulan is a coffee-growing area in Lipa City. Varieties grown here include Excelsa, Liberica, Robusta. Approx. combined annual production (where reported): 7343 kg."
+    },
+    {
+      "id": 16,
+      "barangay": "Pusil",
+      "latitude": 13.9414,
+      "longitude": 121.1605,
+      "farm_name": "Pusil",
+      "farm_count": 1,
+      "varieties": [
+        "Liberica"
+      ],
+      "description": "Barangay Pusil is a coffee-growing area in Lipa City. Varieties grown here include Liberica. Approx. combined annual production (where reported): 115 kg."
+    },
+    {
+      "id": 17,
+      "barangay": "Quezon",
+      "latitude": 13.9414,
+      "longitude": 121.1605,
+      "farm_name": "Quezon",
+      "farm_count": 14,
+      "varieties": [
+        "Excelsa",
+        "Liberica",
+        "Robusta"
+      ],
+      "description": "Barangay Quezon is a coffee-growing area in Lipa City. Varieties grown here include Excelsa, Liberica, Robusta. Approx. combined annual production (where reported): 3335 kg."
+    },
+    {
+      "id": 18,
+      "barangay": "Rizal",
+      "latitude": 13.94,
+      "longitude": 121.18,
+      "farm_name": "Rizal",
+      "farm_count": 14,
+      "varieties": [
+        "Excelsa",
+        "Liberica",
+        "Robusta"
+      ],
+      "description": "Barangay Rizal is a coffee-growing area in Lipa City. Varieties grown here include Excelsa, Liberica, Robusta. Approx. combined annual production (where reported): 2755 kg."
+    },
+    {
+      "id": 19,
+      "barangay": "San Benito",
+      "latitude": 13.9345,
+      "longitude": 121.189,
+      "farm_name": "San Benito",
+      "farm_count": 34,
+      "varieties": [
+        "Excelsa",
+        "Liberica",
+        "Robusta"
+      ],
+      "description": "Barangay San Benito is a coffee-growing area in Lipa City. Varieties grown here include Excelsa, Liberica, Robusta. Approx. combined annual production (where reported): 8261 kg."
+    },
+    {
+      "id": 20,
+      "barangay": "San Celestino",
+      "latitude": 13.98,
+      "longitude": 121.13,
+      "farm_name": "San Celestino",
+      "farm_count": 4,
+      "varieties": [
+        "Excelsa",
+        "Liberica",
+        "Robusta"
+      ],
+      "description": "Barangay San Celestino is a coffee-growing area in Lipa City. Varieties grown here include Excelsa, Liberica, Robusta. Approx. combined annual production (where reported): 1483 kg."
+    },
+    {
+      "id": 21,
+      "barangay": "San Isidro",
+      "latitude": 13.93,
+      "longitude": 121.15,
+      "farm_name": "San Isidro",
+      "farm_count": 25,
+      "varieties": [
+        "Excelsa",
+        "Liberica",
+        "Robusta"
+      ],
+      "description": "Barangay San Isidro is a coffee-growing area in Lipa City. Varieties grown here include Excelsa, Liberica, Robusta. Approx. combined annual production (where reported): 14807 kg."
+    },
+    {
+      "id": 22,
+      "barangay": "San Salvador",
+      "latitude": 13.94,
+      "longitude": 121.13,
+      "farm_name": "San Salvador",
+      "farm_count": 25,
+      "varieties": [
+        "Excelsa",
+        "Liberica",
+        "Robusta"
+      ],
+      "description": "Barangay San Salvador is a coffee-growing area in Lipa City. Varieties grown here include Excelsa, Liberica, Robusta. Approx. combined annual production (where reported): 16908 kg."
+    },
+    {
+      "id": 23,
+      "barangay": "Santo Niño",
+      "latitude": 13.9234,
+      "longitude": 121.1345,
+      "farm_name": "Santo Niño",
+      "farm_count": 34,
+      "varieties": [
+        "Excelsa",
+        "Liberica",
+        "Robusta"
+      ],
+      "description": "Barangay Santo Niño is a coffee-growing area in Lipa City. Varieties grown here include Excelsa, Liberica, Robusta. Approx. combined annual production (where reported): 13686 kg."
+    },
+    {
+      "id": 24,
+      "barangay": "Santo Toribio",
+      "latitude": 13.95,
+      "longitude": 121.12,
+      "farm_name": "Santo Toribio",
+      "farm_count": 6,
+      "varieties": [
+        "Excelsa",
+        "Liberica",
+        "Robusta"
+      ],
+      "description": "Barangay Santo Toribio is a coffee-growing area in Lipa City. Varieties grown here include Excelsa, Liberica, Robusta. Approx. combined annual production (where reported): 1626 kg."
+    },
+    {
+      "id": 25,
+      "barangay": "Talisay",
+      "latitude": 13.91,
+      "longitude": 121.13,
+      "farm_name": "Talisay",
+      "farm_count": 13,
+      "varieties": [
+        "Excelsa",
+        "Liberica",
+        "Robusta"
+      ],
+      "description": "Barangay Talisay is a coffee-growing area in Lipa City. Varieties grown here include Excelsa, Liberica, Robusta. Approx. combined annual production (where reported): 1850 kg."
+    },
+    {
+      "id": 26,
+      "barangay": "Tangob",
+      "latitude": 13.93,
+      "longitude": 121.17,
+      "farm_name": "Tangob",
+      "farm_count": 4,
+      "varieties": [
+        "Liberica",
+        "Robusta"
+      ],
+      "description": "Barangay Tangob is a coffee-growing area in Lipa City. Varieties grown here include Liberica, Robusta. Approx. combined annual production (where reported): 590 kg."
+    },
+    {
+      "id": 27,
+      "barangay": "Tangway",
+      "latitude": 13.9414,
+      "longitude": 121.1605,
+      "farm_name": "Tangway",
+      "farm_count": 5,
+      "varieties": [
+        "Excelsa",
+        "Liberica",
+        "Robusta"
+      ],
+      "description": "Barangay Tangway is a coffee-growing area in Lipa City. Varieties grown here include Excelsa, Liberica, Robusta. Approx. combined annual production (where reported): 3094 kg."
+    },
+    {
+      "id": 28,
+      "barangay": "Tipakan",
+      "latitude": 13.9,
+      "longitude": 121.16,
+      "farm_name": "Tipakan",
+      "farm_count": 2,
+      "varieties": [
+        "Excelsa",
+        "Liberica",
+        "Robusta"
+      ],
+      "description": "Barangay Tipakan is a coffee-growing area in Lipa City. Varieties grown here include Excelsa, Liberica, Robusta. Approx. combined annual production (where reported): 305 kg."
+    }
+  ],
+  "center": {
+    "lat": 13.9414,
+    "lng": 121.1605,
+    "name": "Lipa City"
+  },
+  "source": "CSV Database"
+}

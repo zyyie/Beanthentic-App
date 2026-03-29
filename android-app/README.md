@@ -32,6 +32,7 @@ Kailangan mo ng **Android Studio**: https://developer.android.com/studio
 4. **Kung may error**  
    - Gamitin na lang: **Build → Build Bundle(s) / APK(s) → Build APK(s)**  
    - Ito gumagawa ng **debug** APK na pwedeng i-install agad (walang signing setup).
+   - **“Incompatible Gradle JVM” / Gradle 8.2 vs Java 21:** Buksan ang **`android-app`** folder lang (hindi ang parent folder). Tapos **File → Invalidate Caches → Invalidate and Restart**. Pagbalik: **Settings → Build, Execution, Deployment → Build Tools → Gradle → Gradle JDK** → piliin **Embedded JDK (jbr-17)** o **JDK 17**, tapos **Sync Project with Gradle Files**.
 
 5. **Hanapin ang APK**  
    Pag tapos na ang build:

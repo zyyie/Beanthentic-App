@@ -14,6 +14,7 @@ class UIController {
     this.setupHomepageSidebarDrawer();
     this.setupAboutNavDropdown();
     this.setupAboutMenu();
+    this.setupBottomNavAboutMenu();
     this.setupMobileMainNav();
     this.setupHeaderNotifications();
     this.loadYear();
@@ -168,6 +169,48 @@ class UIController {
       if (!link) return;
       // Don't close if the user is toggling the nested History submenu.
       if (link.id === 'about-history-toggle') return;
+      close();
+    });
+  }
+
+  setupBottomNavAboutMenu() {
+    const toggle = document.getElementById('bottom-nav-about-toggle');
+    const menu = document.getElementById('bottom-nav-about-menu');
+    if (!toggle || !menu) return;
+
+    const open = () => {
+      menu.hidden = false;
+      toggle.setAttribute('aria-expanded', 'true');
+    };
+
+    const close = () => {
+      menu.hidden = true;
+      toggle.setAttribute('aria-expanded', 'false');
+    };
+
+    const isOpen = () => toggle.getAttribute('aria-expanded') === 'true';
+
+    toggle.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (isOpen()) close();
+      else open();
+    });
+
+    document.addEventListener('click', (e) => {
+      const t = e.target;
+      if (!t) return;
+      if (menu.contains(t) || toggle.contains(t)) return;
+      close();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') close();
+    });
+
+    menu.addEventListener('click', (e) => {
+      const a = e.target && e.target.closest ? e.target.closest('a.app-bottom-nav-about-item') : null;
+      if (!a) return;
       close();
     });
   }

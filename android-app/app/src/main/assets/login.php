@@ -14,8 +14,7 @@
   <header>
     <div class="nav">
       <a href="index.php#home" class="logo" aria-label="Beanthentic home">
-        <img class="logo-mark" src="beantHentic_logo.png" alt="Beanthentic logo" />
-        <span>BEANTHENTIC</span>
+        <img class="logo-mark" src="beantHentic_logo.png" alt="Beanthentic" />
       </a>
       <button
         type="button"
@@ -55,31 +54,45 @@
 
   <nav class="app-bottom-nav" aria-label="Quick navigation">
     <div class="app-bottom-nav-inner">
-      <a href="index.php#home" class="app-bottom-nav-link">
+      <a href="index.php#home" id="nav-home" class="app-bottom-nav-link">
         <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
           <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         </span>
         <span class="app-bottom-nav-label">Home</span>
       </a>
-      <a href="index.php#about-mission-vision" class="app-bottom-nav-link">
-        <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
-          <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-        </span>
-        <span class="app-bottom-nav-label">About</span>
-      </a>
-      <a href="/gi" class="app-bottom-nav-link app-bottom-nav-link--featured">
+      <div class="app-bottom-nav-about">
+        <button
+          type="button"
+          class="app-bottom-nav-link app-bottom-nav-about-btn"
+          id="bottom-nav-about-toggle"
+          aria-expanded="false"
+          aria-haspopup="true"
+          aria-controls="bottom-nav-about-menu"
+        >
+          <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
+            <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          </span>
+          <span class="app-bottom-nav-label">About</span>
+        </button>
+        <div id="bottom-nav-about-menu" class="app-bottom-nav-about-menu" role="menu" hidden aria-label="About sections">
+          <a href="index.php#about-liberica" class="app-bottom-nav-about-item" role="menuitem">History</a>
+          <a href="index.php#about-mission-vision" class="app-bottom-nav-about-item" role="menuitem">Mission and Vision</a>
+          <a href="index.php#about-how-to-get-there" class="app-bottom-nav-about-item" role="menuitem">How to Get There</a>
+        </div>
+      </div>
+      <a href="http://10.0.2.2:5000/gi" data-beanthentic-flask="/gi" class="app-bottom-nav-link app-bottom-nav-link--featured">
         <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
           <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
         </span>
         <span class="app-bottom-nav-label">GI Portal</span>
       </a>
-      <a href="/maps" class="app-bottom-nav-link">
+      <a href="http://10.0.2.2:5000/maps" data-beanthentic-flask="/maps" class="app-bottom-nav-link">
         <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
           <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
         </span>
         <span class="app-bottom-nav-label">Map</span>
       </a>
-      <a href="login.php" class="app-bottom-nav-link is-active" aria-current="page">
+      <a href="login.php" id="nav-signin" class="app-bottom-nav-link app-bottom-nav-link--signin is-active" aria-current="page" data-no-loader="true">
         <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
           <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         </span>
@@ -92,6 +105,50 @@
   <script src="js/ui.js"></script>
   <script>
     (function () {
+      function flaskBase() {
+        try {
+          var s = localStorage.getItem('beanthentic_flask_base');
+          if (s && String(s).replace(/\s/g, '')) return String(s).replace(/\/$/, '');
+        } catch (e) {}
+        if (typeof location !== 'undefined' && (location.protocol === 'http:' || location.protocol === 'https:')) {
+          return (location.origin || '').replace(/\/$/, '');
+        }
+        return 'http://10.0.2.2:5000';
+      }
+      function fixHomeAboutFromLogin() {
+        if (typeof location === 'undefined') return;
+        if (location.protocol !== 'http:' && location.protocol !== 'https:') return;
+        var o = (location.origin || '').replace(/\/$/, '');
+        var home = document.getElementById('nav-home');
+        if (home) home.setAttribute('href', o + '/#home');
+        var menu = document.getElementById('bottom-nav-about-menu');
+        if (menu) {
+          menu.querySelectorAll('a[href*="#about-"]').forEach(function (a) {
+            var href = a.getAttribute('href') || '';
+            var m = href.match(/#(about-[a-z0-9-]+)$/i);
+            if (m) a.setAttribute('href', o + '/#' + m[1]);
+          });
+        }
+        var logo = document.querySelector('header a.logo');
+        if (logo) logo.setAttribute('href', o + '/#home');
+      }
+      function applyFlaskNav() {
+        var b = flaskBase();
+        document.querySelectorAll('a[data-beanthentic-flask]').forEach(function (a) {
+          var p = a.getAttribute('data-beanthentic-flask');
+          if (p) a.setAttribute('href', b + p);
+        });
+      }
+      function runNavFixes() {
+        fixHomeAboutFromLogin();
+        applyFlaskNav();
+      }
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', runNavFixes);
+      else runNavFixes();
+    })();
+  </script>
+  <script>
+    (function () {
       function syncAppBottomNav() {
         var bar = document.querySelector('.app-bottom-nav');
         if (!bar) return;
@@ -101,8 +158,11 @@
           a.removeAttribute('aria-current');
         });
         if (onLogin) {
-          var lk = bar.querySelector('a[href="login.php"]');
-          if (lk) { lk.classList.add('is-active'); lk.setAttribute('aria-current', 'page'); }
+          var lk = document.getElementById('nav-signin');
+          if (lk) {
+            lk.classList.add('is-active');
+            lk.setAttribute('aria-current', 'page');
+          }
         }
       }
       syncAppBottomNav();

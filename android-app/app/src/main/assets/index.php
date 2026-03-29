@@ -39,9 +39,8 @@
         <img
           class="logo-mark"
           src="beantHentic_logo.png"
-          alt="Beanthentic logo"
+          alt="Beanthentic"
         />
-        <span>BEANTHENTIC</span>
       </a>
       <button
         type="button"
@@ -188,25 +187,39 @@
         </span>
         <span class="app-bottom-nav-label">Home</span>
       </a>
-      <a href="#about-mission-vision" class="app-bottom-nav-link">
-        <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
-          <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-        </span>
-        <span class="app-bottom-nav-label">About</span>
-      </a>
-      <a href="/gi" class="app-bottom-nav-link app-bottom-nav-link--featured">
+      <div class="app-bottom-nav-about">
+        <button
+          type="button"
+          class="app-bottom-nav-link app-bottom-nav-about-btn"
+          id="bottom-nav-about-toggle"
+          aria-expanded="false"
+          aria-haspopup="true"
+          aria-controls="bottom-nav-about-menu"
+        >
+          <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
+            <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          </span>
+          <span class="app-bottom-nav-label">About</span>
+        </button>
+        <div id="bottom-nav-about-menu" class="app-bottom-nav-about-menu" role="menu" hidden aria-label="About sections">
+          <a href="#about-liberica" class="app-bottom-nav-about-item" role="menuitem">History</a>
+          <a href="#about-mission-vision" class="app-bottom-nav-about-item" role="menuitem">Mission and Vision</a>
+          <a href="#about-how-to-get-there" class="app-bottom-nav-about-item" role="menuitem">How to Get There</a>
+        </div>
+      </div>
+      <a href="http://10.0.2.2:5000/gi" data-beanthentic-flask="/gi" class="app-bottom-nav-link app-bottom-nav-link--featured">
         <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
           <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
         </span>
         <span class="app-bottom-nav-label">GI Portal</span>
       </a>
-      <a href="/maps" class="app-bottom-nav-link">
+      <a href="http://10.0.2.2:5000/maps" data-beanthentic-flask="/maps" class="app-bottom-nav-link">
         <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
           <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
         </span>
         <span class="app-bottom-nav-label">Map</span>
       </a>
-      <a href="login.php" class="app-bottom-nav-link">
+      <a href="login.php" id="nav-signin" class="app-bottom-nav-link app-bottom-nav-link--signin" data-no-loader="true">
         <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
           <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         </span>
@@ -217,6 +230,59 @@
 
   <script src="js/navigation.js"></script>
   <script src="js/ui.js"></script>
+
+  <script>
+    (function () {
+      function flaskBase() {
+        try {
+          var s = localStorage.getItem('beanthentic_flask_base');
+          if (s && String(s).replace(/\s/g, '')) return String(s).replace(/\/$/, '');
+        } catch (e) {}
+        if (typeof location !== 'undefined' && (location.protocol === 'http:' || location.protocol === 'https:')) {
+          return (location.origin || '').replace(/\/$/, '');
+        }
+        return 'http://10.0.2.2:5000';
+      }
+      function applyFlaskNav() {
+        var b = flaskBase();
+        document.querySelectorAll('a[data-beanthentic-flask]').forEach(function (a) {
+          var p = a.getAttribute('data-beanthentic-flask');
+          if (p) a.setAttribute('href', b + p);
+        });
+      }
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', applyFlaskNav);
+      else applyFlaskNav();
+    })();
+  </script>
+
+  <script>
+    (function () {
+      function fixSignInHref() {
+        var a = document.getElementById('nav-signin');
+        if (!a) return;
+        try {
+          a.setAttribute('href', new URL('login.php', location.href).href);
+        } catch (e) {
+          a.setAttribute('href', 'login.php');
+        }
+      }
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fixSignInHref);
+      else fixSignInHref();
+      /* Force navigation (Flask + WebView): avoids blocked default on some taps */
+      document.addEventListener('DOMContentLoaded', function () {
+        var a = document.getElementById('nav-signin');
+        if (!a) return;
+        a.addEventListener('click', function (e) {
+          e.preventDefault();
+          try {
+            window.location.assign(new URL('login.php', location.href).href);
+          } catch (err) {
+            window.location.assign('login.php');
+          }
+        }, true);
+      });
+    })();
+  </script>
 
   <script>
     (function () {
@@ -255,6 +321,7 @@
         if (href.indexOf('#') === 0) return;
         if (a.closest && a.closest('.home-sidebar')) return;
         if (a.getAttribute('data-no-loader') === 'true') return;
+        if (href.startsWith('http')) return;
 
         loader.style.display = 'flex';
         startedAt = Date.now();
@@ -274,9 +341,16 @@
           a.classList.remove('is-active');
           a.removeAttribute('aria-current');
         });
+        var aboutBtn = bar.querySelector('.app-bottom-nav-about-btn');
+        if (aboutBtn) {
+          aboutBtn.classList.remove('is-active');
+          aboutBtn.removeAttribute('aria-current');
+        }
         if (aboutActive) {
-          var ab = bar.querySelector('a[href="#about-mission-vision"]');
-          if (ab) { ab.classList.add('is-active'); ab.setAttribute('aria-current', 'page'); }
+          if (aboutBtn) {
+            aboutBtn.classList.add('is-active');
+            aboutBtn.setAttribute('aria-current', 'page');
+          }
         } else {
           var hm = bar.querySelector('a[href="#home"]');
           if (hm) { hm.classList.add('is-active'); hm.setAttribute('aria-current', 'page'); }

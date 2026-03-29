@@ -1,0 +1,43 @@
+{
+  "features": [
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              121.08,
+              13.88
+            ],
+            [
+              121.08,
+              14.0
+            ],
+            [
+              121.24,
+              14.0
+            ],
+            [
+              121.24,
+              13.88
+            ],
+            [
+              121.08,
+              13.88
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "properties": {
+        "fill": "#147539",
+        "fill-opacity": 0.1,
+        "name": "Lipa City Boundary",
+        "stroke": "#147539",
+        "stroke-opacity": 0.8,
+        "stroke-width": 2
+      },
+      "type": "Feature"
+    }
+  ],
+  "type": "FeatureCollection"
+}

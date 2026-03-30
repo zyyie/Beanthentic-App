@@ -88,7 +88,6 @@ class UIController {
     this.setupMobileMainNav();
     this.setupHeaderNotifications();
     this.setupHeaderNavDrawer();
-    this.loadYear();
   }
 
   setupHeaderNavDrawer() {
@@ -832,14 +831,6 @@ class UIController {
 
     setIndex(0);
     start();
-  }
-
-  loadYear() {
-    // Set current year in footer
-    const yearElement = document.getElementById('year');
-    if (yearElement) {
-      yearElement.textContent = new Date().getFullYear();
-    }
   }
 
   // Utility method to show notifications

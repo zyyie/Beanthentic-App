@@ -1,4 +1,4 @@
-/* Layout components - Header, Footer, Navigation */
+/* Layout components - Header, Navigation */
 
 :root {
   --beanthentic-green: #2e6f1c;
@@ -6,7 +6,7 @@
   --beanthentic-green-accent: #147539;
   --beanthentic-cream: #fdfaf6;
   --beanthentic-text: #1a1f16;
-  /* Top bar + footer bar — earthy moss green (~rgb(80,128,32) / #508020); light icons & footer text */
+  /* Top bar — earthy moss green (~rgb(80,128,32) / #508020); light icons */
   --navbar-bg: #508020;
   --navbar-bg-shade: #436b1a;
   --navbar-fg: #fdfaf6;
@@ -557,39 +557,6 @@ body.beanthentic-about-only .about-topic[id] {
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
-}
-
-/* Footer — same green family as navbar (image reference #508020) */
-footer {
-  margin-top: 3rem;
-  padding: 1.5rem max(1.5rem, env(safe-area-inset-left)) max(2.5rem, calc(1.5rem + env(safe-area-inset-bottom))) max(1.5rem, env(safe-area-inset-right));
-  border-top: 1px solid rgba(255, 255, 255, 0.18);
-  font-size: 0.83rem;
-  color: var(--navbar-fg);
-  background: var(--navbar-bg);
-}
-
-.footer-inner {
-  max-width: 1100px;
-  margin: 0 auto;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.6rem;
-}
-
-.footer-inner span {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.footer-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 999px;
-  background: #c08552;
 }
 
 /* -------------------------------------------------------------------------- */

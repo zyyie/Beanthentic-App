@@ -88,6 +88,7 @@ class UIController {
     this.setupMobileMainNav();
     this.setupHeaderNotifications();
     this.setupHeaderNavDrawer();
+    this.loadYear();
   }
 
   setupHeaderNavDrawer() {
@@ -132,28 +133,7 @@ class UIController {
     });
 
     root.querySelectorAll('a.header-drawer-link').forEach((a) => {
-      a.addEventListener('click', (e) => {
-        // Social → always our in-app social.php (lists official FB / future channels), never a direct external URL.
-        if (a.classList.contains('header-drawer-link--social')) {
-          e.preventDefault();
-          try {
-            window.location.assign(new URL('social.php', window.location.href).href);
-          } catch (_err) {
-            window.location.assign('social.php');
-          }
-          window.setTimeout(close, 150);
-          return;
-        }
-        const href = a.getAttribute('href');
-        // Same-window relative pages (e.g. privacy.php): resolve to absolute URL so file:// WebViews navigate reliably.
-        if (href && !href.startsWith('#') && !/^https?:/i.test(href) && href.indexOf(':') === -1) {
-          e.preventDefault();
-          try {
-            window.location.assign(new URL(href, window.location.href).href);
-          } catch (_err) {
-            window.location.assign(href);
-          }
-        }
+      a.addEventListener('click', () => {
         window.setTimeout(close, 150);
       });
     });
@@ -317,12 +297,6 @@ class UIController {
     const historyToggle = document.getElementById('bottom-nav-history-toggle');
     const historySubmenu = document.getElementById('bottom-nav-history-submenu');
 
-    const collapseHistorySubmenu = () => {
-      if (!historySubmenu || !historyToggle) return;
-      historySubmenu.hidden = true;
-      historyToggle.setAttribute('aria-expanded', 'false');
-    };
-
     const open = () => {
       menu.hidden = false;
       toggle.setAttribute('aria-expanded', 'true');
@@ -331,7 +305,11 @@ class UIController {
     const close = () => {
       menu.hidden = true;
       toggle.setAttribute('aria-expanded', 'false');
-      collapseHistorySubmenu();
+      if (historySubmenu) {
+        historySubmenu.hidden = true;
+        historySubmenu.setAttribute('aria-hidden', 'true');
+      }
+      if (historyToggle) historyToggle.setAttribute('aria-expanded', 'false');
     };
 
     const isOpen = () => toggle.getAttribute('aria-expanded') === 'true';
@@ -342,33 +320,6 @@ class UIController {
       if (isOpen()) close();
       else open();
     });
-
-    if (historyToggle && historySubmenu) {
-      historyToggle.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const expanded = historyToggle.getAttribute('aria-expanded') === 'true';
-        if (expanded) {
-          historySubmenu.hidden = true;
-          historyToggle.setAttribute('aria-expanded', 'false');
-        } else if (document.getElementById('about-mission-vision')) {
-          historySubmenu.hidden = false;
-          historyToggle.setAttribute('aria-expanded', 'true');
-          window.dispatchEvent(
-            new CustomEvent('beanthentic-goto-about-panel', { detail: { panel: 'about-history' } })
-          );
-        } else {
-          const homeNav = document.querySelector('#nav-home[href]');
-          let url = 'index.php#about-history';
-          if (homeNav) {
-            const href = homeNav.getAttribute('href') || '';
-            if (href.includes('#')) url = `${href.replace(/#.*$/, '')}#about-history`;
-            else url = `${href.replace(/\/?$/, '')}#about-history`;
-          }
-          window.location.assign(url);
-        }
-      });
-    }
 
     document.addEventListener('click', (e) => {
       const t = e.target;
@@ -386,6 +337,19 @@ class UIController {
       if (!a) return;
       close();
     });
+
+    // History is a nested submenu inside the bottom About menu.
+    if (historyToggle && historySubmenu) {
+      historySubmenu.setAttribute('aria-hidden', historySubmenu.hidden ? 'true' : 'false');
+      historyToggle.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const isExpanded = historyToggle.getAttribute('aria-expanded') === 'true';
+        historySubmenu.hidden = isExpanded;
+        historySubmenu.setAttribute('aria-hidden', isExpanded ? 'true' : 'false');
+        historyToggle.setAttribute('aria-expanded', isExpanded ? 'false' : 'true');
+      });
+    }
   }
 
   setupHomeAboutViewSwitch() {
@@ -393,85 +357,34 @@ class UIController {
     const aboutMissionSection = document.getElementById('about-mission-vision');
     if (!homeSection || !aboutMissionSection) return;
 
-    /**
-     * History + Liberica/Robusta/Excelsa: walang homepage hero sa taas (parang hiwalay na page).
-     * Ibang About tabs: hero + about, scroll normal.
-     */
-    const aboutPanelsWithoutHomeHero = new Set([
-      'about-history',
-      'about-liberica',
-      'about-robusta',
-      'about-excelsa',
-    ]);
-
-    const setView = (view, aboutPanelId) => {
+    const setView = (view) => {
       const showHome = view === 'home';
-      const hideHomeHero = !showHome && aboutPanelsWithoutHomeHero.has(aboutPanelId);
-
-      homeSection.hidden = !showHome && hideHomeHero;
-      homeSection.setAttribute(
-        'aria-hidden',
-        showHome ? 'false' : hideHomeHero ? 'true' : 'false'
-      );
+      homeSection.hidden = !showHome;
+      homeSection.setAttribute('aria-hidden', showHome ? 'false' : 'true');
       aboutMissionSection.hidden = showHome;
       aboutMissionSection.setAttribute('aria-hidden', showHome ? 'true' : 'false');
-      document.body.classList.toggle('beanthentic-about-only', hideHomeHero);
-    };
-
-    const scrollAboutSectionToTop = (panelId) => {
-      requestAnimationFrame(() => {
-        let targetEl = null;
-        if (panelId && panelId !== 'about-mission-vision') {
-          targetEl = document.getElementById(panelId);
-        }
-        if (targetEl && aboutMissionSection.contains(targetEl)) {
-          targetEl.scrollIntoView({ behavior: 'auto', block: 'start' });
-        } else {
-          aboutMissionSection.scrollIntoView({ behavior: 'auto', block: 'start' });
-        }
-      });
     };
 
     const activateAboutPanel = (id) => {
       const panels = Array.from(document.querySelectorAll('.about-topic[data-about-panel]'));
-      if (panels.length === 0) return id;
+      if (panels.length === 0) return;
 
       const hasTarget = panels.some((p) => p.dataset.aboutPanel === id);
       const fallbackId = 'about-mission-vision';
       const nextId = hasTarget ? id : fallbackId;
       panels.forEach((p) => p.classList.toggle('is-active', p.dataset.aboutPanel === nextId));
       syncAboutPillLabel(nextId);
-      return nextId;
     };
 
     const emitHashSync = () => {
       window.dispatchEvent(new Event('hashchange'));
     };
 
-    const gotoAboutPanel = (rawId) => {
-      if (!rawId || !String(rawId).startsWith('about-')) return;
-      const panelId = activateAboutPanel(rawId);
-      setView('about', panelId);
-      scrollAboutSectionToTop(panelId);
-      if (history && history.replaceState) {
-        history.replaceState(null, '', `#${panelId}`);
-        emitHashSync();
-      } else {
-        window.location.hash = `#${panelId}`;
-      }
-    };
-
-    window.addEventListener('beanthentic-goto-about-panel', (ev) => {
-      const id = ev.detail && ev.detail.panel;
-      if (typeof id === 'string') gotoAboutPanel(id);
-    });
-
     const applyHashToView = () => {
       const h = (window.location.hash || '').replace(/^#/, '');
       if (h && h !== 'home' && h.startsWith('about-')) {
-        const panelId = activateAboutPanel(h);
-        setView('about', panelId);
-        scrollAboutSectionToTop(panelId);
+        setView('about');
+        activateAboutPanel(h);
       } else {
         setView('home');
       }
@@ -496,7 +409,19 @@ class UIController {
         e.preventDefault();
         e.stopImmediatePropagation();
 
-        gotoAboutPanel(id);
+        setView('about');
+        activateAboutPanel(id);
+
+        requestAnimationFrame(() => {
+          aboutMissionSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+
+        if (history && history.replaceState) {
+          history.replaceState(null, '', `#${id}`);
+          emitHashSync();
+        } else {
+          window.location.hash = `#${id}`;
+        }
       },
       true
     );
@@ -513,16 +438,28 @@ class UIController {
           return;
         }
 
+        setView('about');
+
         const targetId = item.dataset.aboutTarget || 'about-mission-vision';
+        activateAboutPanel(targetId);
 
         if (historySubmenu && !item.classList.contains('about-history-subitem')) {
           historySubmenu.hidden = true;
           historySubmenu.setAttribute('aria-hidden', 'true');
-          const inPageHistoryToggle = document.getElementById('about-history-toggle');
-          if (inPageHistoryToggle) inPageHistoryToggle.setAttribute('aria-expanded', 'false');
+          const historyToggle = document.getElementById('about-history-toggle');
+          if (historyToggle) historyToggle.setAttribute('aria-expanded', 'false');
         }
 
-        gotoAboutPanel(targetId);
+        if (history && history.replaceState) {
+          history.replaceState(null, '', `#${targetId}`);
+          emitHashSync();
+        } else {
+          window.location.hash = `#${targetId}`;
+        }
+
+        requestAnimationFrame(() => {
+          aboutMissionSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
       });
     });
 
@@ -831,6 +768,14 @@ class UIController {
 
     setIndex(0);
     start();
+  }
+
+  loadYear() {
+    // Set current year in footer
+    const yearElement = document.getElementById('year');
+    if (yearElement) {
+      yearElement.textContent = new Date().getFullYear();
+    }
   }
 
   // Utility method to show notifications

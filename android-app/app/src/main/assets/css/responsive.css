@@ -56,13 +56,13 @@
 @media (max-width: 720px) {
   .nav {
     grid-template-columns: auto auto minmax(0, 1fr);
-    padding-left: max(0.3rem, env(safe-area-inset-left, 0px));
-    padding-right: max(0.65rem, env(safe-area-inset-right, 0px));
+    padding-left: max(0.25rem, env(safe-area-inset-left, 0px));
+    padding-right: max(0.5rem, env(safe-area-inset-right, 0px));
   }
 
   .logo-mark {
-    width: 94px;
-    height: 80px;
+    width: 118px;
+    height: 100px;
   }
 
   .nav-toggle {
@@ -77,14 +77,14 @@
     flex-direction: column;
     align-items: stretch;
     gap: 0.25rem;
-    padding: 0.85rem 0 0.35rem;
+    padding: 0.75rem 0 0.28rem;
     margin-top: 0.35rem;
     border-top: 1px solid rgba(253, 250, 246, 0.25);
   }
 
   .nav-links a {
     min-height: 48px;
-    padding: 0.75rem 0.85rem;
+    padding: 0.65rem 0.75rem;
     border-radius: 10px;
     font-size: 1.05rem;
     font-weight: 600;
@@ -133,11 +133,20 @@
     padding-top: 1.5rem;
   }
 
+  footer {
+    padding-inline: 1.1rem;
+  }
+
   .about-grid {
     padding-inline: 0;
   }
 
   .about-card {
     padding: 1rem;
+  }
+
+  .footer-inner {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }

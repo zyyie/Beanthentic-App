@@ -149,13 +149,6 @@
     </article>
   </main>
 
-  <footer>
-    <div class="footer-inner">
-      <span><span class="footer-dot"></span> Beanthentic &copy; <span id="year"><?php echo date('Y'); ?></span> · Brewed with care.</span>
-      <span>Serving honest coffee, one cup at a time.</span>
-    </div>
-  </footer>
-
   <nav class="app-bottom-nav" aria-label="Quick navigation">
     <div class="app-bottom-nav-inner">
       <a href="index.php#home" id="nav-home" class="app-bottom-nav-link">

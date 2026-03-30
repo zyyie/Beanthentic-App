@@ -20,6 +20,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.view.animation.AccelerateDecelerateInterpolator
+import android.os.Message
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
@@ -166,6 +167,8 @@ class MainActivity : AppCompatActivity() {
         webView.settings.apply {
             javaScriptEnabled = true
             domStorageEnabled = true
+            javaScriptCanOpenWindowsAutomatically = true
+            setSupportMultipleWindows(true)
             allowFileAccess = true
             allowContentAccess = true
             mixedContentMode = WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE
@@ -270,6 +273,33 @@ class MainActivity : AppCompatActivity() {
                     scheduleHideAfter(delay)
                 }
             }
+
+            /**
+             * Without this, links with target="_blank" do nothing in WebView.
+             * Load the URL in the main WebView instead.
+             */
+            override fun onCreateWindow(
+                view: WebView?,
+                isDialog: Boolean,
+                isUserGesture: Boolean,
+                resultMsg: Message?
+            ): Boolean {
+                val transport = resultMsg?.obj as? WebView.WebViewTransport ?: return false
+                val temp = WebView(this@MainActivity)
+                temp.webViewClient = object : WebViewClient() {
+                    override fun shouldOverrideUrlLoading(
+                        v: WebView?,
+                        request: WebResourceRequest?
+                    ): Boolean {
+                        val url = request?.url?.toString() ?: return true
+                        webView.loadUrl(url)
+                        return true
+                    }
+                }
+                transport.webView = temp
+                resultMsg.sendToTarget()
+                return true
+            }
         }
 
         try {
@@ -308,6 +338,18 @@ class MainActivity : AppCompatActivity() {
                         if (path == "/maps") {
                             view?.loadUrl("$flaskDefaultBase/maps")
                             return true
+                        }
+                        // Jump between packaged pages (index.php ↔ privacy.php, etc.). Some WebViews
+                        // ignore relative links from file:///android_asset/ unless loadUrl is used.
+                        val fullPath = uri.path ?: ""
+                        if (fullPath.contains("/android_asset/") && request?.isForMainFrame != false) {
+                            val dest = uri.toString()
+                            val cur = view?.url
+                            if (stripFragment(dest) != stripFragment(cur ?: "")) {
+                                showLoading()
+                                view?.loadUrl(dest)
+                                return true
+                            }
                         }
                     }
                     // Avoid blocking UI for in-page hash navigation (About tabs, etc.).

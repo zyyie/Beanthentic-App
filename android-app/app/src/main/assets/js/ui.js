@@ -133,7 +133,28 @@ class UIController {
     });
 
     root.querySelectorAll('a.header-drawer-link').forEach((a) => {
-      a.addEventListener('click', () => {
+      a.addEventListener('click', (e) => {
+        // Social → always our in-app social.php (lists official FB / future channels), never a direct external URL.
+        if (a.classList.contains('header-drawer-link--social')) {
+          e.preventDefault();
+          try {
+            window.location.assign(new URL('social.php', window.location.href).href);
+          } catch (_err) {
+            window.location.assign('social.php');
+          }
+          window.setTimeout(close, 150);
+          return;
+        }
+        const href = a.getAttribute('href');
+        // Same-window relative pages (e.g. privacy.php): resolve to absolute URL so file:// WebViews navigate reliably.
+        if (href && !href.startsWith('#') && !/^https?:/i.test(href) && href.indexOf(':') === -1) {
+          e.preventDefault();
+          try {
+            window.location.assign(new URL(href, window.location.href).href);
+          } catch (_err) {
+            window.location.assign(href);
+          }
+        }
         window.setTimeout(close, 150);
       });
     });
@@ -294,6 +315,15 @@ class UIController {
     const menu = document.getElementById('bottom-nav-about-menu');
     if (!toggle || !menu) return;
 
+    const historyToggle = document.getElementById('bottom-nav-history-toggle');
+    const historySubmenu = document.getElementById('bottom-nav-history-submenu');
+
+    const collapseHistorySubmenu = () => {
+      if (!historySubmenu || !historyToggle) return;
+      historySubmenu.hidden = true;
+      historyToggle.setAttribute('aria-expanded', 'false');
+    };
+
     const open = () => {
       menu.hidden = false;
       toggle.setAttribute('aria-expanded', 'true');
@@ -302,6 +332,7 @@ class UIController {
     const close = () => {
       menu.hidden = true;
       toggle.setAttribute('aria-expanded', 'false');
+      collapseHistorySubmenu();
     };
 
     const isOpen = () => toggle.getAttribute('aria-expanded') === 'true';
@@ -312,6 +343,33 @@ class UIController {
       if (isOpen()) close();
       else open();
     });
+
+    if (historyToggle && historySubmenu) {
+      historyToggle.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const expanded = historyToggle.getAttribute('aria-expanded') === 'true';
+        if (expanded) {
+          historySubmenu.hidden = true;
+          historyToggle.setAttribute('aria-expanded', 'false');
+        } else if (document.getElementById('about-mission-vision')) {
+          historySubmenu.hidden = false;
+          historyToggle.setAttribute('aria-expanded', 'true');
+          window.dispatchEvent(
+            new CustomEvent('beanthentic-goto-about-panel', { detail: { panel: 'about-history' } })
+          );
+        } else {
+          const homeNav = document.querySelector('#nav-home[href]');
+          let url = 'index.php#about-history';
+          if (homeNav) {
+            const href = homeNav.getAttribute('href') || '';
+            if (href.includes('#')) url = `${href.replace(/#.*$/, '')}#about-history`;
+            else url = `${href.replace(/\/?$/, '')}#about-history`;
+          }
+          window.location.assign(url);
+        }
+      });
+    }
 
     document.addEventListener('click', (e) => {
       const t = e.target;
@@ -336,34 +394,85 @@ class UIController {
     const aboutMissionSection = document.getElementById('about-mission-vision');
     if (!homeSection || !aboutMissionSection) return;
 
-    const setView = (view) => {
+    /**
+     * History + Liberica/Robusta/Excelsa: walang homepage hero sa taas (parang hiwalay na page).
+     * Ibang About tabs: hero + about, scroll normal.
+     */
+    const aboutPanelsWithoutHomeHero = new Set([
+      'about-history',
+      'about-liberica',
+      'about-robusta',
+      'about-excelsa',
+    ]);
+
+    const setView = (view, aboutPanelId) => {
       const showHome = view === 'home';
-      homeSection.hidden = !showHome;
-      homeSection.setAttribute('aria-hidden', showHome ? 'false' : 'true');
+      const hideHomeHero = !showHome && aboutPanelsWithoutHomeHero.has(aboutPanelId);
+
+      homeSection.hidden = !showHome && hideHomeHero;
+      homeSection.setAttribute(
+        'aria-hidden',
+        showHome ? 'false' : hideHomeHero ? 'true' : 'false'
+      );
       aboutMissionSection.hidden = showHome;
       aboutMissionSection.setAttribute('aria-hidden', showHome ? 'true' : 'false');
+      document.body.classList.toggle('beanthentic-about-only', hideHomeHero);
+    };
+
+    const scrollAboutSectionToTop = (panelId) => {
+      requestAnimationFrame(() => {
+        let targetEl = null;
+        if (panelId && panelId !== 'about-mission-vision') {
+          targetEl = document.getElementById(panelId);
+        }
+        if (targetEl && aboutMissionSection.contains(targetEl)) {
+          targetEl.scrollIntoView({ behavior: 'auto', block: 'start' });
+        } else {
+          aboutMissionSection.scrollIntoView({ behavior: 'auto', block: 'start' });
+        }
+      });
     };
 
     const activateAboutPanel = (id) => {
       const panels = Array.from(document.querySelectorAll('.about-topic[data-about-panel]'));
-      if (panels.length === 0) return;
+      if (panels.length === 0) return id;
 
       const hasTarget = panels.some((p) => p.dataset.aboutPanel === id);
       const fallbackId = 'about-mission-vision';
       const nextId = hasTarget ? id : fallbackId;
       panels.forEach((p) => p.classList.toggle('is-active', p.dataset.aboutPanel === nextId));
       syncAboutPillLabel(nextId);
+      return nextId;
     };
 
     const emitHashSync = () => {
       window.dispatchEvent(new Event('hashchange'));
     };
 
+    const gotoAboutPanel = (rawId) => {
+      if (!rawId || !String(rawId).startsWith('about-')) return;
+      const panelId = activateAboutPanel(rawId);
+      setView('about', panelId);
+      scrollAboutSectionToTop(panelId);
+      if (history && history.replaceState) {
+        history.replaceState(null, '', `#${panelId}`);
+        emitHashSync();
+      } else {
+        window.location.hash = `#${panelId}`;
+      }
+    };
+
+    window.addEventListener('beanthentic-goto-about-panel', (ev) => {
+      const id = ev.detail && ev.detail.panel;
+      if (typeof id === 'string') gotoAboutPanel(id);
+    });
+
     const applyHashToView = () => {
       const h = (window.location.hash || '').replace(/^#/, '');
       if (h && h !== 'home' && h.startsWith('about-')) {
-        setView('about');
-        activateAboutPanel(h);
+        const panelId = activateAboutPanel(h);
+        setView('about', panelId);
+        scrollAboutSectionToTop(panelId);
       } else {
         setView('home');
       }
@@ -388,19 +497,7 @@ class UIController {
         e.preventDefault();
         e.stopImmediatePropagation();
 
-        setView('about');
-        activateAboutPanel(id);
-
-        requestAnimationFrame(() => {
-          aboutMissionSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        });
-
-        if (history && history.replaceState) {
-          history.replaceState(null, '', `#${id}`);
-          emitHashSync();
-        } else {
-          window.location.hash = `#${id}`;
-        }
+        gotoAboutPanel(id);
       },
       true
     );
@@ -417,28 +514,16 @@ class UIController {
           return;
         }
 
-        setView('about');
-
         const targetId = item.dataset.aboutTarget || 'about-mission-vision';
-        activateAboutPanel(targetId);
 
         if (historySubmenu && !item.classList.contains('about-history-subitem')) {
           historySubmenu.hidden = true;
           historySubmenu.setAttribute('aria-hidden', 'true');
-          const historyToggle = document.getElementById('about-history-toggle');
-          if (historyToggle) historyToggle.setAttribute('aria-expanded', 'false');
+          const inPageHistoryToggle = document.getElementById('about-history-toggle');
+          if (inPageHistoryToggle) inPageHistoryToggle.setAttribute('aria-expanded', 'false');
         }
 
-        if (history && history.replaceState) {
-          history.replaceState(null, '', `#${targetId}`);
-          emitHashSync();
-        } else {
-          window.location.hash = `#${targetId}`;
-        }
-
-        requestAnimationFrame(() => {
-          aboutMissionSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        });
+        gotoAboutPanel(targetId);
       });
     });
 

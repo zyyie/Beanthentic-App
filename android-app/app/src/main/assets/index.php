@@ -52,7 +52,7 @@
         <a href="#home" class="logo" aria-label="Beanthentic home">
           <img
             class="logo-mark"
-            src="beantHentic_logo.png"
+            src="beanthentic_logo.png"
             alt="Beanthentic"
           />
         </a>
@@ -80,7 +80,7 @@
       <aside class="header-nav-drawer-panel" role="dialog" aria-modal="true" aria-label="Menu">
         <div class="header-nav-drawer-inner">
           <div id="header-drawer-account" class="header-drawer-account"></div>
-          <a href="https://www.facebook.com/" class="header-drawer-link header-drawer-link--social" target="_blank" rel="noopener noreferrer">
+          <a href="social.php" class="header-drawer-link header-drawer-link--social">
             <svg class="header-drawer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             <span>Social</span>
           </a>
@@ -192,7 +192,7 @@
               alt="Beanthentic mission and vision"
             />
           </div>
-          <div class="about-topic" data-about-panel="about-history" data-about-pill-label="History">
+          <div id="about-history" class="about-topic" data-about-panel="about-history" data-about-pill-label="History">
             <h4>History</h4>
             <div class="types-liberica-wrap">
               <img
@@ -222,7 +222,7 @@
               alt="Arabica vs Liberica vs Robusta comparison"
             />
           </div>
-          <div class="about-topic" data-about-panel="about-liberica" data-about-pill-label="Liberica">
+          <div id="about-liberica" class="about-topic" data-about-panel="about-liberica" data-about-pill-label="Liberica">
             <h4>The Coffea Liberica</h4>
             <p>Although most coffee aficionados are well-versed in Arabica and Robusta varieties, there exists a lesser-known third species of coffee bean: Liberica. This particular variety constitutes approximately 2% of global coffee consumption; however, most of this consumption transpires in the nation where Liberica coffee enjoys considerable popularity: the Philippines (Earl of Coffee, 2020).</p>
             <p>Liberica, or Liberian coffee (Coffea liberica), is frequently referred to as the "third coffee crop species" (after Coffea arabica and Coffea canephora). A commonly misquoted statistic suggests that Liberica comprises approximately 1 per cent of the global coffee supply; however, the production output of this species remains minuscule when compared with that of Arabica and Robusta. Although, during the latter portion of the 19th century, Liberica was positioned alongside Arabica as the second most significant species in the coffee trade (Ralph, 2023), this status has diminished over time.</p>
@@ -293,7 +293,7 @@
               </div>
             </section>
           </div>
-          <div class="about-topic" data-about-panel="about-robusta" data-about-pill-label="Robusta">
+          <div id="about-robusta" class="about-topic" data-about-panel="about-robusta" data-about-pill-label="Robusta">
             <h4>Robusta Beans</h4>
             <p>Robusta coffee variety, as a significant cash crop, plays a pivotal role in Indonesia's agricultural landscape. According to Index Mundi, Indonesia ranks as the world's third-largest producer of Robusta, trailing only behind Brazil and Vietnam. The extensive expanses of suitable land for coffee cultivation and diverse microclimates render it particularly advantageous for producing Robusta coffee. Mia Lakhsmi Handayani, a Q Grader specializing in Robusta in Indonesia, asserts that &quot;These conditions [in Indonesia] also mean robusta flavors can range from more soft, subtle coffees with notes of chocolate and fruit grown in Central Java, to more intense flavors of vanilla and chocolate, like robusta grown in Sumatra&quot; (Perfect Daily Grind, 2022).</p>
             <div class="types-liberica-wrap types-liberica-wrap--side-by-side">
@@ -308,7 +308,7 @@
             <p>Notably, this variety is recognized because the plant exhibits rapid growth and a robust structure characterized by strong branches. Furthermore, it is comparable to other varieties by its remarkably high yield than traditional Robusta strains, demonstrating exceptional suitability for low to mid-altitude regions (ranging from 200 to 800 meters above sea level). Moreover, BP 358 can resist coffee rust and other prevalent coffee diseases and tolerate pests and environmental stresses. Thus, it emerges as a particularly advantageous choice for commercial farms, although some may argue that reliance on a single variety could pose risks.</p>
             <p>In the realm of cup quality and flavor profile, BP 358 surpasses standard Robustas in a manner that renders it a favored selection for espresso blends characterized by a robust body, opulent crema, elevated caffeine content, and a trace of subdued bitterness. These attributes particularly suit instant coffee, espresso, and various commercial blends. Indonesian farmers extensively cultivate this variety across regions such as Sumatra, Java, and Sulawesi; however, it is also utilized in Vietnam and other nations engaged in Robusta production for large-scale coffee cultivation. Because of its prolific output, BP 358 holds significant importance due to its high yield and disease resistance, presenting a lucrative opportunity for farmers. It is additionally advantageous for espresso and commercial coffee blends due to its superior cup quality. This variety plays a pivotal role in Indonesia's Robusta coffee sector, which has enabled the country to emerge as one of the globe's preeminent producers.</p>
           </div>
-          <div class="about-topic" data-about-panel="about-excelsa" data-about-pill-label="Excelsa">
+          <div id="about-excelsa" class="about-topic" data-about-panel="about-excelsa" data-about-pill-label="Excelsa">
             <h4>The Coffea Excelsa</h4>
             <p><strong>Excelsa (Excelsa Coffee)</strong></p>
             <p>Excelsa coffee, once regarded as the fourth coffee variety alongside Arabica, Robusta and Liberica, is now reclassified as a variety of <em>Coffea liberica</em>; however, its unique characteristics remain noteworthy. This rare and exotic species is known for its tart, fruity, and complex flavour profile. Although today, Excelsa is mainly cultivated in Southeast Asia (including Vietnam and the Philippines) and India, its initial discovery occurred in 1903 in Central Africa, known as <em>Coffea dewevrei</em> or Dewevreie (San Max, 2021). Many believed this coffee variety to be a distinct species within the Coffea genus; however, it was not until 2006 that it received official recognition as the Dewevrei variety of the Liberica species.</p>
@@ -327,7 +327,7 @@
             <p>The foliage of the Excelsa plant is notably large (averaging 26 cm in length and 13 cm in width) and possesses a leathery texture. Its floral structures exhibit multiple blooms throughout the harvesting season, yet fruit maturation typically spans approximately one full year. These flowers surpass the size of those found on Arabica and Canephora plants. Furthermore, Excelsa yields asymmetrical beans that measure, on average, around 9 mm in length and 6 mm in width (SanMax).</p>
             <p>The size of Excelsa beans resembles that of Liberica; however, they are somewhat smaller in dimension. Their beans possess an asymmetrical, almond-like shape akin to those of Liberica. A tart and fruity flavor profile characterizes this variety, including dark berries, citrus, and tamarind. The taste is light yet full-bodied, offering coffee drinkers a multilayered sensory experience. Although excelsa often possesses a bright, wine-like acidity, it is somewhat nutty and woody in character yet less smoky compared to Liberica. Its caffeine content parallels Arabica and Liberica but is lower than Robusta. This attribute results in a milder energy boost when compared to the more robust effects of strong Robusta or Kapeng barako (<em>Coffea liberica</em>).</p>
           </div>
-          <div class="about-topic" data-about-panel="about-how-to-get-there" data-about-pill-label="Travel">
+          <div id="about-how-to-get-there" class="about-topic" data-about-panel="about-how-to-get-there" data-about-pill-label="Travel">
             <h4>How to Get There</h4>
             <p>Coffee Bean Farms in Lipa City, Batangas can be reached by land transportation from Manila and other nearby areas via Sto. Tomas and Tanauan, Batangas. It is accessible through buses, jeepneys, and other public utility vehicles passing along South Luzon Expressway (SLEX) and Maharlika Highway going to Lipa City. The usual route follows Manila to Sto. Tomas, Sto. Tomas to Tanauan, and Tanauan to Lipa City proper. Travel time is approximately 2 to 3 hours depending on traffic conditions.</p>
             <p>Commuting options include buses and jeepneys that regularly ply routes from Manila to Batangas. From Manila, passengers may ride buses bound for Lipa City or Batangas Grand Terminal. These buses pass through Sto. Tomas and Tanauan before reaching Lipa City. Jeepneys are also available for inter-town travel once inside Batangas.</p>
@@ -372,10 +372,23 @@
           <span class="app-bottom-nav-label">About</span>
         </button>
         <div id="bottom-nav-about-menu" class="app-bottom-nav-about-menu" role="menu" hidden aria-label="About sections">
-          <a href="#about-history" class="app-bottom-nav-about-item" role="menuitem">History</a>
-          <a href="#about-liberica" class="app-bottom-nav-about-item" role="menuitem">Liberica</a>
-          <a href="#about-robusta" class="app-bottom-nav-about-item" role="menuitem">Robusta</a>
-          <a href="#about-excelsa" class="app-bottom-nav-about-item" role="menuitem">Excelsa</a>
+          <div class="app-bottom-nav-about-group" role="none">
+            <button
+              type="button"
+              id="bottom-nav-history-toggle"
+              class="app-bottom-nav-about-item app-bottom-nav-about-history-btn"
+              aria-expanded="false"
+              aria-controls="bottom-nav-history-submenu"
+            >
+              <span>History</span>
+              <span class="app-bottom-nav-history-chevron" aria-hidden="true"></span>
+            </button>
+            <div id="bottom-nav-history-submenu" class="app-bottom-nav-history-submenu" role="group" aria-label="History — varieties" hidden>
+              <a href="#about-liberica" class="app-bottom-nav-about-item app-bottom-nav-about-item--nested" role="menuitem">Liberica</a>
+              <a href="#about-robusta" class="app-bottom-nav-about-item app-bottom-nav-about-item--nested" role="menuitem">Robusta</a>
+              <a href="#about-excelsa" class="app-bottom-nav-about-item app-bottom-nav-about-item--nested" role="menuitem">Excelsa</a>
+            </div>
+          </div>
           <a href="#about-mission-vision" class="app-bottom-nav-about-item" role="menuitem">Mission and Vision</a>
           <a href="#about-how-to-get-there" class="app-bottom-nav-about-item" role="menuitem">How to Get There</a>
         </div>
@@ -441,7 +454,11 @@
           u = null;
         }
         if (u && u.email) {
-          a.setAttribute('href', '#home');
+          try {
+            a.setAttribute('href', new URL('account.php', location.href).href);
+          } catch (e1) {
+            a.setAttribute('href', 'account.php');
+          }
           if (lbl) lbl.textContent = 'Account';
           return;
         }

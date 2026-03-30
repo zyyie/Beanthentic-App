@@ -27,7 +27,7 @@
       </button>
       <div class="nav-logo-wrap">
         <a href="index.php#home" class="logo" aria-label="Beanthentic home">
-          <img class="logo-mark" src="beantHentic_logo.png" alt="Beanthentic" />
+          <img class="logo-mark" src="beanthentic_logo.png" alt="Beanthentic" />
         </a>
       </div>
       <div class="nav-right-cluster">
@@ -53,7 +53,7 @@
       <aside class="header-nav-drawer-panel" role="dialog" aria-modal="true" aria-label="Menu">
         <div class="header-nav-drawer-inner">
           <div id="header-drawer-account" class="header-drawer-account"></div>
-          <a href="https://www.facebook.com/" class="header-drawer-link header-drawer-link--social" target="_blank" rel="noopener noreferrer">
+          <a href="social.php" class="header-drawer-link header-drawer-link--social">
             <svg class="header-drawer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             <span>Social</span>
           </a>
@@ -129,10 +129,23 @@
           <span class="app-bottom-nav-label">About</span>
         </button>
         <div id="bottom-nav-about-menu" class="app-bottom-nav-about-menu" role="menu" hidden aria-label="About sections">
-          <a href="index.php#about-history" class="app-bottom-nav-about-item" role="menuitem">History</a>
-          <a href="index.php#about-liberica" class="app-bottom-nav-about-item" role="menuitem">Liberica</a>
-          <a href="index.php#about-robusta" class="app-bottom-nav-about-item" role="menuitem">Robusta</a>
-          <a href="index.php#about-excelsa" class="app-bottom-nav-about-item" role="menuitem">Excelsa</a>
+          <div class="app-bottom-nav-about-group" role="none">
+            <button
+              type="button"
+              id="bottom-nav-history-toggle"
+              class="app-bottom-nav-about-item app-bottom-nav-about-history-btn"
+              aria-expanded="false"
+              aria-controls="bottom-nav-history-submenu"
+            >
+              <span>History</span>
+              <span class="app-bottom-nav-history-chevron" aria-hidden="true"></span>
+            </button>
+            <div id="bottom-nav-history-submenu" class="app-bottom-nav-history-submenu" role="group" aria-label="History — varieties" hidden>
+              <a href="index.php#about-liberica" class="app-bottom-nav-about-item app-bottom-nav-about-item--nested" role="menuitem">Liberica</a>
+              <a href="index.php#about-robusta" class="app-bottom-nav-about-item app-bottom-nav-about-item--nested" role="menuitem">Robusta</a>
+              <a href="index.php#about-excelsa" class="app-bottom-nav-about-item app-bottom-nav-about-item--nested" role="menuitem">Excelsa</a>
+            </div>
+          </div>
           <a href="index.php#about-mission-vision" class="app-bottom-nav-about-item" role="menuitem">Mission and Vision</a>
           <a href="index.php#about-how-to-get-there" class="app-bottom-nav-about-item" role="menuitem">How to Get There</a>
         </div>

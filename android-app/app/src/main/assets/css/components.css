@@ -576,18 +576,24 @@
 .about-pill {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.15rem 0.65rem 0.2rem 0.35rem;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.22rem 0.85rem 0.26rem 0.55rem;
   border-radius: 999px;
   background: rgba(44, 26, 15, 0.9);
   color: #fbeee2;
-  font-size: 0.8rem;
-  margin-bottom: 0.9rem;
+  font-size: 0.95rem;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  margin: 0 auto 1rem;
+  width: fit-content;
+  max-width: 100%;
 }
 
 .about-pill-dot {
-  width: 9px;
-  height: 9px;
+  width: 11px;
+  height: 11px;
+  flex-shrink: 0;
   border-radius: 999px;
   background: radial-gradient(circle at 30% 30%, #ffe7c2, #f3a456);
 }
@@ -798,7 +804,7 @@
   border: 1px solid rgba(20, 117, 57, 0.18);
   padding: 0.85rem 0.75rem;
   position: sticky;
-  top: 86px;
+  top: 74px;
 }
 
 .about-menu-title {
@@ -885,6 +891,16 @@
   color: #24422d;
   font-size: 1.05rem;
   margin-bottom: 0.4rem;
+}
+
+/* Main title per tab (History, Liberica, Robusta, etc.) — gitna at mas malaki */
+.about-topic > h4:first-of-type {
+  text-align: center;
+  font-size: 1.35rem;
+  font-weight: 750;
+  letter-spacing: 0.01em;
+  margin-bottom: 0.6rem;
+  line-height: 1.25;
 }
 
 .about-topic p:last-child {
@@ -1017,19 +1033,537 @@
   margin-bottom: 1.5rem;
 }
 
-/* News page (certificate / updates) */
-.news-main {
-  align-items: flex-start;
-  padding-top: 1.25rem;
+/* Social page (menu → list of official links) */
+body.social-page .social-page-card {
+  max-width: 26rem;
 }
 
-.news-card {
-  max-width: 44rem;
+.social-page-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.social-page-link {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.95rem 1.05rem;
+  border-radius: 14px;
+  background: #fdfcfa;
+  border: 1px solid rgba(46, 111, 28, 0.14);
+  text-decoration: none !important;
+  color: #24422d !important;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.social-page-link:hover,
+.social-page-link:focus-visible {
+  background: rgba(46, 111, 28, 0.06);
+  border-color: rgba(46, 111, 28, 0.22);
+  outline: none;
+}
+
+.social-page-link-icon {
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(24, 119, 242, 0.12);
+  color: #1877f2;
+}
+
+.social-page-link-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.social-page-link-title {
+  font-weight: 750;
+  font-size: 1rem;
+  letter-spacing: 0.01em;
+}
+
+.social-page-link-sub {
+  font-size: 0.8rem;
+  font-weight: 550;
+  color: #6b5c52;
+}
+
+.social-page-note {
+  margin: 1.15rem 0 0;
+  font-size: 0.82rem;
+  color: #8a7a6e;
+}
+
+.social-page-back {
+  margin: 1.25rem 0 0;
+}
+
+/* Account page — portfolio-style profile */
+body.account-portfolio-page {
+  background: linear-gradient(180deg, #f4f7f4 0%, #faf8f5 38%, #ffffff 100%);
+}
+
+/* Profile scrolls under this bar + drawer; stops card/avatar painting over logo & burger */
+body.account-portfolio-page header {
+  z-index: 120;
+}
+
+body.account-portfolio-page .account-portfolio-main {
+  position: relative;
+  z-index: 0;
+}
+
+.account-portfolio-main {
+  /* Extra space: bottom tab bar + GI tab used to stick up (-16px) — avoid overlap / “lumulusot” */
+  min-height: calc(100vh - 7rem);
+  padding: 1.25rem max(1rem, env(safe-area-inset-left))
+    calc(4.5rem + env(safe-area-inset-bottom, 0px) + 20px) max(1rem, env(safe-area-inset-right));
+  box-sizing: border-box;
+}
+
+.account-portfolio {
+  max-width: 520px;
+  margin: 0 auto;
+  background: #ffffff;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(46, 111, 28, 0.12);
+  box-shadow:
+    0 4px 24px rgba(22, 38, 28, 0.06),
+    0 18px 48px rgba(46, 111, 28, 0.1);
+}
+
+.account-portfolio-hero {
+  text-align: center;
+  padding: 2rem 1.5rem 1.75rem;
+  background: linear-gradient(145deg, #1a5c34 0%, #2e8f4a 42%, #3d7a32 100%);
+  color: #fdfaf6;
+  position: relative;
+  overflow: hidden;
+}
+
+.account-portfolio-hero::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 48px;
+  background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.12));
+  pointer-events: none;
+}
+
+.account-portfolio-avatar {
+  width: 5.5rem;
+  height: 5.5rem;
+  margin: 0 auto 1rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(253, 250, 246, 0.95), rgba(227, 245, 232, 0.92));
+  border: 3px solid rgba(255, 255, 255, 0.45);
+  /* Shadow mostly below — avoids a “white arc” reading as leakage above the hero */
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.14);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+.account-portfolio-avatar-initials {
+  font-size: 1.65rem;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  color: #1f4d2e;
+}
+
+.account-portfolio-kicker {
+  margin: 0 0 0.35rem;
+  font-size: 0.68rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  opacity: 0.88;
+  position: relative;
+  z-index: 1;
+}
+
+.account-portfolio-name {
+  margin: 0 0 0.4rem;
+  font-size: 1.65rem;
+  font-weight: 750;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  position: relative;
+  z-index: 1;
+}
+
+.account-portfolio-tagline {
+  margin: 0;
+  font-size: 0.92rem;
+  opacity: 0.92;
+  word-break: break-word;
+  position: relative;
+  z-index: 1;
+}
+
+.account-portfolio-body {
+  padding: 1.5rem 1.35rem 1.75rem;
+}
+
+.account-portfolio-section {
+  margin-bottom: 1.35rem;
+}
+
+.account-portfolio-section:last-of-type {
+  margin-bottom: 0;
+}
+
+.account-portfolio-section-title {
+  margin: 0 0 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: #6b7a66;
+}
+
+.account-portfolio-bio {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: #4a433c;
+}
+
+.account-portfolio-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1.35rem;
+}
+
+.account-portfolio-stat {
+  padding: 0.9rem 1rem;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(80, 128, 50, 0.07), rgba(46, 111, 28, 0.04));
+  border: 1px solid rgba(46, 111, 28, 0.1);
+}
+
+.account-portfolio-stat-label {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #6b7568;
+  margin-bottom: 0.35rem;
+}
+
+.account-portfolio-stat-value {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: #24422d;
+}
+
+.account-portfolio-stat-value--accent {
+  color: #2a7a3d;
+}
+
+.account-portfolio-dl {
+  margin: 0;
+}
+
+.account-portfolio-dl > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.75rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 12px;
+  background: rgba(253, 250, 246, 0.95);
+  border: 1px solid rgba(198, 157, 125, 0.28);
+}
+
+.account-portfolio-dl dt {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #8a7667;
+}
+
+.account-portfolio-dl dd {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #2c241c;
+  word-break: break-all;
+}
+
+.account-portfolio-quick {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin-bottom: 1.5rem;
+}
+
+.account-portfolio-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.95rem 0.6rem;
+  border-radius: 14px;
+  text-decoration: none !important;
+  color: #24422d !important;
+  background: #fdfcfa;
+  border: 1px solid rgba(46, 111, 28, 0.14);
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.account-portfolio-tile:hover,
+.account-portfolio-tile:focus-visible {
+  background: rgba(46, 111, 28, 0.06);
+  border-color: rgba(46, 111, 28, 0.22);
+  outline: none;
+}
+
+.account-portfolio-tile:active {
+  transform: scale(0.98);
+}
+
+.account-portfolio-tile-icon {
+  width: 1.65rem;
+  height: 1.65rem;
+  color: #3a7d35;
+}
+
+.account-portfolio-tile-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.account-portfolio-tile-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 0.02em;
+}
+
+.account-portfolio-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  padding-top: 0.25rem;
+}
+
+.account-portfolio-signout {
+  width: 100%;
+  max-width: 280px;
+  padding: 0.75rem 1.25rem;
+  font-weight: 650;
+}
+
+.account-portfolio-back-link {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #2d6b38 !important;
+  text-decoration: none !important;
+}
+
+.account-portfolio-back-link:hover,
+.account-portfolio-back-link:focus-visible {
+  text-decoration: underline !important;
+  outline: none;
+}
+
+@media (min-width: 480px) {
+  .account-portfolio-quick {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .account-portfolio-name {
+    font-size: 1.85rem;
+  }
+}
+
+/* Account: shortcuts stay 2×2 so they don’t read as a second bottom nav */
+body.account-portfolio-page .account-portfolio-quick {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (min-width: 480px) {
+  body.account-portfolio-page .account-portfolio-quick {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Account: GI “raised” tab uses negative margin globally — here it looked like UI leaking into the profile */
+body.account-portfolio-page .app-bottom-nav {
+  background: #faf8f5;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: 0 -4px 20px rgba(22, 38, 28, 0.07);
+}
+
+body.account-portfolio-page .app-bottom-nav-link--featured {
+  margin-top: 0;
+}
+
+@media (min-width: 901px) {
+  .account-portfolio-main {
+    padding-bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px) + 12px);
+  }
+}
+
+/* News page — GI Portal–style shell + static certificate preview (no PDF iframe / no inner scroll) */
+body.news-portal-page {
+  background: #f3f4f6;
+}
+
+.news-portal-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-left: max(18px, env(safe-area-inset-left));
+  padding-right: max(18px, env(safe-area-inset-right));
+}
+
+.news-portal-hero {
+  background: linear-gradient(135deg, #147539 0%, #0f5a2c 100%);
+  color: #fff;
+  padding: 1rem 0.9rem 1.1rem;
+  position: relative;
+  overflow: hidden;
+  /* Mas malawak na inset — hindi dikit sa header at gilid */
+  margin-top: 0.9rem;
+  margin-bottom: 0.4rem;
+  margin-left: max(1.125rem, calc(env(safe-area-inset-left, 0px) + 12px));
+  margin-right: max(1.125rem, calc(env(safe-area-inset-right, 0px) + 12px));
+  border-radius: 20px;
+  box-shadow:
+    0 2px 0 rgba(255, 255, 255, 0.06) inset,
+    0 8px 24px rgba(15, 42, 20, 0.16);
+}
+
+.news-portal-hero .news-portal-container {
+  padding-left: max(12px, calc(env(safe-area-inset-left, 0px) + 4px));
+  padding-right: max(12px, calc(env(safe-area-inset-right, 0px) + 4px));
+}
+
+.news-portal-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="g" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.04)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.04)"/></pattern></defs><rect width="100" height="100" fill="url(%23g)"/></svg>');
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+.news-portal-hero-inner {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+.news-portal-hero-icon {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.3rem;
+  color: #b8e8c4;
+}
+
+.news-portal-hero-icon svg {
+  width: 30px;
+  height: 30px;
+}
+
+.news-portal-hero-title {
+  font-size: clamp(1.08rem, 2.9vw, 1.32rem);
+  font-weight: 700;
+  margin: 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.news-portal-main {
+  padding: 1rem 0 2.5rem;
+  flex: 1;
+}
+
+.news-portal-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: #147539;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9375rem;
+  margin-bottom: 1.25rem;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.news-portal-back:hover {
+  color: #0f5a2c;
+  transform: translateX(-3px);
+}
+
+.news-portal-lead {
+  font-size: 0.9375rem;
+  color: #4b5563;
+  line-height: 1.55;
+  max-width: 52rem;
+  margin: 0 0 1.5rem;
 }
 
 .news-cert-figure {
-  margin: 1.35rem 0 0;
+  margin: 0;
   padding: 0;
+}
+
+.news-cert-figure--static {
+  margin-top: 0.25rem;
+}
+
+/* Single visible preview: scales to viewport height — no iframe scrollbars */
+.news-cert-img-viewport {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 42rem;
+  margin: 0 auto;
+  max-height: min(72vh, 820px);
+  overflow: hidden;
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid rgba(20, 117, 57, 0.14);
+  box-shadow: 0 10px 32px rgba(17, 24, 39, 0.08);
+}
+
+.news-cert-img-viewport img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: min(72vh, 820px);
+  object-fit: contain;
 }
 
 .news-cert-img {
@@ -1044,8 +1578,8 @@
 }
 
 .news-cert-caption {
-  margin: 0.75rem auto 0;
-  max-width: 28rem;
+  margin: 0.85rem auto 0;
+  max-width: 40rem;
   font-size: 0.82rem;
   color: #6b574b;
   line-height: 1.55;

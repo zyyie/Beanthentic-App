@@ -4,13 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#508020" />
-  <title>Privacy Policy · Beanthentic Coffee</title>
+  <title>Social · Beanthentic Coffee</title>
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/responsive.css">
 </head>
-<body class="has-app-bottom-nav">
+<body class="has-app-bottom-nav social-page">
   <header>
     <div class="nav">
       <button
@@ -53,11 +53,11 @@
       <aside class="header-nav-drawer-panel" role="dialog" aria-modal="true" aria-label="Menu">
         <div class="header-nav-drawer-inner">
           <div id="header-drawer-account" class="header-drawer-account"></div>
-          <a href="social.php" class="header-drawer-link header-drawer-link--social">
+          <a href="social.php" class="header-drawer-link header-drawer-link--social" aria-current="page">
             <svg class="header-drawer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             <span>Social</span>
           </a>
-          <a href="privacy.php" class="header-drawer-link" aria-current="page">
+          <a href="privacy.php" class="header-drawer-link">
             <svg class="header-drawer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
             <span>Privacy Policy</span>
           </a>
@@ -77,15 +77,33 @@
   </header>
 
   <main class="auth-main">
-    <div class="auth-card" style="max-width: 36rem;">
-      <h1>Privacy Policy</h1>
-      <p class="auth-lead">How Beanthentic Coffee handles information when you use this app.</p>
-      <p style="font-size:0.9rem;color:#6b574b;line-height:1.6;">
-        We respect your privacy. This app may collect only what you choose to provide (for example, when you sign in).
-        Data is used to improve your experience and to support local farmers through our platform. We do not sell your personal information.
-        For questions, contact us through the channels linked from <strong>Social</strong> in the menu.
-      </p>
-      <p style="margin-top:1rem;"><a href="index.php#home" class="btn-primary" style="display:inline-block;text-decoration:none;">Back to home</a></p>
+    <div class="auth-card social-page-card">
+      <a href="index.php#home" class="news-portal-back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true">
+          <path d="m12 19-7-7 7-7"/>
+          <path d="M19 12H5"/>
+        </svg>
+        Back to Home
+      </a>
+
+      <h1>Social</h1>
+      <p class="auth-lead">Follow our official Facebook page for updates and announcements.</p>
+      <ul class="social-page-list" role="list">
+        <li>
+          <a
+            class="social-page-link"
+            href="https://www.facebook.com/share/1E4GtKPP5W/"
+            rel="noopener noreferrer"
+          >
+            <span class="social-page-link-icon social-page-link-icon--facebook" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+            </span>
+            <span class="social-page-link-text">
+              <span class="social-page-link-title">Facebook</span>
+            </span>
+          </a>
+        </li>
+      </ul>
     </div>
   </main>
 

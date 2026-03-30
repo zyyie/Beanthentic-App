@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#2e6f1c" />
+  <meta name="theme-color" content="#508020" />
   <title>Sign up · Beanthentic Coffee</title>
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">
@@ -13,18 +13,66 @@
 <body class="has-app-bottom-nav">
   <header>
     <div class="nav">
-      <a href="index.php#home" class="logo" aria-label="Beanthentic home">
-        <img class="logo-mark" src="beantHentic_logo.png" alt="Beanthentic" />
-      </a>
       <button
         type="button"
-        id="header-notifications-btn"
-        class="header-notifications-btn"
-        aria-label="Notifications"
-        title="Notifications"
+        id="header-burger-btn"
+        class="header-burger-btn"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="header-nav-drawer"
       >
-        <svg class="header-notifications-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+        <span class="header-burger-line" aria-hidden="true"></span>
+        <span class="header-burger-line" aria-hidden="true"></span>
+        <span class="header-burger-line" aria-hidden="true"></span>
       </button>
+      <div class="nav-logo-wrap">
+        <a href="index.php#home" class="logo" aria-label="Beanthentic home">
+          <img class="logo-mark" src="beantHentic_logo.png" alt="Beanthentic" />
+        </a>
+      </div>
+      <div class="nav-right-cluster">
+        <div id="header-account-snippet" class="header-account-snippet" hidden>
+          <span class="header-account-avatar" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </span>
+          <span id="header-account-display" class="header-account-name"></span>
+        </div>
+        <button
+          type="button"
+          id="header-notifications-btn"
+          class="header-notifications-btn"
+          aria-label="Notifications"
+          title="Notifications"
+        >
+          <svg class="header-notifications-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+        </button>
+      </div>
+    </div>
+    <div id="header-nav-drawer" class="header-nav-drawer" hidden>
+      <div class="header-nav-drawer-backdrop" aria-hidden="true"></div>
+      <aside class="header-nav-drawer-panel" role="dialog" aria-modal="true" aria-label="Menu">
+        <div class="header-nav-drawer-inner">
+          <div id="header-drawer-account" class="header-drawer-account"></div>
+          <a href="https://www.facebook.com/" class="header-drawer-link header-drawer-link--social" target="_blank" rel="noopener noreferrer">
+            <svg class="header-drawer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span>Social</span>
+          </a>
+          <a href="privacy.php" class="header-drawer-link">
+            <svg class="header-drawer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+            <span>Privacy Policy</span>
+          </a>
+          <a href="news.php" class="header-drawer-link">
+            <svg class="header-drawer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12z"/>
+              <path d="M8 9h8"/>
+              <path d="M8 13h8"/>
+              <path d="M8 17h5"/>
+            </svg>
+            <span>News</span>
+          </a>
+          <button type="button" id="header-sign-out-btn" class="header-drawer-signout" hidden>Sign out</button>
+        </div>
+      </aside>
     </div>
   </header>
 
@@ -81,7 +129,10 @@
           <span class="app-bottom-nav-label">About</span>
         </button>
         <div id="bottom-nav-about-menu" class="app-bottom-nav-about-menu" role="menu" hidden aria-label="About sections">
-          <a href="index.php#about-liberica" class="app-bottom-nav-about-item" role="menuitem">History</a>
+          <a href="index.php#about-history" class="app-bottom-nav-about-item" role="menuitem">History</a>
+          <a href="index.php#about-liberica" class="app-bottom-nav-about-item" role="menuitem">Liberica</a>
+          <a href="index.php#about-robusta" class="app-bottom-nav-about-item" role="menuitem">Robusta</a>
+          <a href="index.php#about-excelsa" class="app-bottom-nav-about-item" role="menuitem">Excelsa</a>
           <a href="index.php#about-mission-vision" class="app-bottom-nav-about-item" role="menuitem">Mission and Vision</a>
           <a href="index.php#about-how-to-get-there" class="app-bottom-nav-about-item" role="menuitem">How to Get There</a>
         </div>
@@ -151,6 +202,42 @@
       }
       if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', runNavFixes);
       else runNavFixes();
+    })();
+  </script>
+  <script>
+    (function () {
+      document.addEventListener('DOMContentLoaded', function () {
+        var form = document.querySelector('.auth-form');
+        if (!form) return;
+        form.addEventListener('submit', function (e) {
+          e.preventDefault();
+          var nameEl = document.getElementById('signup-name');
+          var emailEl = document.getElementById('signup-email');
+          var pw = document.getElementById('signup-password');
+          var pw2 = document.getElementById('signup-password2');
+          var name = nameEl ? String(nameEl.value || '').trim() : '';
+          var email = emailEl ? String(emailEl.value || '').trim() : '';
+          if (!name || !email) return;
+          if (pw && pw2 && pw.value !== pw2.value) {
+            alert('Passwords do not match.');
+            return;
+          }
+          try {
+            localStorage.setItem('beanthentic_user', JSON.stringify({
+              email: email,
+              name: name,
+              signedInAt: Date.now()
+            }));
+          } catch (err) {
+            /* ignore */
+          }
+          try {
+            window.location.assign(new URL('index.php#home', location.href).href);
+          } catch (e2) {
+            window.location.assign('index.php#home');
+          }
+        });
+      });
     })();
   </script>
 </body>

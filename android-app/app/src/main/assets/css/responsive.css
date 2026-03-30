@@ -55,9 +55,14 @@
 
 @media (max-width: 720px) {
   .nav {
-    flex-wrap: wrap;
-    align-items: center;
-    row-gap: 0.5rem;
+    grid-template-columns: auto auto minmax(0, 1fr);
+    padding-left: max(0.3rem, env(safe-area-inset-left, 0px));
+    padding-right: max(0.65rem, env(safe-area-inset-right, 0px));
+  }
+
+  .logo-mark {
+    width: 118px;
+    height: 100px;
   }
 
   .nav-toggle {

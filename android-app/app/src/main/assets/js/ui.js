@@ -1,4 +1,74 @@
 // UI interactions and animations
+
+const BEANTHENTIC_USER_KEY = 'beanthentic_user';
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function getBeanthenticUser() {
+  try {
+    const raw = localStorage.getItem(BEANTHENTIC_USER_KEY);
+    if (!raw) return null;
+    const u = JSON.parse(raw);
+    if (u && typeof u.email === 'string' && u.email) return u;
+  } catch (e) {
+    /* ignore */
+  }
+  return null;
+}
+
+function refreshHeaderAuthUI() {
+  const user = getBeanthenticUser();
+  const snippet = document.getElementById('header-account-snippet');
+  const display = document.getElementById('header-account-display');
+  const drawerAccount = document.getElementById('header-drawer-account');
+  const signOutBtn = document.getElementById('header-sign-out-btn');
+  const loginHref = (() => {
+    try {
+      return new URL('login.php', window.location.href).href;
+    } catch (e) {
+      return 'login.php';
+    }
+  })();
+
+  if (user) {
+    const label = user.name && String(user.name).trim()
+      ? String(user.name).trim()
+      : user.email.split('@')[0];
+    if (snippet) snippet.hidden = false;
+    if (display) display.textContent = label;
+    if (drawerAccount) {
+      drawerAccount.innerHTML = `
+        <p class="header-drawer-account-label">Signed in</p>
+        <p class="header-drawer-account-name">${escapeHtml(label)}</p>
+        <p class="header-drawer-account-email">${escapeHtml(user.email)}</p>`;
+    }
+    if (signOutBtn) signOutBtn.hidden = false;
+  } else {
+    if (snippet) snippet.hidden = true;
+    if (display) display.textContent = '';
+    if (drawerAccount) {
+      drawerAccount.innerHTML = `<p class="header-drawer-guest"><a href="${loginHref}">Sign in</a> to save your preferences and see your account here.</p>`;
+    }
+    if (signOutBtn) signOutBtn.hidden = true;
+  }
+  window.dispatchEvent(new CustomEvent('beanthentic-auth-changed'));
+}
+
+/** Keeps the brown variety pill in sync with the visible About panel. */
+function syncAboutPillLabel(panelId) {
+  const pillText = document.querySelector('.about-pill-text');
+  if (!pillText || !panelId) return;
+  const panel = document.querySelector(`.about-topic[data-about-panel="${panelId}"]`);
+  const label = panel && panel.getAttribute('data-about-pill-label');
+  if (label) pillText.textContent = label;
+}
+
 class UIController {
   constructor() {
     this.init();
@@ -17,7 +87,74 @@ class UIController {
     this.setupBottomNavAboutMenu();
     this.setupMobileMainNav();
     this.setupHeaderNotifications();
+    this.setupHeaderNavDrawer();
     this.loadYear();
+  }
+
+  setupHeaderNavDrawer() {
+    const btn = document.getElementById('header-burger-btn');
+    const root = document.getElementById('header-nav-drawer');
+    if (!btn || !root) return;
+
+    const backdrop = root.querySelector('.header-nav-drawer-backdrop');
+    const panel = root.querySelector('.header-nav-drawer-panel');
+    const signOutBtn = document.getElementById('header-sign-out-btn');
+
+    const close = () => {
+      root.classList.remove('is-open');
+      btn.setAttribute('aria-expanded', 'false');
+      btn.setAttribute('aria-label', 'Open menu');
+      document.body.classList.remove('header-drawer-open');
+      window.setTimeout(() => {
+        if (!root.classList.contains('is-open')) root.hidden = true;
+      }, 280);
+    };
+
+    const open = () => {
+      root.hidden = false;
+      requestAnimationFrame(() => {
+        root.classList.add('is-open');
+        btn.setAttribute('aria-expanded', 'true');
+        btn.setAttribute('aria-label', 'Close menu');
+        document.body.classList.add('header-drawer-open');
+      });
+    };
+
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (root.classList.contains('is-open')) close();
+      else open();
+    });
+
+    if (backdrop) backdrop.addEventListener('click', close);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && root.classList.contains('is-open')) close();
+    });
+
+    root.querySelectorAll('a.header-drawer-link').forEach((a) => {
+      a.addEventListener('click', () => {
+        window.setTimeout(close, 150);
+      });
+    });
+
+    if (signOutBtn) {
+      signOutBtn.addEventListener('click', () => {
+        try {
+          localStorage.removeItem(BEANTHENTIC_USER_KEY);
+        } catch (err) {
+          /* ignore */
+        }
+        refreshHeaderAuthUI();
+        close();
+      });
+    }
+
+    window.addEventListener('storage', (e) => {
+      if (e.key === BEANTHENTIC_USER_KEY) refreshHeaderAuthUI();
+    });
+
+    refreshHeaderAuthUI();
   }
 
   setupMobileMainNav() {
@@ -140,28 +277,7 @@ class UIController {
       if (e.key === 'Escape') close();
     });
 
-    // Nested submenu: History -> Liberica/Robusta/Excelsa
-    if (historyToggle && historySubmenu) {
-      const openHistory = () => {
-        historySubmenu.hidden = false;
-        historySubmenu.setAttribute('aria-hidden', 'false');
-        historyToggle.setAttribute('aria-expanded', 'true');
-      };
-
-      const closeHistory = () => {
-        historySubmenu.hidden = true;
-        historySubmenu.setAttribute('aria-hidden', 'true');
-        historyToggle.setAttribute('aria-expanded', 'false');
-      };
-
-      historyToggle.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const isOpen = historyToggle.getAttribute('aria-expanded') === 'true';
-        if (isOpen) closeHistory();
-        else openHistory();
-      });
-    }
+    // History submenu (Liberica / Robusta / Excelsa) opens when "History" is chosen; see setupHomeAboutViewSwitch.
 
     // Close after selecting an item
     dropdown.addEventListener('click', (e) => {
@@ -236,6 +352,7 @@ class UIController {
       const fallbackId = 'about-mission-vision';
       const nextId = hasTarget ? id : fallbackId;
       panels.forEach((p) => p.classList.toggle('is-active', p.dataset.aboutPanel === nextId));
+      syncAboutPillLabel(nextId);
     };
 
     const emitHashSync = () => {
@@ -291,16 +408,37 @@ class UIController {
     document.querySelectorAll('.about-menu-item[data-about-target]').forEach((item) => {
       item.addEventListener('click', (e) => {
         e.preventDefault();
+        const historySubmenu = document.getElementById('about-history-submenu');
+        if (item.id === 'about-history-toggle' && historySubmenu) {
+          const isExpanded = item.getAttribute('aria-expanded') === 'true';
+          historySubmenu.hidden = isExpanded;
+          historySubmenu.setAttribute('aria-hidden', isExpanded ? 'true' : 'false');
+          item.setAttribute('aria-expanded', isExpanded ? 'false' : 'true');
+          return;
+        }
+
         setView('about');
 
         const targetId = item.dataset.aboutTarget || 'about-mission-vision';
         activateAboutPanel(targetId);
+
+        if (historySubmenu && !item.classList.contains('about-history-subitem')) {
+          historySubmenu.hidden = true;
+          historySubmenu.setAttribute('aria-hidden', 'true');
+          const historyToggle = document.getElementById('about-history-toggle');
+          if (historyToggle) historyToggle.setAttribute('aria-expanded', 'false');
+        }
+
         if (history && history.replaceState) {
           history.replaceState(null, '', `#${targetId}`);
           emitHashSync();
         } else {
           window.location.hash = `#${targetId}`;
         }
+
+        requestAnimationFrame(() => {
+          aboutMissionSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
       });
     });
 
@@ -477,6 +615,7 @@ class UIController {
     const setActive = (id) => {
       items.forEach((a) => a.classList.toggle('is-active', a.dataset.aboutTarget === id));
       panels.forEach((p) => p.classList.toggle('is-active', p.dataset.aboutPanel === id));
+      syncAboutPillLabel(id);
     };
 
     // Default active (from markup), but allow deep-link by hash.
@@ -525,6 +664,7 @@ class UIController {
       panels.forEach((p) => {
         p.classList.toggle('is-active', p.dataset.aboutPanel === id);
       });
+      syncAboutPillLabel(id);
     };
 
     const showSubmenu = (shouldShow) => {

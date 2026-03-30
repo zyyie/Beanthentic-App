@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#508020" />
+  <title>Privacy Policy · Beanthentic Coffee</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body class="has-app-bottom-nav">
+  <header>
+    <div class="nav">
+      <button
+        type="button"
+        id="header-burger-btn"
+        class="header-burger-btn"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="header-nav-drawer"
+      >
+        <span class="header-burger-line" aria-hidden="true"></span>
+        <span class="header-burger-line" aria-hidden="true"></span>
+        <span class="header-burger-line" aria-hidden="true"></span>
+      </button>
+      <div class="nav-logo-wrap">
+        <a href="index.php#home" class="logo" aria-label="Beanthentic home">
+          <img class="logo-mark" src="beantHentic_logo.png" alt="Beanthentic" />
+        </a>
+      </div>
+      <div class="nav-right-cluster">
+        <div id="header-account-snippet" class="header-account-snippet" hidden>
+          <span class="header-account-avatar" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </span>
+          <span id="header-account-display" class="header-account-name"></span>
+        </div>
+        <button
+          type="button"
+          id="header-notifications-btn"
+          class="header-notifications-btn"
+          aria-label="Notifications"
+          title="Notifications"
+        >
+          <svg class="header-notifications-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+        </button>
+      </div>
+    </div>
+    <div id="header-nav-drawer" class="header-nav-drawer" hidden>
+      <div class="header-nav-drawer-backdrop" aria-hidden="true"></div>
+      <aside class="header-nav-drawer-panel" role="dialog" aria-modal="true" aria-label="Menu">
+        <div class="header-nav-drawer-inner">
+          <div id="header-drawer-account" class="header-drawer-account"></div>
+          <a href="https://www.facebook.com/" class="header-drawer-link header-drawer-link--social" target="_blank" rel="noopener noreferrer">
+            <svg class="header-drawer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span>Social</span>
+          </a>
+          <a href="privacy.php" class="header-drawer-link" aria-current="page">
+            <svg class="header-drawer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+            <span>Privacy Policy</span>
+          </a>
+          <a href="news.php" class="header-drawer-link">
+            <svg class="header-drawer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12z"/>
+              <path d="M8 9h8"/>
+              <path d="M8 13h8"/>
+              <path d="M8 17h5"/>
+            </svg>
+            <span>News</span>
+          </a>
+          <button type="button" id="header-sign-out-btn" class="header-drawer-signout" hidden>Sign out</button>
+        </div>
+      </aside>
+    </div>
+  </header>
+
+  <main class="auth-main">
+    <div class="auth-card" style="max-width: 36rem;">
+      <h1>Privacy Policy</h1>
+      <p class="auth-lead">How Beanthentic Coffee handles information when you use this app.</p>
+      <p style="font-size:0.9rem;color:#6b574b;line-height:1.6;">
+        We respect your privacy. This app may collect only what you choose to provide (for example, when you sign in).
+        Data is used to improve your experience and to support local farmers through our platform. We do not sell your personal information.
+        For questions, contact us through the channels linked from <strong>Social</strong> in the menu.
+      </p>
+      <p style="margin-top:1rem;"><a href="index.php#home" class="btn-primary" style="display:inline-block;text-decoration:none;">Back to home</a></p>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <span><span class="footer-dot"></span> Beanthentic &copy; <span id="year"><?php echo date('Y'); ?></span> · Brewed with care.</span>
+      <span>Serving honest coffee, one cup at a time.</span>
+    </div>
+  </footer>
+
+  <script src="js/navigation.js"></script>
+  <script src="js/ui.js"></script>
+</body>
+</html>

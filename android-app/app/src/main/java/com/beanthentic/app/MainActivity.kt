@@ -9,12 +9,14 @@ import android.animation.ValueAnimator
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
+import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.widget.Button
+import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -38,6 +40,19 @@ class MainActivity : AppCompatActivity() {
 
     /** Same default as assets/index.php; use PC LAN IP for physical device + Flask on host. */
     private val flaskDefaultBase: String = "http://10.0.2.2:5000"
+
+    private fun isProbablyEmulator(): Boolean {
+        val fp = Build.FINGERPRINT.lowercase()
+        val model = Build.MODEL.lowercase()
+        return fp.contains("generic") ||
+            fp.contains("emulator") ||
+            model.contains("google_sdk") ||
+            model.contains("sdk_gphone") ||
+            model.contains("sdk") && model.contains("x86") ||
+            model.contains("emulator") ||
+            model.contains("android sdk") ||
+            model.contains("x86")
+    }
 
     @SuppressLint("SetJavaScriptEnabled")
     @Suppress("DEPRECATION")
@@ -79,8 +94,10 @@ class MainActivity : AppCompatActivity() {
                 -18f,
                 0f
             ).apply {
-                duration = 700L
-                repeatCount = ValueAnimator.INFINITE
+                duration = 520L
+                // Infinite animation can be expensive on some emulators/phones.
+                // We only need a short "loading" motion until the page finishes.
+                repeatCount = 1
                 interpolator = AccelerateDecelerateInterpolator()
             }
 
@@ -92,8 +109,8 @@ class MainActivity : AppCompatActivity() {
                 10f,
                 0f
             ).apply {
-                duration = 700L
-                repeatCount = ValueAnimator.INFINITE
+                duration = 520L
+                repeatCount = 1
                 interpolator = AccelerateDecelerateInterpolator()
             }
 
@@ -104,8 +121,8 @@ class MainActivity : AppCompatActivity() {
                 1.06f,
                 1f
             ).apply {
-                duration = 700L
-                repeatCount = ValueAnimator.INFINITE
+                duration = 520L
+                repeatCount = 1
                 interpolator = AccelerateDecelerateInterpolator()
             }
 
@@ -116,8 +133,8 @@ class MainActivity : AppCompatActivity() {
                 1.06f,
                 1f
             ).apply {
-                duration = 700L
-                repeatCount = ValueAnimator.INFINITE
+                duration = 520L
+                repeatCount = 1
                 interpolator = AccelerateDecelerateInterpolator()
             }
 
@@ -180,10 +197,14 @@ class MainActivity : AppCompatActivity() {
 
         var loadStartTimeMs = 0L
         var hideScheduled = false
-        var minVisibleMs = 300L
+        // Keep it short so the app feels snappy.
+        var minVisibleMs = 140L
         var progressReached100 = false
-        val maxFallbackMs = 2000L
+        // Safety fallback if progress events never hit 100 (common with file://).
+        val maxFallbackMs = 800L
         var hideRunnable: Runnable? = null
+        var flaskBaseLoadedFromJs = false
+        var flaskBase = flaskDefaultBase
 
         fun stripFragment(url: String?): String = (url ?: "").substringBefore('#')
 
@@ -248,6 +269,13 @@ class MainActivity : AppCompatActivity() {
             hideRunnable?.let { loadingOverlay.removeCallbacks(it) }
             loadingOverlay.visibility = View.VISIBLE
             bounceAnimatorSet.start()
+            // Ensure we never get stuck under the loader.
+            hideScheduled = true
+            val runnable = Runnable {
+                loadingOverlay.visibility = View.GONE
+                bounceAnimatorSet.cancel()
+            }.also { hideRunnable = it }
+            loadingOverlay.postDelayed(runnable, maxFallbackMs)
         }
 
         fun scheduleHideAfter(delayMs: Long) {
@@ -320,23 +348,29 @@ class MainActivity : AppCompatActivity() {
                     // file:// → http(s):// often needs explicit loadUrl; Flask serves GI/Map from Python modules.
                     if (uri != null) {
                         val sch = uri.scheme?.lowercase() ?: ""
-                        val fromAssets = view?.url?.startsWith("file:") == true
-                        if ((sch == "http" || sch == "https") && fromAssets) {
-                            if (request?.isForMainFrame != false) {
-                                view?.loadUrl(uri.toString())
-                                return true
+                        // Ensure GI/Map/News (http/https main frame) always loads reliably.
+                        if ((sch == "http" || sch == "https") && request?.isForMainFrame != false) {
+                            val full = uri.toString()
+                            // Physical phone case: JS may have already hardcoded 10.0.2.2.
+                            val badBase = "http://10.0.2.2:5000"
+                            val rewritten = if (full.startsWith(badBase)) {
+                                flaskBase + full.removePrefix(badBase)
+                            } else {
+                                full
                             }
+                            view?.loadUrl(rewritten)
+                            return true
                         }
                     }
                     // file:///gi or file:///maps from old /gi links — send to Flask (gi_module / maps_module).
                     if (uri != null && uri.scheme == "file") {
                         val path = uri.path?.trimEnd('/') ?: ""
                         if (path == "/gi") {
-                            view?.loadUrl("$flaskDefaultBase/gi")
+                            view?.loadUrl("${flaskBase}/gi")
                             return true
                         }
                         if (path == "/maps") {
-                            view?.loadUrl("$flaskDefaultBase/maps")
+                            view?.loadUrl("${flaskBase}/maps")
                             return true
                         }
                         // Jump between packaged pages (index.php ↔ privacy.php, etc.). Some WebViews
@@ -377,6 +411,56 @@ class MainActivity : AppCompatActivity() {
                         val elapsed = SystemClock.uptimeMillis() - loadStartTimeMs
                         val delay = (maxFallbackMs - elapsed).coerceAtLeast(0L)
                         scheduleHideAfter(delay)
+                    }
+
+                    // For physical devices, 10.0.2.2 only works on emulator.
+                    // Read (or ask for) the correct Flask base URL once.
+                    if (!flaskBaseLoadedFromJs && !isProbablyEmulator()) {
+                        flaskBaseLoadedFromJs = true
+                        webView.evaluateJavascript("localStorage.getItem('beanthentic_flask_base');") { value ->
+                            val current = (value as? String)?.trim().orEmpty()
+                            if (current.isNotEmpty() && current.startsWith("http")) {
+                                flaskBase = current.trimEnd('/')
+                                return@evaluateJavascript
+                            }
+
+                            val escapedDefault = flaskDefaultBase
+                                .replace("\\", "\\\\")
+                                .replace("'", "\\'")
+                                .replace("\n", " ")
+                                .replace("\r", " ")
+
+                            val input = EditText(this@MainActivity).apply {
+                                hint = "e.g., http://192.168.1.10:5000"
+                                setSingleLine(true)
+                                setText(escapedDefault)
+                            }
+
+                            AlertDialog.Builder(this@MainActivity)
+                                .setTitle("Flask server URL")
+                                .setMessage("Enter the URL of your Flask server running on your PC (same Wi‑Fi).")
+                                .setView(input)
+                                .setCancelable(false)
+                                .setPositiveButton("Save") { _, _ ->
+                                    val picked = input.text?.toString()?.trim().orEmpty()
+                                    if (picked.startsWith("http")) {
+                                        flaskBase = picked.trimEnd('/')
+                                        val escaped = flaskBase
+                                            .replace("\\", "\\\\")
+                                            .replace("'", "\\'")
+                                            .replace("\n", " ")
+                                            .replace("\r", " ")
+                                        webView.evaluateJavascript(
+                                            "localStorage.setItem('beanthentic_flask_base', '$escaped');",
+                                            null
+                                        )
+                                    }
+                                }
+                                .setNegativeButton("Use default") { _, _ ->
+                                    flaskBase = flaskDefaultBase
+                                }
+                                .show()
+                        }
                     }
                     super.onPageFinished(view, url)
                 }

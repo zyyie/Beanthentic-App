@@ -409,10 +409,10 @@ class MapsModule:
                     "type": "Feature",
                     "properties": {
                         "name": "Lipa City Boundary",
-                        "stroke": "#147539",
+                        "stroke": "#25671E",
                         "stroke-width": 2,
                         "stroke-opacity": 0.8,
-                        "fill": "#147539",
+                        "fill": "#25671E",
                         "fill-opacity": 0.1
                     },
                     "geometry": {
@@ -439,7 +439,7 @@ class MapsModule:
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#2e6f1c">
+    <meta name="theme-color" content="#25671E">
     <meta name="color-scheme" content="light">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <title>Coffee Farms Map - Lipa City | Beanthentic</title>
@@ -453,8 +453,8 @@ class MapsModule:
     <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
     <style>
         :root {
-            --brand: #2e6f1c;
-            --brand-dark: #245818;
+            --brand: #25671E;
+            --brand-dark: #1c5216;
             --surface: #ffffff;
             --text: #111827;
             --muted: #6b7280;
@@ -522,7 +522,7 @@ class MapsModule:
             align-items: flex-start;
             gap: 0.6rem;
             background: linear-gradient(135deg, #ecfdf5, #d1fae5);
-            border: 1px solid rgba(20, 117, 57, 0.2);
+            border: 1px solid rgba(37, 103, 30, 0.2);
             border-radius: 12px;
             padding: 0.75rem 1rem;
             font-size: 0.8125rem;
@@ -546,7 +546,7 @@ class MapsModule:
         }
         
         .header {
-            background: linear-gradient(135deg, #2e6f1c 0%, #245818 100%);
+            background: linear-gradient(135deg, #25671E 0%, #1c5216 100%);
             color: white;
             padding: 1rem 0 1.15rem;
             position: relative;
@@ -674,12 +674,12 @@ class MapsModule:
         }
         
         .farm-card:hover {
-            border-color: #147539;
+            border-color: #25671E;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
         
         .farm-card.active {
-            border-color: #147539;
+            border-color: #25671E;
             background: #f0fdf4;
         }
         
@@ -735,13 +735,13 @@ class MapsModule:
         }
         .stat-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 12px 32px rgba(20, 117, 57, 0.12);
+            box-shadow: 0 12px 32px rgba(37, 103, 30, 0.12);
         }
         
         .stat-number {
             font-size: 2rem;
             font-weight: 700;
-            color: #147539;
+            color: #25671E;
             margin-bottom: 0.5rem;
         }
         
@@ -795,10 +795,10 @@ class MapsModule:
         }
         
         .selected-farm {
-            background: linear-gradient(155deg, #147539 0%, #0b5c2e 100%) !important;
+            background: linear-gradient(155deg, #25671E 0%, #25671E 100%) !important;
             color: #f8fafc !important;
             border: 1px solid rgba(255,255,255,0.35) !important;
-            box-shadow: 0 8px 24px rgba(20, 117, 57, 0.35);
+            box-shadow: 0 8px 24px rgba(37, 103, 30, 0.35);
         }
         
         .farm-card.selected-farm .farm-name {
@@ -858,7 +858,7 @@ class MapsModule:
         }
         
         .bp-popup-header {
-            background: linear-gradient(145deg, #147539 0%, #0a3d1f 100%);
+            background: linear-gradient(145deg, #25671E 0%, #25671E 100%);
             padding: calc(10px * var(--popup-scale)) calc(12px * var(--popup-scale));
         }
         
@@ -923,9 +923,9 @@ class MapsModule:
         }
         
         .bp-tag {
-            background: rgba(20, 117, 57, 0.12);
+            background: rgba(37, 103, 30, 0.12);
             color: #0f3d24;
-            border: 1px solid rgba(20, 117, 57, 0.28);
+            border: 1px solid rgba(37, 103, 30, 0.28);
             padding: 2px 8px;
             border-radius: 999px;
             font-size: calc(10px * var(--popup-scale));
@@ -989,7 +989,7 @@ class MapsModule:
         }
         
         .bp-btn-primary {
-            background: #147539;
+            background: #25671E;
             color: #ffffff !important;
         }
         
@@ -1017,7 +1017,7 @@ class MapsModule:
             height: 28px;
             border-radius: 50%;
             border: 3px solid #e5e7eb;
-            border-top-color: #147539;
+            border-top-color: #25671E;
             animation: spin 0.85s linear infinite;
             flex-shrink: 0;
         }
@@ -1227,7 +1227,7 @@ class MapsModule:
         }
         
         function createBarangayPinIcon() {
-            const html = '<div class="barangay-pin-svg" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="26" viewBox="0 0 20 26"><path fill="#147539" stroke="#ffffff" stroke-width="1.25" d="M10 1.25c-4.04 0-7.25 3.21-7.25 7.15 0 4.7 7.25 14.85 7.25 14.85s7.25-10.15 7.25-14.85c0-3.94-3.21-7.15-7.25-7.15z"/><circle cx="10" cy="8.35" r="2.4" fill="#fff"/></svg></div>';
+            const html = '<div class="barangay-pin-svg" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="26" viewBox="0 0 20 26"><path fill="#25671E" stroke="#ffffff" stroke-width="1.25" d="M10 1.25c-4.04 0-7.25 3.21-7.25 7.15 0 4.7 7.25 14.85 7.25 14.85s7.25-10.15 7.25-14.85c0-3.94-3.21-7.15-7.25-7.15z"/><circle cx="10" cy="8.35" r="2.4" fill="#fff"/></svg></div>';
             return L.divIcon({
                 html,
                 className: 'coffee-marker',

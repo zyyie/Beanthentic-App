@@ -432,7 +432,7 @@ class GIModule:
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#2e6f1c">
+    <meta name="theme-color" content="#25671E">
     <meta name="color-scheme" content="light">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -457,7 +457,7 @@ class GIModule:
             min-height: 100vh;
             min-height: 100dvh;
             padding: max(0px, env(safe-area-inset-top)) max(0px, env(safe-area-inset-right)) max(0px, env(safe-area-inset-bottom)) max(0px, env(safe-area-inset-left));
-            -webkit-tap-highlight-color: rgba(20, 117, 57, 0.12);
+            -webkit-tap-highlight-color: rgba(37, 103, 30, 0.12);
         }
         
         .container {
@@ -484,7 +484,7 @@ class GIModule:
         }
         .process-step {
             background: rgba(255,255,255,0.92);
-            border: 1px solid rgba(20, 117, 57, 0.15);
+            border: 1px solid rgba(37, 103, 30, 0.15);
             border-radius: 14px;
             padding: 1rem 0.85rem;
             text-align: center;
@@ -497,7 +497,7 @@ class GIModule:
             width: 28px;
             height: 28px;
             border-radius: 999px;
-            background: linear-gradient(135deg, #147539 0%, #0f5a2c 100%);
+            background: linear-gradient(135deg, #25671E 0%, #25671E 100%);
             color: white;
             font-size: 0.8rem;
             font-weight: 700;
@@ -530,7 +530,7 @@ class GIModule:
         .detail-tile h4 {
             font-size: 0.82rem;
             font-weight: 600;
-            color: #147539;
+            color: #25671E;
             text-transform: uppercase;
             letter-spacing: 0.06em;
             margin-bottom: 0.5rem;
@@ -549,7 +549,7 @@ class GIModule:
         .detail-tile li { margin-bottom: 0.35rem; }
         .callout-info {
             background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
-            border: 1px solid rgba(20, 117, 57, 0.2);
+            border: 1px solid rgba(37, 103, 30, 0.2);
             border-radius: 12px;
             padding: 1rem 1.15rem;
             font-size: 0.875rem;
@@ -560,7 +560,7 @@ class GIModule:
         .callout-info strong { color: #047857; }
         
         .header {
-            background: linear-gradient(135deg, #147539 0%, #0f5a2c 100%);
+            background: linear-gradient(135deg, #25671E 0%, #25671E 100%);
             color: white;
             padding: 3rem 0;
             position: relative;
@@ -633,7 +633,7 @@ class GIModule:
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            color: #147539;
+            color: #25671E;
             text-decoration: none;
             font-weight: 500;
             margin-bottom: 2rem;
@@ -641,7 +641,7 @@ class GIModule:
         }
         
         .back-link:hover {
-            color: #0f5a2c;
+            color: #25671E;
             transform: translateX(-3px);
         }
         
@@ -684,9 +684,9 @@ class GIModule:
         }
         
         .tab.active {
-            background: linear-gradient(135deg, #147539 0%, #0f5a2c 100%);
+            background: linear-gradient(135deg, #25671E 0%, #25671E 100%);
             color: white;
-            box-shadow: 0 2px 4px rgba(20, 117, 57, 0.3);
+            box-shadow: 0 2px 4px rgba(37, 103, 30, 0.3);
         }
         
         .tab-content {
@@ -724,7 +724,7 @@ class GIModule:
         .card-icon {
             width: 48px;
             height: 48px;
-            background: linear-gradient(135deg, #147539 0%, #0f5a2c 100%);
+            background: linear-gradient(135deg, #25671E 0%, #25671E 100%);
             border-radius: 12px;
             display: flex;
             align-items: center;
@@ -800,8 +800,8 @@ class GIModule:
         .form-group select:focus, 
         .form-group textarea:focus {
             outline: none;
-            border-color: #147539;
-            box-shadow: 0 0 0 3px rgba(20, 117, 57, 0.1);
+            border-color: #25671E;
+            box-shadow: 0 0 0 3px rgba(37, 103, 30, 0.1);
         }
         
         .form-group textarea {
@@ -816,7 +816,7 @@ class GIModule:
         }
         
         .btn {
-            background: linear-gradient(135deg, #147539 0%, #0f5a2c 100%);
+            background: linear-gradient(135deg, #25671E 0%, #25671E 100%);
             color: white;
             padding: 0.875rem 2rem;
             border: none;
@@ -828,12 +828,12 @@ class GIModule:
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            box-shadow: 0 4px 6px rgba(20, 117, 57, 0.2);
+            box-shadow: 0 4px 6px rgba(37, 103, 30, 0.2);
         }
         
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 12px rgba(20, 117, 57, 0.3);
+            box-shadow: 0 8px 12px rgba(37, 103, 30, 0.3);
         }
         
         .btn:active {
@@ -887,7 +887,7 @@ class GIModule:
         }
         
         .application-item:hover {
-            border-color: #147539;
+            border-color: #25671E;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
         
@@ -970,7 +970,7 @@ class GIModule:
             height: 3rem;
             margin-bottom: 1rem;
             opacity: 0.45;
-            color: #147539;
+            color: #25671E;
         }
         .apps-heading {
             margin-bottom: 1.5rem;
@@ -992,7 +992,7 @@ class GIModule:
             padding: 1rem;
             background: #f9fafb;
             border-radius: 8px;
-            border-left: 4px solid #147539;
+            border-left: 4px solid #25671E;
         }
         .reviewer-title {
             font-weight: 500;
@@ -1019,7 +1019,7 @@ class GIModule:
             height: 1.15rem;
             margin-top: 0.2rem;
             flex-shrink: 0;
-            accent-color: #147539;
+            accent-color: #25671E;
         }
         .checkbox-label.checkbox-invalid {
             outline: 2px solid #ef4444;
@@ -1037,7 +1037,7 @@ class GIModule:
         }
         
         .progress-fill {
-            background: linear-gradient(90deg, #147539 0%, #4ade80 100%);
+            background: linear-gradient(90deg, #25671E 0%, #25671E 100%);
             height: 100%;
             border-radius: 4px;
             transition: width 0.3s ease;
@@ -1062,7 +1062,7 @@ class GIModule:
         .stat-number {
             font-size: 2rem;
             font-weight: 700;
-            color: #147539;
+            color: #25671E;
             margin-bottom: 0.5rem;
         }
         

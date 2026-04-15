@@ -3,7 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#508020" />
+  <meta name="theme-color" content="#25671E" />
+  <script>
+    // Auth gate: redirect guests before homepage renders (prevents flicker).
+    (function () {
+      try {
+        var u = JSON.parse(localStorage.getItem('beanthentic_user') || 'null');
+        if (!(u && u.email)) {
+          window.location.replace('login.php');
+        }
+      } catch (e) {
+        window.location.replace('login.php');
+      }
+    })();
+  </script>
   <title>Beanthentic Coffee</title>
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">
@@ -402,7 +415,7 @@
         <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
           <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         </span>
-        <span class="app-bottom-nav-label">Sign in</span>
+        <span class="app-bottom-nav-label">Account</span>
       </a>
     </div>
   </nav>
@@ -460,7 +473,7 @@
         } catch (e2) {
           a.setAttribute('href', 'login.php');
         }
-        if (lbl) lbl.textContent = 'Sign in';
+        if (lbl) lbl.textContent = 'Account';
       }
       if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', syncBottomNavSignIn);
       else syncBottomNavSignIn();
@@ -532,6 +545,7 @@
       });
     })();
   </script>
+
   <script>
     (function () {
       function syncAppBottomNav() {

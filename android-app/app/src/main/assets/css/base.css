@@ -53,7 +53,7 @@ section {
   border: none;
   font-size: 0.9rem;
   font-weight: 600;
-  background: linear-gradient(135deg, #8b4a2b, #3ea642);
+  background: linear-gradient(135deg, #8b4a2b, var(--beanthentic-green));
   color: #fff;
   cursor: pointer;
   box-shadow: 0 8px 18px rgba(95, 45, 15, 0.35);

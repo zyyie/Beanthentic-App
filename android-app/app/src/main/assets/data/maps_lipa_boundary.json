@@ -29,10 +29,10 @@
         "type": "Polygon"
       },
       "properties": {
-        "fill": "#147539",
+        "fill": "#25671E",
         "fill-opacity": 0.1,
         "name": "Lipa City Boundary",
-        "stroke": "#147539",
+        "stroke": "#25671E",
         "stroke-opacity": 0.8,
         "stroke-width": 2
       },

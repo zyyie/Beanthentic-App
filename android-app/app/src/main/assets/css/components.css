@@ -1549,7 +1549,8 @@ body.news-portal-page {
   width: 100%;
   max-width: 42rem;
   margin: 0 auto;
-  max-height: min(72vh, 820px);
+  /* Portrait preview tends to look like a thumbnail if the max-height is too low. */
+  max-height: min(86vh, 1100px);
   overflow: hidden;
   background: #fff;
   border-radius: 14px;
@@ -1559,10 +1560,11 @@ body.news-portal-page {
 
 .news-cert-img-viewport img {
   display: block;
-  width: auto;
+  /* Fill available width and scale height automatically. */
+  width: 100%;
   height: auto;
   max-width: 100%;
-  max-height: min(72vh, 820px);
+  max-height: min(86vh, 1100px);
   object-fit: contain;
 }
 

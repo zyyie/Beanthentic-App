@@ -27,7 +27,7 @@
       </button>
       <div class="nav-logo-wrap">
         <a href="index.php#home" class="logo" aria-label="Beanthentic home">
-          <img class="logo-mark" src="beantHentic_logo.png" alt="Beanthentic" />
+          <img class="logo-mark" src="beanthentic_logo.png" alt="Beanthentic" />
         </a>
       </div>
       <div class="nav-right-cluster">
@@ -53,7 +53,7 @@
       <aside class="header-nav-drawer-panel" role="dialog" aria-modal="true" aria-label="Menu">
         <div class="header-nav-drawer-inner">
           <div id="header-drawer-account" class="header-drawer-account"></div>
-          <a href="https://www.facebook.com/" class="header-drawer-link header-drawer-link--social" target="_blank" rel="noopener noreferrer">
+          <a href="social.php" class="header-drawer-link header-drawer-link--social">
             <svg class="header-drawer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             <span>Social</span>
           </a>
@@ -92,6 +92,13 @@
       <p class="auth-switch">Need an account? <a href="signup.php">Sign up</a></p>
     </div>
   </main>
+
+  <footer>
+    <div class="footer-inner">
+      <span><span class="footer-dot"></span> Beanthentic &copy; <span id="year"><?php echo date('Y'); ?></span> · Brewed with care.</span>
+      <span>Serving honest coffee, one cup at a time.</span>
+    </div>
+  </footer>
 
   <nav class="app-bottom-nav" aria-label="Quick navigation">
     <div class="app-bottom-nav-inner">

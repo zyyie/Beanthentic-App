@@ -54,6 +54,9 @@
 }
 
 @media (max-width: 720px) {
+  :root {
+    --beanthentic-logo-scale: 1;
+  }
   .nav {
     grid-template-columns: auto auto minmax(0, 1fr);
     padding-left: max(0.3rem, env(safe-area-inset-left, 0px));
@@ -61,8 +64,9 @@
   }
 
   .logo-mark {
-    width: 94px;
-    height: 80px;
+    width: 104px;
+    height: 88px;
+    transform-origin: left center;
   }
 
   .nav-toggle {

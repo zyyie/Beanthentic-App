@@ -1,19 +1,16 @@
-<?php
-  $title = 'News · Beanthentic Coffee';
-?>
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#25671E" />
-  <title><?php echo $title; ?></title>
-  <link rel="stylesheet" href="css/base.css" />
-  <link rel="stylesheet" href="css/layout.css" />
-  <link rel="stylesheet" href="css/components.css" />
-  <link rel="stylesheet" href="css/responsive.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#508020" />
+  <title>Settings · Beanthentic Coffee</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/responsive.css">
 </head>
-<body class="has-app-bottom-nav news-portal-page">
+<body class="has-app-bottom-nav">
   <header>
     <div class="nav">
       <button
@@ -64,7 +61,7 @@
             <svg class="header-drawer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
             <span>Privacy Policy</span>
           </a>
-          <a href="news.php" class="header-drawer-link" aria-current="page">
+          <a href="news.php" class="header-drawer-link">
             <svg class="header-drawer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M4 19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12z"/>
               <path d="M8 9h8"/>
@@ -73,7 +70,7 @@
             </svg>
             <span>News</span>
           </a>
-          <a href="settings.php" class="header-drawer-link">
+          <a href="settings.php" class="header-drawer-link" aria-current="page">
             <svg class="header-drawer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
             <span>Settings</span>
           </a>
@@ -83,44 +80,20 @@
     </div>
   </header>
 
-  <div class="news-portal-hero">
-    <div class="news-portal-container">
-      <div class="news-portal-hero-inner">
-        <div class="news-portal-hero-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="40" height="40">
-            <path d="M4 19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12z"/>
-            <path d="M8 9h8M8 13h6M8 17h4"/>
-          </svg>
-        </div>
-        <h1 class="news-portal-hero-title">News &amp; official documents</h1>
-      </div>
-    </div>
-  </div>
-
-  <main class="news-portal-main">
-    <div class="news-portal-container">
+  <main class="auth-main">
+    <div class="auth-card" style="max-width: 36rem;">
       <a href="index.php#home" class="news-portal-back">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true">
+          <path d="m12 19-7-7 7-7"/>
+          <path d="M19 12H5"/>
+        </svg>
         Back to Home
       </a>
-      <p class="news-portal-lead">
-        Below is the official <strong>IPOPHL Certificate of Registration</strong> for Batangas Kapeng Barako.
+      <h1>Settings</h1>
+      <p class="auth-lead">Manage your app preferences.</p>
+      <p style="font-size:0.9rem;color:#6b574b;line-height:1.6;">
+        Settings panel is ready. You can add toggles here for notifications, theme, language, and data options.
       </p>
-      <figure class="news-cert-figure news-cert-figure--static">
-        <div class="news-cert-img-viewport">
-          <img
-            src="news/certificate-of-registration-preview.png"
-            width="1191"
-            height="1684"
-            alt="IPOPHL Certificate of Registration for Batangas Kapeng Barako"
-            decoding="async"
-            loading="lazy"
-          />
-        </div>
-        <figcaption class="news-cert-caption">
-          Intellectual Property Office of the Philippines — Certificate of Registration (preview). Source document retained in app assets for reference.
-        </figcaption>
-      </figure>
     </div>
   </main>
 
@@ -135,4 +108,3 @@
   <script src="js/ui.js"></script>
 </body>
 </html>
-

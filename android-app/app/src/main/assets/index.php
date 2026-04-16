@@ -110,6 +110,10 @@
             </svg>
             <span>News</span>
           </a>
+          <a href="settings.php" class="header-drawer-link">
+            <svg class="header-drawer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <span>Settings</span>
+          </a>
           <button type="button" id="header-sign-out-btn" class="header-drawer-signout" hidden>Sign out</button>
         </div>
       </aside>
@@ -206,7 +210,7 @@
             />
           </div>
           <div id="about-history" class="about-topic" data-about-panel="about-history" data-about-pill-label="History">
-            <h4>History</h4>
+            <h4>HISTORY</h4>
             <div class="types-liberica-wrap">
               <img
                 class="types-liberica-photo"
@@ -236,7 +240,7 @@
             />
           </div>
           <div id="about-liberica" class="about-topic" data-about-panel="about-liberica" data-about-pill-label="Liberica">
-            <h4>The Coffea Liberica</h4>
+            <h4>LIBERICA</h4>
             <p>Although most coffee aficionados are well-versed in Arabica and Robusta varieties, there exists a lesser-known third species of coffee bean: Liberica. This particular variety constitutes approximately 2% of global coffee consumption; however, most of this consumption transpires in the nation where Liberica coffee enjoys considerable popularity: the Philippines (Earl of Coffee, 2020).</p>
             <p>Liberica, or Liberian coffee (Coffea liberica), is frequently referred to as the "third coffee crop species" (after Coffea arabica and Coffea canephora). A commonly misquoted statistic suggests that Liberica comprises approximately 1 per cent of the global coffee supply; however, the production output of this species remains minuscule when compared with that of Arabica and Robusta. Although, during the latter portion of the 19th century, Liberica was positioned alongside Arabica as the second most significant species in the coffee trade (Ralph, 2023), this status has diminished over time.</p>
             <p>Liberica, a coffee species from Liberia (West Africa), was introduced with remarkable scale and efficiency beginning in the early 1870s. This introduction primarily responded to the devastating coffee leaf rust epidemic that severely impacted Arabica plantations in Sri Lanka. However, shortly thereafter, Liberica was utilized to expand coffee production into low-elevation tropical regions where climatic conditions-characterized by excessive heat and moisture-rendered Arabica cultivation untenable. Consequently, Liberica has cultivated a steadfast following in the Philippines, Malaysia, and Indonesia. Due to an outbreak of coffee rust disease in various regions, the Philippines emerged as one of the foremost exporters of this rare coffee species. This development was significant because Liberica effectively addressed the demand for coffee in areas where Arabica could not flourish.</p>
@@ -307,7 +311,7 @@
             </section>
           </div>
           <div id="about-robusta" class="about-topic" data-about-panel="about-robusta" data-about-pill-label="Robusta">
-            <h4>Robusta Beans</h4>
+            <h4>ROBUSTA</h4>
             <p>Robusta coffee variety, as a significant cash crop, plays a pivotal role in Indonesia's agricultural landscape. According to Index Mundi, Indonesia ranks as the world's third-largest producer of Robusta, trailing only behind Brazil and Vietnam. The extensive expanses of suitable land for coffee cultivation and diverse microclimates render it particularly advantageous for producing Robusta coffee. Mia Lakhsmi Handayani, a Q Grader specializing in Robusta in Indonesia, asserts that &quot;These conditions [in Indonesia] also mean robusta flavors can range from more soft, subtle coffees with notes of chocolate and fruit grown in Central Java, to more intense flavors of vanilla and chocolate, like robusta grown in Sumatra&quot; (Perfect Daily Grind, 2022).</p>
             <div class="types-liberica-wrap types-liberica-wrap--side-by-side">
               <p>The majority of farmers in Indonesia are smallholders who are cultivating coffee on approximately one or two hectares of land. Because many of these smallholder farmers grow coffee primarily for subsistence, they frequently find themselves with insufficient funds to reinvest in their agricultural practices, this results in quality control becoming a significant concern. However, despite the abundance of coffee production in Indonesia, there is a need to enhance both quality and yields. For this reason, coffee farmers have initiated the development of this new breed of coffee.</p>
@@ -322,7 +326,7 @@
             <p>In the realm of cup quality and flavor profile, BP 358 surpasses standard Robustas in a manner that renders it a favored selection for espresso blends characterized by a robust body, opulent crema, elevated caffeine content, and a trace of subdued bitterness. These attributes particularly suit instant coffee, espresso, and various commercial blends. Indonesian farmers extensively cultivate this variety across regions such as Sumatra, Java, and Sulawesi; however, it is also utilized in Vietnam and other nations engaged in Robusta production for large-scale coffee cultivation. Because of its prolific output, BP 358 holds significant importance due to its high yield and disease resistance, presenting a lucrative opportunity for farmers. It is additionally advantageous for espresso and commercial coffee blends due to its superior cup quality. This variety plays a pivotal role in Indonesia's Robusta coffee sector, which has enabled the country to emerge as one of the globe's preeminent producers.</p>
           </div>
           <div id="about-excelsa" class="about-topic" data-about-panel="about-excelsa" data-about-pill-label="Excelsa">
-            <h4>The Coffea Excelsa</h4>
+            <h4>EXCELSA</h4>
             <p><strong>Excelsa (Excelsa Coffee)</strong></p>
             <p>Excelsa coffee, once regarded as the fourth coffee variety alongside Arabica, Robusta and Liberica, is now reclassified as a variety of <em>Coffea liberica</em>; however, its unique characteristics remain noteworthy. This rare and exotic species is known for its tart, fruity, and complex flavour profile. Although today, Excelsa is mainly cultivated in Southeast Asia (including Vietnam and the Philippines) and India, its initial discovery occurred in 1903 in Central Africa, known as <em>Coffea dewevrei</em> or Dewevreie (San Max, 2021). Many believed this coffee variety to be a distinct species within the Coffea genus; however, it was not until 2006 that it received official recognition as the Dewevrei variety of the Liberica species.</p>
             <img
@@ -418,7 +422,7 @@
         </span>
         <span class="app-bottom-nav-label">Map</span>
       </a>
-      <a href="login.php" id="nav-signin" class="app-bottom-nav-link app-bottom-nav-link--signin" data-no-loader="true">
+      <a href="login.php" id="nav-signin" class="app-bottom-nav-link app-bottom-nav-link--signin">
         <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
           <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         </span>
@@ -532,7 +536,7 @@
       if (hideTimer) clearTimeout(hideTimer);
       hideTimer = setTimeout(hideLoader, minVisibleMs + 2500);
 
-      // Show loader on navigation clicks (links). Keep anchor clicks short.
+      // Show loader on navigation clicks (links), including module links (GI/Map/News/Social).
       document.addEventListener('click', function (e) {
         var a = e.target && e.target.closest ? e.target.closest('a') : null;
         if (!a) return;
@@ -541,9 +545,7 @@
         if (!href) return;
         // Don't show loading overlay for hash navigation (in-page) or sidebar clicks.
         if (href.indexOf('#') === 0) return;
-        if (a.closest && a.closest('.home-sidebar')) return;
         if (a.getAttribute('data-no-loader') === 'true') return;
-        if (href.startsWith('http')) return;
 
         loader.style.display = 'flex';
         startedAt = Date.now();

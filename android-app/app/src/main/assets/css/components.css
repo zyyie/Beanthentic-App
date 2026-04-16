@@ -582,8 +582,8 @@
   border-radius: 999px;
   background: rgba(44, 26, 15, 0.9);
   color: #fbeee2;
-  font-size: 0.95rem;
-  font-weight: 650;
+  font-size: 1.08rem;
+  font-weight: 700;
   letter-spacing: 0.02em;
   margin: 0 auto 1rem;
   width: fit-content;
@@ -685,14 +685,15 @@
   text-align: center;
   text-transform: uppercase;
   letter-spacing: 0.14em;
-  font-size: 1rem;
+  font-size: 1.15rem;
   color: #24422d;
   margin: 0 0 0.85rem;
 }
 
 .types-liberica-subtitle {
   text-align: left;
-  font-size: 1.05rem;
+  font-size: 1.18rem;
+  font-weight: 700;
   color: #24422d;
   margin: 0 0 0.35rem;
 }
@@ -896,7 +897,7 @@
 /* Main title per tab (History, Liberica, Robusta, etc.) — gitna at mas malaki */
 .about-topic > h4:first-of-type {
   text-align: center;
-  font-size: 1.35rem;
+  font-size: 1.6rem;
   font-weight: 750;
   letter-spacing: 0.01em;
   margin-bottom: 0.6rem;
@@ -1617,6 +1618,18 @@ body.news-portal-page {
   width: 100%;
   margin-top: 0.25rem;
   padding: 0.7rem 1.2rem;
+  background: linear-gradient(135deg, #2e6f1c, #147539) !important;
+  box-shadow: 0 10px 22px rgba(20, 117, 57, 0.28) !important;
+}
+
+.auth-form .btn-primary:hover {
+  box-shadow: 0 14px 28px rgba(20, 117, 57, 0.34) !important;
+  filter: brightness(1.05);
+}
+
+.auth-form .btn-primary:active {
+  transform: scale(0.98);
+  filter: brightness(0.98);
 }
 
 .auth-switch {

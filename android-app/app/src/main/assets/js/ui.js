@@ -75,6 +75,7 @@ class UIController {
   }
 
   init() {
+    this.setupGlobalPageLoader();
     this.setupAnimations();
     this.setupInteractions();
     this.setupHeroSlider();
@@ -89,6 +90,71 @@ class UIController {
     this.setupHeaderNotifications();
     this.setupHeaderNavDrawer();
     this.loadYear();
+  }
+
+  setupGlobalPageLoader() {
+    let loader = document.getElementById('page-loader');
+    if (!loader) {
+      loader = document.createElement('div');
+      loader.id = 'page-loader';
+      loader.style.position = 'fixed';
+      loader.style.inset = '0';
+      loader.style.background = '#ffffff';
+      loader.style.display = 'flex';
+      loader.style.alignItems = 'center';
+      loader.style.justifyContent = 'center';
+      loader.style.flexDirection = 'column';
+      loader.style.zIndex = '99999';
+      loader.innerHTML =
+        '<img src="coffee_bean_loading.png" alt="Loading..." style="width:96px;height:96px;object-fit:contain;animation:beanthentic-bounce 1s ease-in-out infinite;" /><p style="margin-top:10px;color:#6b7280;font-size:14px;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;">Please wait for a moment.</p>';
+
+      if (!document.getElementById('beanthentic-loader-style')) {
+        const style = document.createElement('style');
+        style.id = 'beanthentic-loader-style';
+        style.textContent =
+          '@keyframes beanthentic-bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}';
+        document.head.appendChild(style);
+      }
+      document.body.appendChild(loader);
+    }
+
+    let startedAt = Date.now();
+    const minVisibleMs = 450;
+    let hideTimer = null;
+
+    const hideLoader = () => {
+      if (!loader) return;
+      const elapsed = Date.now() - startedAt;
+      const delay = Math.max(0, minVisibleMs - elapsed);
+      if (hideTimer) clearTimeout(hideTimer);
+      hideTimer = setTimeout(() => {
+        loader.style.display = 'none';
+      }, delay);
+    };
+
+    window.addEventListener('load', hideLoader);
+    if (hideTimer) clearTimeout(hideTimer);
+    hideTimer = setTimeout(hideLoader, minVisibleMs + 2200);
+
+    document.addEventListener(
+      'click',
+      (e) => {
+        const a = e.target && e.target.closest ? e.target.closest('a') : null;
+        if (!a) return;
+        const href = a.getAttribute('href') || '';
+        if (!href) return;
+        if (href.startsWith('#')) return;
+        if (a.getAttribute('data-no-loader') === 'true') return;
+        if (a.hasAttribute('download')) return;
+        if (/^\s*javascript:/i.test(href)) return;
+
+        loader.style.display = 'flex';
+        startedAt = Date.now();
+        if (hideTimer) clearTimeout(hideTimer);
+        hideTimer = null;
+      },
+      true
+    );
   }
 
   setupHeaderNavDrawer() {

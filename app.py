@@ -73,5 +73,10 @@ def social_page():
     return _serve_php_asset("social.php")
 
 
+@app.route("/settings.php")
+def settings_page():
+    return _serve_php_asset("settings.php")
+
+
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)

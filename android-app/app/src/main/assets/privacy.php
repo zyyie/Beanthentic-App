@@ -70,6 +70,10 @@
             </svg>
             <span>News</span>
           </a>
+          <a href="settings.php" class="header-drawer-link">
+            <svg class="header-drawer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <span>Settings</span>
+          </a>
           <button type="button" id="header-sign-out-btn" class="header-drawer-signout" hidden>Sign out</button>
         </div>
       </aside>
@@ -78,6 +82,13 @@
 
   <main class="auth-main">
     <div class="auth-card" style="max-width: 36rem;">
+      <a href="index.php#home" class="news-portal-back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true">
+          <path d="m12 19-7-7 7-7"/>
+          <path d="M19 12H5"/>
+        </svg>
+        Back to Home
+      </a>
       <h1>Privacy Policy</h1>
       <p class="auth-lead">How Beanthentic Coffee handles information when you use this app.</p>
       <p style="font-size:0.9rem;color:#6b574b;line-height:1.6;">
@@ -85,7 +96,6 @@
         Data is used to improve your experience and to support local farmers through our platform. We do not sell your personal information.
         For questions, contact us through the channels linked from <strong>Social</strong> in the menu.
       </p>
-      <p style="margin-top:1rem;"><a href="index.php#home" class="btn-primary" style="display:inline-block;text-decoration:none;">Back to home</a></p>
     </div>
   </main>
 

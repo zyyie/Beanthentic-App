@@ -91,9 +91,24 @@
       </a>
       <h1>Settings</h1>
       <p class="auth-lead">Manage your app preferences.</p>
-      <p style="font-size:0.9rem;color:#6b574b;line-height:1.6;">
-        Settings panel is ready. You can add toggles here for notifications, theme, language, and data options.
-      </p>
+      <div style="margin-top:1rem; display:grid; gap:0.75rem;">
+        <div>
+          <label for="settings-public-base" style="display:block;font-size:0.82rem;font-weight:600;color:#3d2a1f;margin-bottom:0.35rem;">
+            Public Profile Base URL
+          </label>
+          <input
+            id="settings-public-base"
+            type="url"
+            inputmode="url"
+            placeholder="https://yourdomain.com"
+            style="width:100%; padding:0.65rem 0.8rem; border-radius:10px; border:1px solid #e5e7eb; font-size:1rem; background:#fafafa;"
+          />
+          <p style="margin:0.45rem 0 0; font-size:0.85rem; color:#6b574b; line-height:1.5;">
+            Ito ang gagamitin sa QR <strong>data=</strong> para pag scan, diretso sa profile link (hindi 127.x / local IP).
+          </p>
+        </div>
+        <button type="button" class="btn-primary" id="settings-save-public-base">Save</button>
+      </div>
     </div>
   </main>
 
@@ -106,5 +121,31 @@
 
   <script src="js/navigation.js"></script>
   <script src="js/ui.js"></script>
+  <script>
+    (function () {
+      var KEY = 'beanthentic_public_base';
+      function norm(s) { return String(s || '').trim().replace(/\/$/, ''); }
+      function init() {
+        var input = document.getElementById('settings-public-base');
+        var btn = document.getElementById('settings-save-public-base');
+        if (!input || !btn) return;
+        try {
+          input.value = norm(localStorage.getItem(KEY) || '');
+        } catch (e) {}
+        btn.addEventListener('click', function () {
+          var v = norm(input.value);
+          try {
+            if (v) localStorage.setItem(KEY, v);
+            else localStorage.removeItem(KEY);
+          } catch (e2) {}
+          if (window.uiController && typeof window.uiController.showNotification === 'function') {
+            window.uiController.showNotification('Saved.', 'info');
+          }
+        });
+      }
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+      else init();
+    })();
+  </script>
 </body>
 </html>

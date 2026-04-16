@@ -1432,6 +1432,74 @@ body.account-portfolio-page .app-bottom-nav-link--featured {
   }
 }
 
+/* Account: Profile QR */
+.profile-qr-card {
+  margin-top: 0.2rem;
+  padding: 0.95rem 0.95rem 0.85rem;
+  border-radius: 16px;
+  background: #fdfcfa;
+  border: 1px solid rgba(46, 111, 28, 0.14);
+  display: grid;
+  gap: 0.65rem;
+}
+
+.profile-qr-preview {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.75rem;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 1px solid rgba(37, 103, 30, 0.14);
+}
+
+.profile-qr-img {
+  width: min(230px, 100%);
+  height: auto;
+  display: block;
+  border-radius: 12px;
+}
+
+.profile-qr-caption {
+  margin: 0;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #6b574b;
+}
+
+.profile-qr-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+
+.profile-qr-btn {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  font-weight: 650;
+  background: linear-gradient(135deg, #2e6f1c, #147539) !important;
+  box-shadow: 0 10px 22px rgba(20, 117, 57, 0.28) !important;
+}
+
+.profile-qr-btn--secondary {
+  background: linear-gradient(135deg, #6b7280, #4b5563) !important;
+  box-shadow: 0 10px 22px rgba(75, 85, 99, 0.22) !important;
+}
+
+.profile-qr-link {
+  text-align: center;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #2d6b38 !important;
+  text-decoration: none !important;
+}
+
+.profile-qr-link:hover,
+.profile-qr-link:focus-visible {
+  text-decoration: underline !important;
+  outline: none;
+}
+
 /* News page — GI Portal–style shell + static certificate preview (no PDF iframe / no inner scroll) */
 body.news-portal-page {
   background: #f3f4f6;

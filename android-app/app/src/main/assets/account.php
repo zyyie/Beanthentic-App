@@ -118,6 +118,21 @@
           </dl>
         </section>
 
+        <section class="account-portfolio-section" aria-labelledby="account-qr-heading">
+          <h2 class="account-portfolio-section-title" id="account-qr-heading">Profile QR</h2>
+          <div class="profile-qr-card">
+            <div class="profile-qr-preview">
+              <img id="account-profile-qr-img" class="profile-qr-img" alt="Profile QR code" />
+            </div>
+            <p class="profile-qr-caption">Scan to open your profile.</p>
+            <div class="profile-qr-actions">
+              <button type="button" class="btn-primary profile-qr-btn" id="account-profile-qr-download">Download</button>
+              <button type="button" class="btn-primary profile-qr-btn profile-qr-btn--secondary" id="account-profile-qr-share">Share</button>
+            </div>
+            <a href="#" id="account-profile-qr-link" class="profile-qr-link" data-no-loader="true" target="_blank" rel="noopener">Open profile link</a>
+          </div>
+        </section>
+
         <nav class="account-portfolio-quick" aria-label="Shortcuts">
           <a href="index.php#home" class="account-portfolio-tile">
             <span class="account-portfolio-tile-icon" aria-hidden="true">
@@ -380,6 +395,96 @@
             first +
             ". You're part of the Beanthentic community—we connect you with traceable coffee, verified grower stories, and tools like the GI Portal and origin map.";
         }
+
+        // Profile QR (points to profile.php?name=&email=)
+        (function renderProfileQr() {
+          var img = document.getElementById('account-profile-qr-img');
+          var linkEl = document.getElementById('account-profile-qr-link');
+          if (!img) return;
+
+          // IMPORTANT:
+          // - api.qrserver.com only generates the QR image.
+          // - What your phone opens when scanning is the QR "data=" content.
+          // So we must put a PUBLICLY REACHABLE profile base URL here (not 127.x / 10.0.2.2).
+          var base = '';
+          if (location.protocol === 'http:' || location.protocol === 'https:') {
+            base = (location.origin || '').replace(/\/$/, '');
+          } else {
+            // file:// (Android assets) → use user-configured public base URL
+            try {
+              var pub = localStorage.getItem('beanthentic_public_base');
+              if (pub && String(pub).replace(/\s/g, '')) base = String(pub).trim().replace(/\/$/, '');
+            } catch (e) {}
+            if (!base) {
+              try {
+                base = String(prompt('Enter PUBLIC base URL for profile links (example: https://yourdomain.com)', '') || '').trim().replace(/\/$/, '');
+                if (base) localStorage.setItem('beanthentic_public_base', base);
+              } catch (e2) {}
+            }
+          }
+          if (!base) base = 'http://10.0.2.2:5000';
+
+          var profileUrl;
+          try {
+            profileUrl = new URL('profile.php', base.replace(/\/?$/, '/') ).href;
+          } catch (e2) {
+            profileUrl = base.replace(/\/$/, '') + '/profile.php';
+          }
+
+          var fullProfileUrl = profileUrl + '?name=' + encodeURIComponent(name) + '&email=' + encodeURIComponent(email);
+          // Use the exact QRServer template: ...?size=150x150&data=<PROFILE_URL>
+          var qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + encodeURIComponent(fullProfileUrl);
+
+          img.setAttribute('src', qrUrl);
+          if (linkEl) linkEl.setAttribute('href', fullProfileUrl);
+
+          var downloadBtn = document.getElementById('account-profile-qr-download');
+          if (downloadBtn && !downloadBtn.dataset.bound) {
+            downloadBtn.dataset.bound = 'true';
+            downloadBtn.addEventListener('click', function () {
+              try {
+                fetch(qrUrl)
+                  .then(function (r) { return r.blob(); })
+                  .then(function (blob) {
+                    var a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = 'beanthentic-profile-qr.png';
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1500);
+                  });
+              } catch (err) {
+                if (window.uiController && typeof window.uiController.showNotification === 'function') {
+                  window.uiController.showNotification('Download not supported on this device.', 'info');
+                }
+              }
+            });
+          }
+
+          var shareBtn = document.getElementById('account-profile-qr-share');
+          if (shareBtn && !shareBtn.dataset.bound) {
+            shareBtn.dataset.bound = 'true';
+            shareBtn.addEventListener('click', function () {
+              var shareData = { title: 'Beanthentic Profile', text: 'My Beanthentic profile', url: fullProfileUrl };
+              if (navigator.share) {
+                navigator.share(shareData).catch(function () { /* ignore */ });
+                return;
+              }
+              try {
+                navigator.clipboard.writeText(fullProfileUrl).then(function () {
+                  if (window.uiController && typeof window.uiController.showNotification === 'function') {
+                    window.uiController.showNotification('Profile link copied.', 'info');
+                  }
+                });
+              } catch (e3) {
+                if (window.uiController && typeof window.uiController.showNotification === 'function') {
+                  window.uiController.showNotification(fullProfileUrl, 'info');
+                }
+              }
+            });
+          }
+        })();
         root.hidden = false;
       }
       function init() {

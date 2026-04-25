@@ -37,9 +37,11 @@ def validate_farmer_payload(data):
     name = (data.get("name") or "").strip()
     email = (data.get("email") or "").strip().lower()
     phone = _normalize_ph_phone(data.get("phone"))
-    region = (data.get("region") or "").strip()
-    province = (data.get("province") or "").strip()
-    municipality = (data.get("municipality") or "").strip()
+    # Fixed to Lipa City, Batangas (Region IV-A / CALABARZON).
+    region = "CALABARZON"
+    province = "Batangas"
+    municipality = "Lipa City"
+    barangay = (data.get("barangay") or "").strip()
     farm_address = (data.get("farm_address") or "").strip()
     farm_size_raw = data.get("farm_size", 0)
 
@@ -55,16 +57,41 @@ def validate_farmer_payload(data):
         errors["phone"] = "Mobile number is required (09XXXXXXXXX) for GI verification and follow-up."
     elif not re.match(r"^09\d{9}$", phone):
         errors["phone"] = "Use Philippine mobile format: 09XXXXXXXXX (11 digits)."
-    if region not in PH_REGIONS:
-        errors["region"] = "Select a valid region from the list."
-    if len(province) < 2 or len(province) > 80:
-        errors["province"] = "Province must be 2–80 characters."
-    elif re.fullmatch(r"\d+", province.strip()):
-        errors["province"] = "Enter a valid province name (not numbers only)."
-    if len(municipality) < 2 or len(municipality) > 80:
-        errors["municipality"] = "City or municipality must be 2–80 characters."
-    elif re.fullmatch(r"\d+", municipality.strip()):
-        errors["municipality"] = "Enter a valid city or municipality (not numbers only)."
+
+    lipa_barangays = {
+        "Adya",
+        "Antipolo del Sur",
+        "Bagong Pook",
+        "Bulacnin",
+        "Halang",
+        "Kayumanggi",
+        "Latag",
+        "Lodlod",
+        "Lumbang",
+        "Malagonlong",
+        "Malitlit",
+        "Pagolingin",
+        "Pangao",
+        "Pinagkawitan",
+        "Pinagtong-Ulan",
+        "Pusil",
+        "Quezon",
+        "Rizal",
+        "San Benito",
+        "San Celestino",
+        "San Isidro",
+        "San Salvador",
+        "Santo Niño",
+        "Santo Toribio",
+        "Talisay",
+        "Tangob",
+        "Tangway",
+        "Tipakan",
+    }
+    if not barangay:
+        errors["barangay"] = "Select your barangay in Lipa City."
+    elif barangay not in lipa_barangays:
+        errors["barangay"] = "Barangay must be within Lipa City."
     if len(farm_address) < 20 or len(farm_address) > 500:
         errors["farm_address"] = "Enter the complete farm address (at least 20 characters): sitio/purok, barangay, landmarks."
 
@@ -90,6 +117,7 @@ def validate_farmer_payload(data):
         "region": region,
         "province": province,
         "municipality": municipality,
+        "barangay": barangay,
         "farm_address": farm_address,
         "farm_size": farm_size,
     }, {}
@@ -227,6 +255,7 @@ class GIModule:
                     region TEXT NOT NULL,
                     province TEXT NOT NULL,
                     municipality TEXT NOT NULL,
+                    barangay TEXT NOT NULL DEFAULT '',
                     farm_address TEXT NOT NULL,
                     farm_size REAL,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -290,6 +319,16 @@ class GIModule:
             
             conn.commit()
             conn.close()
+        else:
+            # Ensure schema upgrades for existing DB.
+            conn = sqlite3.connect('gi_database.db')
+            cursor = conn.cursor()
+            cursor.execute("PRAGMA table_info(farmers)")
+            cols = {row[1] for row in cursor.fetchall()}
+            if "barangay" not in cols:
+                cursor.execute("ALTER TABLE farmers ADD COLUMN barangay TEXT NOT NULL DEFAULT ''")
+                conn.commit()
+            conn.close()
     
     def setup_routes(self):
         """Setup API routes for GI module"""
@@ -304,11 +343,12 @@ class GIModule:
                 conn = sqlite3.connect('gi_database.db')
                 cursor = conn.cursor()
                 cursor.execute('''
-                    INSERT INTO farmers (name, email, phone, region, province, municipality, farm_address, farm_size)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    INSERT INTO farmers (name, email, phone, region, province, municipality, barangay, farm_address, farm_size)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ''', (
                     cleaned['name'], cleaned['email'], cleaned['phone'],
                     cleaned['region'], cleaned['province'], cleaned['municipality'],
+                    cleaned['barangay'],
                     cleaned['farm_address'], cleaned['farm_size'],
                 ))
                 farmer_id = cursor.lastrowid
@@ -1119,8 +1159,8 @@ class GIModule:
                 <div class="header-icon">
                     <i data-lucide="badge-check"></i>
                 </div>
-                <h1>Geographical Indications Portal</h1>
-                <p>Register your farm, document origin-linked qualities, and track GI certification—built for Philippine coffee growers.</p>
+                <h1>Register</h1>
+                <p>Register your farm details for GI profiling—built for Philippine coffee growers.</p>
             </div>
         </div>
     </div>
@@ -1137,21 +1177,11 @@ class GIModule:
                     A <strong>Geographical Indication (GI)</strong> helps buyers recognize coffee tied to your region’s climate, soil, and farming traditions.
                     Use this portal to submit structured farm data so reviewers can evaluate uniqueness, consistency, and traceability—key criteria in GI programs worldwide.
                 </p>
-                <div class="process-rail" aria-label="Three steps">
+                <div class="process-rail" aria-label="Registration step">
                     <div class="process-step">
                         <div class="process-step-num">1</div>
                         <h3>Register farm</h3>
                         <p>Official contact, location, and farm footprint in one profile.</p>
-                    </div>
-                    <div class="process-step">
-                        <div class="process-step-num">2</div>
-                        <h3>Apply for GI</h3>
-                        <p>Describe terroir, practices, and what makes your cup distinctive.</p>
-                    </div>
-                    <div class="process-step">
-                        <div class="process-step-num">3</div>
-                        <h3>Track status</h3>
-                        <p>Follow pending, approved, or returned applications with your Farmer ID.</p>
                     </div>
                 </div>
                 <div class="detail-grid">
@@ -1159,7 +1189,7 @@ class GIModule:
                         <h4><i data-lucide="clipboard-list"></i> What to prepare</h4>
                         <ul>
                             <li>Valid email and PH mobile (09XXXXXXXXX)</li>
-                            <li>Region, province, city/municipality, full farm address</li>
+                            <li>Batangas · Lipa City · Barangay, plus full farm address</li>
                             <li>Optional farm size (hectares) for context</li>
                         </ul>
                     </div>
@@ -1190,14 +1220,6 @@ class GIModule:
                     <i data-lucide="user-plus"></i>
                     Register Farm
                 </button>
-                <button type="button" class="tab" id="tabGiApply" onclick="showTab('apply', this)" role="tab" aria-selected="false" title="Available after successful farmer registration">
-                    <i data-lucide="file-text"></i>
-                    Apply for GI
-                </button>
-                <button type="button" class="tab" onclick="showTab('status', this)" role="tab" aria-selected="false">
-                    <i data-lucide="search"></i>
-                    Check Status
-                </button>
             </div>
             
             <div id="register" class="tab-content active">
@@ -1212,6 +1234,18 @@ class GIModule:
                         </div>
                     </div>
                     
+                    <div id="giRegisterSuccess" class="card" style="display:none; margin:0 0 14px; border:1px solid rgba(34,197,94,0.35); box-shadow:none;">
+                        <div class="card-header" style="padding:14px 16px;">
+                            <div class="card-icon" style="background:rgba(34,197,94,0.12); color:#166534;">
+                                <i data-lucide="check-circle"></i>
+                            </div>
+                            <div>
+                                <h2 class="card-title" style="margin:0;">Successful</h2>
+                                <p class="card-subtitle" style="margin:2px 0 0;">Data sent successfully.</p>
+                            </div>
+                        </div>
+                    </div>
+
                     <form id="farmerForm" novalidate>
                         <div class="form-grid">
                             <div class="form-group">
@@ -1222,7 +1256,13 @@ class GIModule:
                             
                             <div class="form-group">
                                 <label for="farmerEmail">Email Address <span class="required">*</span></label>
-                                <input type="email" id="farmerEmail" name="email" required maxlength="254" autocomplete="email" placeholder="your.email@example.com">
+                                <div style="display:flex; gap:8px; align-items:center;">
+                                    <input type="email" id="farmerEmail" name="email" required maxlength="254" autocomplete="email" placeholder="your.email@example.com" style="flex:1 1 auto;">
+                                    <button type="button" id="editFarmerEmailBtn" data-edit-target="farmerEmail" class="btn" style="padding:0.5rem 0.85rem; min-height:40px; display:none;">
+                                        <i data-lucide="pencil"></i>
+                                        Edit
+                                    </button>
+                                </div>
                                 <span class="field-error" data-error-for="email" role="alert"></span>
                             </div>
                             
@@ -1234,51 +1274,77 @@ class GIModule:
                             </div>
                             
                             <div class="form-group">
-                                <label for="region">Region <span class="required">*</span></label>
-                                <select id="region" name="region" required>
-                                    <option value="">Select Region</option>
-                                    <option value="Ilocos Region">Ilocos Region (Region I)</option>
-                                    <option value="Cagayan Valley">Cagayan Valley (Region II)</option>
-                                    <option value="Central Luzon">Central Luzon (Region III)</option>
-                                    <option value="CALABARZON">CALABARZON (Region IV-A)</option>
-                                    <option value="MIMAROPA">MIMAROPA (Region IV-B)</option>
-                                    <option value="Bicol Region">Bicol Region (Region V)</option>
-                                    <option value="Western Visayas">Western Visayas (Region VI)</option>
-                                    <option value="Central Visayas">Central Visayas (Region VII)</option>
-                                    <option value="Eastern Visayas">Eastern Visayas (Region VIII)</option>
-                                    <option value="Zamboanga Peninsula">Zamboanga Peninsula (Region IX)</option>
-                                    <option value="Northern Mindanao">Northern Mindanao (Region X)</option>
-                                    <option value="Davao Region">Davao Region (Region XI)</option>
-                                    <option value="SOCCSKSARGEN">SOCCSKSARGEN (Region XII)</option>
-                                    <option value="CARAGA">CARAGA (Region XIII)</option>
-                                    <option value="CAR">Cordillera Administrative Region (CAR)</option>
-                                    <option value="NCR">National Capital Region (NCR)</option>
-                                </select>
-                                <span class="field-error" data-error-for="region" role="alert"></span>
-                            </div>
-                            
-                            <div class="form-group">
                                 <label for="province">Province <span class="required">*</span></label>
-                                <input type="text" id="province" name="province" required maxlength="80" placeholder="Enter province name">
-                                <span class="field-error" data-error-for="province" role="alert"></span>
+                                <input type="text" id="province" name="province" value="Batangas" readonly aria-readonly="true" placeholder="Batangas">
                             </div>
-                            
+
                             <div class="form-group">
                                 <label for="municipality">Municipality/City <span class="required">*</span></label>
-                                <input type="text" id="municipality" name="municipality" required maxlength="80" placeholder="Enter municipality or city">
-                                <span class="field-error" data-error-for="municipality" role="alert"></span>
+                                <input type="text" id="municipality" name="municipality" value="Lipa City" readonly aria-readonly="true" placeholder="Lipa City">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="barangay">Barangay (Lipa City) <span class="required">*</span></label>
+                                <select id="barangay" name="barangay" required>
+                                    <option value="">Select barangay</option>
+                                    <option value="Adya">Adya</option>
+                                    <option value="Antipolo del Sur">Antipolo del Sur</option>
+                                    <option value="Bagong Pook">Bagong Pook</option>
+                                    <option value="Bulacnin">Bulacnin</option>
+                                    <option value="Halang">Halang</option>
+                                    <option value="Kayumanggi">Kayumanggi</option>
+                                    <option value="Latag">Latag</option>
+                                    <option value="Lodlod">Lodlod</option>
+                                    <option value="Lumbang">Lumbang</option>
+                                    <option value="Malagonlong">Malagonlong</option>
+                                    <option value="Malitlit">Malitlit</option>
+                                    <option value="Pagolingin">Pagolingin</option>
+                                    <option value="Pangao">Pangao</option>
+                                    <option value="Pinagkawitan">Pinagkawitan</option>
+                                    <option value="Pinagtong-Ulan">Pinagtong-Ulan</option>
+                                    <option value="Pusil">Pusil</option>
+                                    <option value="Quezon">Quezon</option>
+                                    <option value="Rizal">Rizal</option>
+                                    <option value="San Benito">San Benito</option>
+                                    <option value="San Celestino">San Celestino</option>
+                                    <option value="San Isidro">San Isidro</option>
+                                    <option value="San Salvador">San Salvador</option>
+                                    <option value="Santo Niño">Santo Niño</option>
+                                    <option value="Santo Toribio">Santo Toribio</option>
+                                    <option value="Talisay">Talisay</option>
+                                    <option value="Tangob">Tangob</option>
+                                    <option value="Tangway">Tangway</option>
+                                    <option value="Tipakan">Tipakan</option>
+                                </select>
+                                <span class="field-error" data-error-for="barangay" role="alert"></span>
                             </div>
                         </div>
                         
                         <div class="form-group">
-                            <label for="farmAddress">Complete Farm Address <span class="required">*</span></label>
-                            <input type="text" id="farmAddress" name="farm_address" required minlength="20" maxlength="500" placeholder="Sitio/purok, barangay, landmarks (at least 20 characters)">
-                            <span class="field-error" data-error-for="farm_address" role="alert"></span>
+                            <label>Complete Farm Address <span class="required">*</span></label>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="farmHouse">House No. / Street <span class="required">*</span></label>
+                                    <input type="text" id="farmHouse" name="farm_house" required minlength="4" maxlength="180" placeholder="House number, street name, sitio/purok">
+                                    <span class="field-error" data-error-for="farm_house" role="alert"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="farmLandmark">Landmark <span class="required">*</span></label>
+                                    <input type="text" id="farmLandmark" name="farm_landmark" required minlength="4" maxlength="220" placeholder="Nearest landmark (e.g., school, church, junction)">
+                                    <span class="field-error" data-error-for="farm_landmark" role="alert"></span>
+                                </div>
+                            </div>
                         </div>
                         
                         <div class="form-group">
                             <label for="farmSize">Farm Size (hectares)</label>
-                            <input type="number" id="farmSize" name="farm_size" step="0.01" min="0" max="100000" placeholder="0.00">
+                            <div style="display:flex; gap:8px; align-items:center;">
+                                <input type="number" id="farmSize" name="farm_size" step="0.01" min="0" max="100000" placeholder="0.00" style="flex:1 1 auto;">
+                                <button type="button" id="editFarmSizeBtn" data-edit-target="farmSize" class="btn" style="padding:0.5rem 0.85rem; min-height:40px; display:none;">
+                                    <i data-lucide="pencil"></i>
+                                    Edit
+                                </button>
+                            </div>
                             <div class="form-help">Optional: Enter your total farm size in hectares</div>
                             <span class="field-error" data-error-for="farm_size" role="alert"></span>
                         </div>
@@ -1299,7 +1365,7 @@ class GIModule:
                 </div>
             </div>
             
-            <div id="apply" class="tab-content">
+            <div id="apply" class="tab-content" style="display:none;">
                 <div class="card">
                     <div class="card-header">
                         <div class="card-icon">
@@ -1395,7 +1461,7 @@ class GIModule:
                 </div>
             </div>
             
-            <div id="status" class="tab-content">
+            <div id="status" class="tab-content" style="display:none;">
                 <div class="card">
                     <div class="card-header">
                         <div class="card-icon">
@@ -1481,10 +1547,9 @@ class GIModule:
             const name = (d.name || '').trim();
             const email = (d.email || '').trim().toLowerCase();
             const phone = normalizePhone(d.phone);
-            const region = (d.region || '').trim();
-            const province = (d.province || '').trim();
-            const municipality = (d.municipality || '').trim();
-            const farm_address = (d.farm_address || '').trim();
+            const barangay = (d.barangay || '').trim();
+            const farm_house = (d.farm_house || '').trim();
+            const farm_landmark = (d.farm_landmark || '').trim();
             let farm_size = d.farm_size;
             if (name.length < 3) err.name = 'Enter your full legal name (at least 3 characters).';
             else if (name.length > 120) err.name = 'Name must be at most 120 characters.';
@@ -1492,12 +1557,16 @@ class GIModule:
             if (!EMAIL_RE.test(email)) err.email = 'Enter a valid email address.';
             if (!phone) err.phone = 'Mobile number is required (09XXXXXXXXX).';
             else if (!/^09\\d{9}$/.test(phone)) err.phone = 'Use Philippine mobile format: 09XXXXXXXXX.';
-            if (!PH_REGIONS.has(region)) err.region = 'Select a valid region.';
-            if (province.length < 2 || province.length > 80) err.province = 'Province must be 2–80 characters.';
-            else if (/^\\d+$/.test(province)) err.province = 'Enter a valid province name (not numbers only).';
-            if (municipality.length < 2 || municipality.length > 80) err.municipality = 'City or municipality must be 2–80 characters.';
-            else if (/^\\d+$/.test(municipality)) err.municipality = 'Enter a valid city or municipality (not numbers only).';
-            if (farm_address.length < 20 || farm_address.length > 500) err.farm_address = 'Farm address must be at least 20 characters (complete sitio/purok and landmarks).';
+            const LIPA_BR = new Set([
+                'Adya','Antipolo del Sur','Bagong Pook','Bulacnin','Halang','Kayumanggi','Latag','Lodlod','Lumbang',
+                'Malagonlong','Malitlit','Pagolingin','Pangao','Pinagkawitan','Pinagtong-Ulan','Pusil','Quezon','Rizal',
+                'San Benito','San Celestino','San Isidro','San Salvador','Santo Niño','Santo Toribio','Talisay','Tangob',
+                'Tangway','Tipakan'
+            ]);
+            if (!barangay) err.barangay = 'Select your barangay in Lipa City.';
+            else if (!LIPA_BR.has(barangay)) err.barangay = 'Barangay must be within Lipa City.';
+            if (farm_house.length < 4) err.farm_house = 'Enter your house number / street details.';
+            if (farm_landmark.length < 4) err.farm_landmark = 'Enter a nearby landmark.';
             if (farm_size !== '' && farm_size != null) {
                 const fs = parseFloat(farm_size);
                 if (isNaN(fs)) err.farm_size = 'Farm size must be a valid number.';
@@ -1580,6 +1649,23 @@ class GIModule:
             refreshIcons();
         }
 
+        // Prefill GI registration fields from QR/link query params (?name=&email=).
+        (function prefillFromUrl() {
+            try {
+                const p = new URLSearchParams(window.location.search || '');
+                const n = (p.get('name') || '').trim();
+                const e = (p.get('email') || '').trim();
+                if (n) {
+                    const el = document.getElementById('farmerName');
+                    if (el && !el.value.trim()) el.value = n;
+                }
+                if (e) {
+                    const el = document.getElementById('farmerEmail');
+                    if (el && !el.value.trim()) el.value = e;
+                }
+            } catch (_err) {}
+        })();
+
         document.getElementById('farmerForm').addEventListener('submit', function(e) {
             e.preventDefault();
             clearErrors(this);
@@ -1595,13 +1681,43 @@ class GIModule:
                 name: data.name.trim(),
                 email: data.email.trim().toLowerCase(),
                 phone: normalizePhone(data.phone),
-                region: data.region,
-                province: data.province.trim(),
-                municipality: data.municipality.trim(),
-                farm_address: data.farm_address.trim(),
+                region: 'CALABARZON',
+                province: 'Batangas',
+                municipality: 'Lipa City',
+                barangay: data.barangay,
+                farm_address: (data.farm_house || '').trim() + '. Landmark: ' + (data.farm_landmark || '').trim(),
                 farm_size: data.farm_size === '' ? 0 : parseFloat(data.farm_size),
                 agree_registration: data.agree_registration === 'yes' ? 'yes' : ''
             };
+
+            const lockRegistrationFields = () => {
+                this.querySelectorAll('input, select, textarea').forEach((el) => {
+                    if (el.tagName === 'SELECT' || el.type === 'checkbox' || el.type === 'radio') {
+                        el.disabled = true;
+                    } else if (typeof el.readOnly === 'boolean') {
+                        el.readOnly = true;
+                    }
+                });
+            };
+
+            const wireFieldEditButtons = () => {
+                this.querySelectorAll('button[data-edit-target]').forEach((btn) => {
+                    if (btn.dataset.bound === '1') return;
+                    btn.dataset.bound = '1';
+                    btn.addEventListener('click', () => {
+                        const targetId = btn.getAttribute('data-edit-target');
+                        if (!targetId) return;
+                        const field = document.getElementById(targetId);
+                        if (!field) return;
+                        field.disabled = false;
+                        if (typeof field.readOnly === 'boolean') field.readOnly = false;
+                        field.focus();
+                        if (typeof field.select === 'function') field.select();
+                    });
+                });
+            };
+            wireFieldEditButtons();
+
             fetch('/api/gi/farmers', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -1613,8 +1729,21 @@ class GIModule:
                     farmerId = body.farmer_id;
                     sessionStorage.setItem(GI_REG_OK, '1');
                     sessionStorage.setItem(GI_FARMER_ID, String(farmerId));
-                    showAlert('Registration successful! Your Farmer ID is: ' + farmerId + '. You may now open the Apply for GI tab.', 'success');
-                    this.reset();
+                    showAlert('Registration successful! Farmer ID: ' + farmerId + '.', 'success');
+                    try {
+                        const box = document.getElementById('giRegisterSuccess');
+                        if (box) {
+                            box.style.display = 'block';
+                            const editEmailBtn = document.getElementById('editFarmerEmailBtn');
+                            const editSizeBtn = document.getElementById('editFarmSizeBtn');
+                            if (editEmailBtn) editEmailBtn.style.display = '';
+                            if (editSizeBtn) editSizeBtn.style.display = '';
+                            refreshIcons();
+                        }
+                    } catch (_e) {}
+                    // Keep the user's submitted values visible in textboxes,
+                    // and allow editing only Email and Farm Size after success.
+                    lockRegistrationFields();
                     clearErrors(this);
                 } else {
                     if (body.errors) applyServerErrors(body.errors);
@@ -1794,7 +1923,7 @@ class GIModule:
                 <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
                     <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
                 </span>
-                <span class="app-bottom-nav-label">GI Portal</span>
+                <span class="app-bottom-nav-label">Register</span>
             </a>
             <a href="/maps" class="app-bottom-nav-link">
                 <span class="app-bottom-nav-icon-wrap" aria-hidden="true">

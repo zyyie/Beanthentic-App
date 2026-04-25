@@ -57,6 +57,7 @@ function refreshHeaderAuthUI() {
     }
     if (signOutBtn) signOutBtn.hidden = true;
   }
+
   window.dispatchEvent(new CustomEvent('beanthentic-auth-changed'));
 }
 
@@ -88,8 +89,34 @@ class UIController {
     this.setupBottomNavAboutMenu();
     this.setupMobileMainNav();
     this.setupHeaderNotifications();
+    this.setupHeaderAccountShortcut();
     this.setupHeaderNavDrawer();
     this.loadYear();
+  }
+
+  setupHeaderAccountShortcut() {
+    const snippet = document.getElementById('header-account-snippet');
+    if (!snippet || snippet.dataset.bound === '1') return;
+    snippet.dataset.bound = '1';
+    snippet.setAttribute('role', 'button');
+    snippet.setAttribute('tabindex', '0');
+    snippet.setAttribute('aria-label', 'Open account');
+
+    const goAccount = () => {
+      try {
+        window.location.assign(new URL('account.php', window.location.href).href);
+      } catch (_err) {
+        window.location.assign('account.php');
+      }
+    };
+
+    snippet.addEventListener('click', goAccount);
+    snippet.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        goAccount();
+      }
+    });
   }
 
   setupGlobalPageLoader() {
@@ -200,13 +227,13 @@ class UIController {
 
     root.querySelectorAll('a.header-drawer-link').forEach((a) => {
       a.addEventListener('click', (e) => {
-        // Social → always our in-app social.php (lists official FB / future channels), never a direct external URL.
+        // Social → open Beanthentic Coffee Facebook page directly.
         if (a.classList.contains('header-drawer-link--social')) {
           e.preventDefault();
           try {
-            window.location.assign(new URL('social.php', window.location.href).href);
+            window.location.assign('https://www.facebook.com/share/1G6kwxhijL/');
           } catch (_err) {
-            window.location.assign('social.php');
+            window.location.assign('https://www.facebook.com/share/1G6kwxhijL/');
           }
           window.setTimeout(close, 150);
           return;

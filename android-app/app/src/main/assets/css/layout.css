@@ -685,6 +685,7 @@ body.header-drawer-open .header-burger-btn:focus-visible,
   font-size: 0.68rem;
   font-weight: 600;
   line-height: 1.2;
+  cursor: pointer;
 }
 
 .header-account-snippet:not([hidden]) {

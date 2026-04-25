@@ -68,7 +68,7 @@
               <path d="M8 13h8"/>
               <path d="M8 17h5"/>
             </svg>
-            <span>News</span>
+            <span>Updates</span>
           </a>
           <a href="settings.php" class="header-drawer-link">
             <svg class="header-drawer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -121,15 +121,16 @@
         <section class="account-portfolio-section" aria-labelledby="account-qr-heading">
           <h2 class="account-portfolio-section-title" id="account-qr-heading">Profile QR</h2>
           <div class="profile-qr-card">
+            <a href="#" id="account-profile-qr-link" class="profile-qr-link" data-no-loader="true" target="_blank" rel="noopener">Open profile link</a>
             <div class="profile-qr-preview">
               <img id="account-profile-qr-img" class="profile-qr-img" alt="Profile QR code" />
             </div>
+            <p class="profile-qr-url" id="account-profile-qr-url"></p>
             <p class="profile-qr-caption">Scan to open your profile.</p>
             <div class="profile-qr-actions">
               <button type="button" class="btn-primary profile-qr-btn" id="account-profile-qr-download">Download</button>
               <button type="button" class="btn-primary profile-qr-btn profile-qr-btn--secondary" id="account-profile-qr-share">Share</button>
             </div>
-            <a href="#" id="account-profile-qr-link" class="profile-qr-link" data-no-loader="true" target="_blank" rel="noopener">Open profile link</a>
           </div>
         </section>
 
@@ -396,8 +397,8 @@
             ". You're part of the Beanthentic community—we connect you with traceable coffee, verified grower stories, and tools like the GI Portal and origin map.";
         }
 
-        // Profile QR (points to profile.php?name=&email=)
-        (function renderProfileQr() {
+        // GI QR (points to /gi with prefilled user info)
+        (function renderGiQr() {
           var img = document.getElementById('account-profile-qr-img');
           var linkEl = document.getElementById('account-profile-qr-link');
           if (!img) return;
@@ -424,19 +425,21 @@
           }
           if (!base) base = 'http://10.0.2.2:5000';
 
-          var profileUrl;
+          var giUrl;
           try {
-            profileUrl = new URL('profile.php', base.replace(/\/?$/, '/') ).href;
+            giUrl = new URL('gi', base.replace(/\/?$/, '/')).href;
           } catch (e2) {
-            profileUrl = base.replace(/\/$/, '') + '/profile.php';
+            giUrl = base.replace(/\/$/, '') + '/gi';
           }
 
-          var fullProfileUrl = profileUrl + '?name=' + encodeURIComponent(name) + '&email=' + encodeURIComponent(email);
+          var fullGiUrl = giUrl + '?name=' + encodeURIComponent(name) + '&email=' + encodeURIComponent(email);
           // Use the exact QRServer template: ...?size=150x150&data=<PROFILE_URL>
-          var qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + encodeURIComponent(fullProfileUrl);
+          var qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + encodeURIComponent(fullGiUrl);
 
           img.setAttribute('src', qrUrl);
-          if (linkEl) linkEl.setAttribute('href', fullProfileUrl);
+          if (linkEl) linkEl.setAttribute('href', fullGiUrl);
+          var urlTextEl = document.getElementById('account-profile-qr-url');
+          if (urlTextEl) urlTextEl.textContent = fullGiUrl;
 
           var downloadBtn = document.getElementById('account-profile-qr-download');
           if (downloadBtn && !downloadBtn.dataset.bound) {
@@ -466,20 +469,20 @@
           if (shareBtn && !shareBtn.dataset.bound) {
             shareBtn.dataset.bound = 'true';
             shareBtn.addEventListener('click', function () {
-              var shareData = { title: 'Beanthentic Profile', text: 'My Beanthentic profile', url: fullProfileUrl };
+              var shareData = { title: 'Beanthentic GI Info', text: 'My Beanthentic GI info', url: fullGiUrl };
               if (navigator.share) {
                 navigator.share(shareData).catch(function () { /* ignore */ });
                 return;
               }
               try {
-                navigator.clipboard.writeText(fullProfileUrl).then(function () {
+                navigator.clipboard.writeText(fullGiUrl).then(function () {
                   if (window.uiController && typeof window.uiController.showNotification === 'function') {
                     window.uiController.showNotification('Profile link copied.', 'info');
                   }
                 });
               } catch (e3) {
                 if (window.uiController && typeof window.uiController.showNotification === 'function') {
-                  window.uiController.showNotification(fullProfileUrl, 'info');
+                  window.uiController.showNotification(fullGiUrl, 'info');
                 }
               }
             });

@@ -631,7 +631,8 @@
 
 .history-bottom-image {
   width: 100%;
-  max-width: 560px;
+  /* Make History infographic images wider (fill the card). */
+  max-width: 980px;
   display: block;
   margin: 1.1rem auto 0;
   border-radius: 10px;
@@ -786,7 +787,7 @@
   }
 
   .history-bottom-image {
-    max-width: 300px;
+    max-width: 100%;
     margin: 0.85rem auto 0;
   }
 }
@@ -1380,6 +1381,17 @@ body.account-portfolio-page .account-portfolio-main {
   font-weight: 650;
 }
 
+/* Account: Sign out button should be green-only (no brown gradient). */
+.account-portfolio-signout.btn-primary {
+  background: linear-gradient(135deg, #2e6f1c, #147539) !important;
+  box-shadow: 0 10px 22px rgba(20, 117, 57, 0.28) !important;
+}
+
+.account-portfolio-signout.btn-primary:hover {
+  box-shadow: 0 14px 28px rgba(20, 117, 57, 0.34) !important;
+  filter: brightness(1.05);
+}
+
 .account-portfolio-back-link {
   font-size: 0.88rem;
   font-weight: 600;
@@ -1492,12 +1504,22 @@ body.account-portfolio-page .app-bottom-nav-link--featured {
   font-weight: 600;
   color: #2d6b38 !important;
   text-decoration: none !important;
+  margin: 0;
 }
 
 .profile-qr-link:hover,
 .profile-qr-link:focus-visible {
   text-decoration: underline !important;
   outline: none;
+}
+
+.profile-qr-url {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: #6b5c52;
+  text-align: center;
+  word-break: break-all;
 }
 
 /* News page — GI Portal–style shell + static certificate preview (no PDF iframe / no inner scroll) */

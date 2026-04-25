@@ -68,7 +68,7 @@
               <path d="M8 13h8"/>
               <path d="M8 17h5"/>
             </svg>
-            <span>News</span>
+            <span>Updates</span>
           </a>
           <a href="settings.php" class="header-drawer-link" aria-current="page">
             <svg class="header-drawer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -135,6 +135,15 @@
         btn.addEventListener('click', function () {
           var v = norm(input.value);
           try {
+            // Prevent common non-working bases for QR scans on another device.
+            // 127.0.0.1/localhost = phone itself, not your PC.
+            // 10.0.2.2 = Android emulator only.
+            if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(v) || /^https?:\/\/10\.0\.2\.2(:\d+)?$/i.test(v)) {
+              if (window.uiController && typeof window.uiController.showNotification === 'function') {
+                window.uiController.showNotification('Invalid URL. Use your PC LAN IP (e.g. http://192.168.x.x:8000).', 'info');
+              }
+              return;
+            }
             if (v) localStorage.setItem(KEY, v);
             else localStorage.removeItem(KEY);
           } catch (e2) {}

@@ -478,6 +478,18 @@ class MapsModule:
             padding: max(0px, env(safe-area-inset-top)) max(0px, env(safe-area-inset-right)) max(0px, env(safe-area-inset-bottom)) max(0px, env(safe-area-inset-left));
             -webkit-tap-highlight-color: rgba(46, 111, 28, 0.14);
         }
+
+        .sr-only {
+            position: absolute !important;
+            width: 1px !important;
+            height: 1px !important;
+            padding: 0 !important;
+            margin: -1px !important;
+            overflow: hidden !important;
+            clip: rect(0, 0, 0, 0) !important;
+            white-space: nowrap !important;
+            border: 0 !important;
+        }
         
         .container {
             max-width: 1400px;
@@ -633,9 +645,319 @@ class MapsModule:
             border: 1px solid rgba(17, 24, 39, 0.06);
         }
         
+        /* Full-screen map layout (mobile-first) */
+        body.has-app-bottom-nav {
+            padding-bottom: 0 !important;
+        }
+
+        .map-screen {
+            position: fixed;
+            inset: 0;
+            background: #f8fafc;
+            z-index: 0;
+        }
+
         #map {
-            height: 600px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: calc(3.75rem + env(safe-area-inset-bottom, 0px));
             width: 100%;
+        }
+
+        .map-top-ui {
+            position: absolute;
+            top: calc(10px + env(safe-area-inset-top, 0px));
+            left: max(12px, env(safe-area-inset-left, 0px));
+            right: max(12px, env(safe-area-inset-right, 0px));
+            z-index: 1080; /* above Leaflet tiles, below app bottom nav */
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 6px;
+            pointer-events: none;
+        }
+
+        .map-top-ui > * {
+            pointer-events: auto;
+        }
+
+        .map-search {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(17, 24, 39, 0.08);
+            border-radius: 14px;
+            box-shadow: 0 10px 28px rgba(17, 24, 39, 0.12);
+            backdrop-filter: saturate(160%) blur(12px);
+            -webkit-backdrop-filter: saturate(160%) blur(12px);
+            overflow: hidden;
+        }
+
+        .map-search-input {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 100%;
+            padding: 10px 40px 10px 14px;
+            border: none;
+            outline: none;
+            font-size: 0.95rem;
+            background: transparent;
+            color: #111827;
+        }
+
+        .map-search-input::placeholder {
+            color: rgba(17, 24, 39, 0.45);
+        }
+        .map-search-input::-webkit-search-cancel-button,
+        .map-search-input::-webkit-search-decoration,
+        .map-search-input::-webkit-search-results-button,
+        .map-search-input::-webkit-search-results-decoration {
+            -webkit-appearance: none;
+            appearance: none;
+            display: none;
+        }
+
+        .map-search-clear {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 30px;
+            height: 30px;
+            border-radius: 999px;
+            border: none;
+            background: rgba(17, 24, 39, 0.06);
+            color: #111827;
+            font-size: 1.25rem;
+            line-height: 1;
+            cursor: pointer;
+        }
+
+        .map-filters {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 6px;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .chip {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            height: 34px;
+            padding: 0 10px;
+            flex: 1 1 0;
+            min-width: 0;
+            border-radius: 999px;
+            border: 1px solid rgba(17, 24, 39, 0.10);
+            background: rgba(255, 255, 255, 0.92);
+            box-shadow: 0 8px 22px rgba(17, 24, 39, 0.10);
+            font-size: 0.82rem;
+            font-weight: 650;
+            color: #1f2937;
+            cursor: pointer;
+            backdrop-filter: saturate(160%) blur(12px);
+            -webkit-backdrop-filter: saturate(160%) blur(12px);
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .chip.is-active {
+            background: rgba(37, 103, 30, 0.95);
+            border-color: rgba(37, 103, 30, 0.95);
+            color: #ffffff;
+            box-shadow: 0 12px 28px rgba(37, 103, 30, 0.22);
+        }
+
+        .chip-icon,
+        .map-help-fab-icon {
+            width: 18px;
+            height: 18px;
+            display: inline-block;
+            background: center/contain no-repeat;
+            filter: drop-shadow(0 1px 2px rgba(0,0,0,0.12));
+        }
+
+        .chip.is-active .chip-icon {
+            filter: drop-shadow(0 1px 2px rgba(0,0,0,0.18));
+        }
+
+        .map-help-fab {
+            position: absolute;
+            top: calc(92px + env(safe-area-inset-top, 0px));
+            right: max(12px, env(safe-area-inset-right, 0px));
+            z-index: 1080;
+            width: 46px;
+            height: 46px;
+            border-radius: 999px;
+            border: 1px solid rgba(17, 24, 39, 0.10);
+            background: rgba(255, 255, 255, 0.92);
+            box-shadow: 0 12px 30px rgba(17, 24, 39, 0.18);
+            backdrop-filter: saturate(160%) blur(12px);
+            -webkit-backdrop-filter: saturate(160%) blur(12px);
+            cursor: pointer;
+            display: grid;
+            place-items: center;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .map-help-fab.is-opened {
+            background: rgba(37, 103, 30, 0.95);
+            border-color: rgba(37, 103, 30, 0.95);
+            box-shadow: 0 12px 30px rgba(37, 103, 30, 0.28);
+        }
+
+        .map-sheet {
+            position: absolute;
+            left: max(12px, env(safe-area-inset-left, 0px));
+            right: max(12px, env(safe-area-inset-right, 0px));
+            bottom: calc(3.75rem + env(safe-area-inset-bottom, 0px) + 10px);
+            z-index: 1090;
+        }
+
+        .map-sheet-card {
+            background: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 18px 50px rgba(17, 24, 39, 0.22);
+            border: 1px solid rgba(17, 24, 39, 0.08);
+            overflow: hidden;
+        }
+
+        .map-sheet-header {
+            padding: 12px 14px 10px;
+            background: linear-gradient(145deg, #25671E 0%, #1c5216 100%);
+            color: #ffffff;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .map-sheet-title {
+            font-weight: 800;
+            font-size: 1.02rem;
+            line-height: 1.15;
+        }
+
+        .map-sheet-close {
+            width: 34px;
+            height: 34px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            background: rgba(255, 255, 255, 0.16);
+            color: #ffffff;
+            font-size: 1.35rem;
+            line-height: 1;
+            cursor: pointer;
+        }
+
+        .map-sheet-meta {
+            padding: 10px 14px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .map-sheet-desc {
+            padding: 10px 14px 12px;
+            color: #1f2937;
+            font-size: 0.9rem;
+            line-height: 1.45;
+        }
+
+        .map-sheet-actions {
+            padding: 12px 14px 14px;
+            display: grid;
+            gap: 10px;
+            background: rgba(17, 24, 39, 0.02);
+            border-top: 1px solid rgba(17, 24, 39, 0.06);
+        }
+
+        .map-sheet-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 44px;
+            border-radius: 12px;
+            font-weight: 750;
+            font-size: 0.92rem;
+            text-decoration: none !important;
+            color: #ffffff !important;
+            box-shadow: 0 10px 22px rgba(17, 24, 39, 0.14);
+        }
+
+        .map-sheet-btn--primary {
+            background: #25671E;
+        }
+
+        .map-sheet-btn--secondary {
+            background: #4b5563;
+        }
+
+        .map-guide {
+            position: absolute;
+            inset: 0;
+            z-index: 1200;
+            display: grid;
+            place-items: center;
+        }
+
+        .map-guide[hidden],
+        .map-sheet[hidden] {
+            display: none !important;
+        }
+
+        .map-guide-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(17, 24, 39, 0.55);
+        }
+
+        .map-guide-card {
+            position: relative;
+            width: min(92vw, 360px);
+            border-radius: 18px;
+            background: #ffffff;
+            box-shadow: 0 22px 70px rgba(0, 0, 0, 0.35);
+            overflow: hidden;
+            border: 1px solid rgba(17, 24, 39, 0.10);
+        }
+
+        .map-guide-title {
+            background: linear-gradient(145deg, #25671E 0%, #1c5216 100%);
+            color: #ffffff;
+            font-weight: 850;
+            padding: 12px 14px;
+            font-size: 1rem;
+        }
+
+        .map-guide-body {
+            padding: 14px 16px 12px;
+            color: #111827;
+            font-size: 0.98rem;
+            line-height: 1.55;
+            text-align: center;
+        }
+
+        .map-guide-actions {
+            padding: 0 16px 16px;
+        }
+
+        .map-guide-btn {
+            width: 100%;
+            height: 44px;
+            border-radius: 12px;
+            border: none;
+            background: #4b5563;
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 0.95rem;
+            cursor: pointer;
         }
         
         .sidebar {
@@ -792,31 +1114,6 @@ class MapsModule:
             display: block;
             line-height: 0;
             filter: drop-shadow(0 1px 3px rgba(0,0,0,0.35));
-        }
-        
-        .selected-farm {
-            background: linear-gradient(155deg, #25671E 0%, #25671E 100%) !important;
-            color: #f8fafc !important;
-            border: 1px solid rgba(255,255,255,0.35) !important;
-            box-shadow: 0 8px 24px rgba(37, 103, 30, 0.35);
-        }
-        
-        .farm-card.selected-farm .farm-name {
-            color: #ffffff !important;
-        }
-        
-        .farm-card.selected-farm .farm-location {
-            color: rgba(248, 250, 252, 0.92) !important;
-        }
-        
-        .farm-card.selected-farm .farm-description {
-            color: rgba(252, 252, 252, 0.98) !important;
-        }
-        
-        .farm-card.selected-farm .variety-tag {
-            background: rgba(255, 255, 255, 0.22) !important;
-            color: #ffffff !important;
-            border: 1px solid rgba(255, 255, 255, 0.45) !important;
         }
         
         .beanthentic-popup .leaflet-popup-content-wrapper {
@@ -1003,7 +1300,7 @@ class MapsModule:
             align-items: center;
             justify-content: center;
             gap: 0.75rem;
-            height: 600px;
+            height: 100%;
             color: #6b7280;
             font-size: 0.95rem;
         }
@@ -1032,7 +1329,22 @@ class MapsModule:
             margin-right: 1rem;
             animation: none;
         }
-        
+
+        /* Match zoom control width with layer switcher width */
+        .leaflet-right .leaflet-control-layers-toggle {
+            width: 56px;
+            height: 56px;
+            background-size: 30px 30px;
+        }
+        .leaflet-right .leaflet-control-zoom {
+            width: 56px;
+        }
+        .leaflet-right .leaflet-control-zoom a {
+            width: 56px;
+            height: 42px;
+            line-height: 42px;
+        }
+
         .api-notice {
             background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
             border: 1px solid rgba(245, 158, 11, 0.35);
@@ -1059,135 +1371,115 @@ class MapsModule:
             .sidebar {
                 max-height: min(420px, 55vh);
             }
-            #map, .loading {
-                height: min(420px, 50vh);
-                min-height: 280px;
-            }
         }
         @media (max-width: 768px) {
-            .header { padding: 0.85rem 0 1rem; }
-            .header h1 {
-                font-size: clamp(1.22rem, 4.5vw, 1.45rem);
-                padding: 0 0.25rem;
+            .map-top-ui {
+                top: calc(10px + env(safe-area-inset-top, 0px));
             }
-            .header p { font-size: 0.88rem; }
-            .main-content { padding: 1rem 0 1.5rem; }
-            .stats-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 0.75rem;
+            .map-help-fab {
+                top: calc(96px + env(safe-area-inset-top, 0px));
             }
-            .stat-number { font-size: 1.5rem; }
         }
         @media (max-width: 480px) {
-            .stats-grid {
-                grid-template-columns: 1fr;
+            .chip {
+                font-size: 0.8rem;
+                gap: 6px;
+                padding: 0 8px;
             }
-            .map-detail-grid {
-                grid-template-columns: 1fr;
+            .map-filters {
+                gap: 6px;
+            }
+            .chip-icon,
+            .map-help-fab-icon {
+                width: 16px;
+                height: 16px;
+            }
+            .map-sheet {
+                left: 10px;
+                right: 10px;
             }
         }
     </style>
 </head>
 <body class="has-app-bottom-nav">
-    <div class="header">
-        <div class="container">
-            <div class="header-content">
-                <div class="header-icon">
-                    <i data-lucide="map-pin"></i>
-                </div>
-                <h1>Lipa City Coffee Farms Map</h1>
-                <p>Tap the map or list to open farm details, varieties, and quick links—like a native maps app.</p>
+    <div class="map-screen" role="application" aria-label="Beanthentic Map">
+        <div id="map" class="loading" aria-label="Map">
+            <i data-lucide="loader-2"></i>
+            <span>Loading map…</span>
+        </div>
+
+        <div class="map-top-ui" role="region" aria-label="Map controls">
+            <div class="map-search">
+                <label for="mapSearchInput" class="sr-only">Search barangay</label>
+                <input
+                    id="mapSearchInput"
+                    class="map-search-input"
+                    type="search"
+                    placeholder="Search barangay"
+                    autocomplete="off"
+                    inputmode="search"
+                    enterkeyhint="search"
+                />
+                <button id="mapSearchClear" class="map-search-clear" type="button" aria-label="Clear search" hidden>×</button>
+            </div>
+            <div class="map-filters" role="tablist" aria-label="Coffee variety filter">
+                <button class="chip is-active" type="button" data-variety="Liberica" role="tab" aria-selected="true">
+                    <span class="chip-icon" aria-hidden="true"></span>
+                    Liberica
+                </button>
+                <button class="chip" type="button" data-variety="Robusta" role="tab" aria-selected="false">
+                    <span class="chip-icon" aria-hidden="true"></span>
+                    Robusta
+                </button>
+                <button class="chip" type="button" data-variety="Excelsa" role="tab" aria-selected="false">
+                    <span class="chip-icon" aria-hidden="true"></span>
+                    Excelsa
+                </button>
             </div>
         </div>
-    </div>
-    
-    <div class="main-content">
-        <div class="container">
-            <a href="/" class="back-link">
-                <i data-lucide="arrow-left"></i>
-                Back to Home
-            </a>
 
-            <div class="map-app-intro">
-                <p class="map-lead">
-                    Each <strong>pin is one barangay</strong> (neighborhood)—not individual farms. Names of farmers are <strong>not</strong> shown; you only see where coffee is grown so you can plan visits and directions safely and privately.
-                </p>
-                <div class="map-detail-grid">
-                    <div class="map-detail-tile">
-                        <strong>Interact</strong>
-                        Pan and zoom the map, switch base layers (top-right), and tap any marker for farm name, varieties, and external map links.
-                    </div>
-                    <div class="map-detail-tile">
-                        <strong>List</strong>
-                        Scroll the farm cards on the right (below the map on phones). Selecting a card centers the map and opens the popup.
-                    </div>
-                    <div class="map-detail-tile">
-                        <strong>Data</strong>
-                        Counts and varieties are combined per barangay from the project file. One marker per barangay keeps the map simple and protects farmer privacy.
-                    </div>
+        <button id="mapHelpFab" class="map-help-fab" type="button" aria-label="How to use the Beanthentic Map">
+            <span class="map-help-fab-icon" aria-hidden="true"></span>
+        </button>
+
+        <section id="mapSheet" class="map-sheet" aria-label="Selected barangay details" hidden>
+            <div class="map-sheet-card">
+                <div class="map-sheet-header">
+                    <div class="map-sheet-title" id="sheetTitle">Barangay</div>
+                    <button id="mapSheetClose" class="map-sheet-close" type="button" aria-label="Close details">×</button>
                 </div>
-                <div class="map-hint-bar">
-                    <i data-lucide="smartphone"></i>
-                    <span><strong>Mobile:</strong> use two fingers to zoom the map. Scroll the barangay list below the map; the row you tap highlights in green.</span>
+                <div class="map-sheet-meta" id="sheetMeta"></div>
+                <div class="map-sheet-desc" id="sheetDesc"></div>
+                <div class="map-sheet-actions">
+                    <a id="sheetStreetView" class="map-sheet-btn map-sheet-btn--primary" href="#" target="_blank" rel="noopener noreferrer">Google Street View</a>
+                    <a id="sheetGoogleMaps" class="map-sheet-btn map-sheet-btn--secondary" href="#" target="_blank" rel="noopener noreferrer">Google Maps View</a>
                 </div>
             </div>
-            
-            <div class="stats-grid">
-                    <div class="stat-card">
-                    <div class="stat-number" id="totalFarms">-</div>
-                    <div class="stat-label">Barangays on map</div>
-                    <span class="stat-hint">One pin each</span>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="totalBarangays">-</div>
-                    <div class="stat-label">Farm records (file)</div>
-                    <span class="stat-hint">All rows summed</span>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="totalVarieties">-</div>
-                    <div class="stat-label">Coffee Varieties</div>
-                    <span class="stat-hint">Distinct tags</span>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="avgElevation">-</div>
-                    <div class="stat-label">Region elevation</div>
-                    <span class="stat-hint">Typical Batangas highland</span>
-                </div>
-            </div>
-            
-            <div class="maps-container">
-                <div class="map-wrapper">
-                    <div id="map" class="loading">
+        </section>
+
+        <section id="mapList" class="map-list" aria-label="Barangay list">
+            <div class="map-list-inner">
+                <div class="map-list-title">Barangays</div>
+                <div id="farmList" class="farm-list">
+                    <div class="loading">
                         <i data-lucide="loader-2"></i>
-                        <span>Loading map…</span>
+                        <span>Loading farms…</span>
                     </div>
                 </div>
-                
-                <div class="sidebar">
-                    <h3>
-                        <i data-lucide="map-pin"></i>
-                        Barangays (Lipa City)
-                    </h3>
-                    
-                    <div class="api-notice">
-                        <div class="notice-title"><i data-lucide="info"></i> Map data</div>
-                        Base map and tiles are served via OpenStreetMap contributors. Popups link to Google Maps for directions and Street View where available.
-                    </div>
-                    
-                    <div class="legend">
-                        <div class="legend-title">Legend</div>
-                        <div class="legend-item">
-                            <div class="legend-marker"></div>
-                            <span>Barangay (one pin each)</span>
-                        </div>
-                    </div>
-                    
-                    <div class="farm-list" id="farmList">
-                        <div class="loading">
-                            <i data-lucide="loader-2"></i>
-                            <span>Loading farms…</span>
-                        </div>
-                    </div>
+            </div>
+        </section>
+
+        <div id="mapGuide" class="map-guide" role="dialog" aria-modal="true" aria-labelledby="guideTitle" hidden>
+            <div class="map-guide-backdrop" data-guide-close="true"></div>
+            <div class="map-guide-card">
+                <div class="map-guide-title" id="guideTitle">How to use the Beanthentic Map?</div>
+                <div class="map-guide-body" id="guideBody">
+                    use two fingers to zoom the map.<br/>
+                    Scroll the barangay list below the map;<br/>
+                    the row you tap highlights in green.
+                </div>
+                <div class="map-guide-actions">
+                    <button id="guideNext" class="map-guide-btn" type="button">Next &gt;</button>
                 </div>
             </div>
         </div>
@@ -1198,6 +1490,10 @@ class MapsModule:
         let markers = [];
         let farms = [];
         let selectedFarm = null;
+        let activeVariety = 'Liberica';
+        let searchQuery = '';
+        let markerLayer = null;
+        let guideStep = 0;
 
         function escapeHtml(s) {
             if (s == null || s === undefined) return '';
@@ -1206,66 +1502,46 @@ class MapsModule:
             return d.innerHTML;
         }
         
-        function getPopupScale() {
-            if (!map) return 1;
-            const z = map.getZoom();
-            const zoomPart = Math.max(0.56, Math.min(1.02, 1.14 - (z - 10) * 0.065));
-            const vhPart = Math.min(1.08, Math.max(0.88, window.innerHeight / 720));
-            return zoomPart * vhPart;
+        function toDataUri(svg) {
+            return 'data:image/svg+xml,' + encodeURIComponent(svg.trim());
         }
-        
-        function applyPopupScale() {
-            const el = document.getElementById('map');
-            if (el) el.style.setProperty('--popup-scale', getPopupScale().toFixed(3));
+
+        function setBeanIcons() {
+            const beanSvg = (fill) => `
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M14.8 3.5c-3.7 0-7.3 3.2-8 7.5-.7 4.3 1.6 9.5 6.1 9.5 3.8 0 7.3-3.1 8-7.5.7-4.3-1.6-9.5-6.1-9.5Z" fill="${fill}" stroke="rgba(0,0,0,0.18)" stroke-width="0.8"/>
+                    <path d="M12.6 5.3c-1.8 2.5-2.7 5.1-2.8 7.8-.1 2.6.5 4.7 1.7 6.4" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="1.4" stroke-linecap="round"/>
+                </svg>
+            `;
+            const colors = {
+                Liberica: '#25671E',
+                Robusta: '#0f766e',
+                Excelsa: '#8B4513'
+            };
+            document.querySelectorAll('.chip').forEach(btn => {
+                const v = btn.getAttribute('data-variety');
+                const icon = btn.querySelector('.chip-icon');
+                if (icon && colors[v]) icon.style.backgroundImage = `url("${toDataUri(beanSvg(colors[v]))}")`;
+            });
+            const help = document.querySelector('.map-help-fab-icon');
+            if (help) {
+                help.style.backgroundImage = "url('/beantHentic_logo.png')";
+                const logoProbe = new Image();
+                logoProbe.onerror = function() {
+                    help.style.backgroundImage = `url("${toDataUri(beanSvg('#8B4513'))}")`;
+                };
+                logoProbe.src = '/beantHentic_logo.png';
+            }
         }
-        
-        function popupBindingOptions() {
-            const s = getPopupScale();
-            const cap = Math.min(window.innerWidth - 24, 340);
-            const w = Math.max(200, Math.min(cap, Math.round(195 + 135 * s)));
-            return { className: 'beanthentic-popup', maxWidth: w };
-        }
-        
+
         function createBarangayPinIcon() {
             const html = '<div class="barangay-pin-svg" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="26" viewBox="0 0 20 26"><path fill="#25671E" stroke="#ffffff" stroke-width="1.25" d="M10 1.25c-4.04 0-7.25 3.21-7.25 7.15 0 4.7 7.25 14.85 7.25 14.85s7.25-10.15 7.25-14.85c0-3.94-3.21-7.15-7.25-7.15z"/><circle cx="10" cy="8.35" r="2.4" fill="#fff"/></svg></div>';
             return L.divIcon({
                 html,
                 className: 'coffee-marker',
                 iconSize: [20, 26],
-                iconAnchor: [10, 26],
-                popupAnchor: [0, -24]
+                iconAnchor: [10, 26]
             });
-        }
-        
-        function buildPopupHtml(props, latlng) {
-            const pname = escapeHtml(props.name);
-            const pbar = escapeHtml(props.barangay);
-            const pdesc = escapeHtml(props.description);
-            const lat = latlng.lat;
-            const lng = latlng.lng;
-            const staticMap = 'https://staticmap.openstreetmap.de/staticmap.php?center=' + lat + ',' + lng + '&zoom=15&size=240x96&maptype=mapnik';
-            return (
-                '<div class="bp-popup">' +
-                '<div class="bp-popup-header">' +
-                '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">' +
-                '<div><h3>' + pname + '</h3>' +
-                '<p class="bp-sub">📍 ' + pbar + ' · Lipa City</p></div>' +
-                '<span class="bp-badge">Barangay</span></div></div>' +
-                '<div class="bp-popup-body">' +
-                '<div class="bp-section"><h4 class="bp-h4">Varieties</h4><div class="bp-tags">' +
-                (props.varieties || []).map(function(v) { return '<span class="bp-tag">' + escapeHtml(v) + '</span>'; }).join('') +
-                '</div></div>' +
-                '<div class="bp-section"><h4 class="bp-h4">About</h4><p class="bp-about">' + pdesc + '</p></div>' +
-                '<div class="bp-section"><h4 class="bp-h4">Preview</h4><div class="bp-preview-wrap">' +
-                '<img class="bp-preview-img" src="' + staticMap + '" alt="" width="240" height="96" loading="lazy" decoding="async" />' +
-                '<div class="bp-coords">' + lat.toFixed(5) + ', ' + lng.toFixed(5) + '</div></div></div>' +
-                '</div>' +
-                '<div class="bp-popup-footer">' +
-                '<div class="bp-actions">' +
-                '<a class="bp-btn bp-btn-primary" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=' + lat + ',' + lng + '" target="_blank" rel="noopener noreferrer">Street View</a>' +
-                '<a class="bp-btn bp-btn-secondary" href="https://www.google.com/maps/search/?api=1&query=' + lat + ',' + lng + '" target="_blank" rel="noopener noreferrer">Google Maps</a>' +
-                '</div></div></div>'
-            );
         }
         
         function refreshIcons(root) {
@@ -1274,8 +1550,112 @@ class MapsModule:
         
         document.addEventListener('DOMContentLoaded', function() {
             refreshIcons();
+            setBeanIcons();
+            wireMapUi();
             loadCoffeeFarms();
         });
+
+        function wireMapUi() {
+            const searchInput = document.getElementById('mapSearchInput');
+            const clearBtn = document.getElementById('mapSearchClear');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    searchQuery = (searchInput.value || '').trim();
+                    if (clearBtn) clearBtn.hidden = !searchQuery;
+                    renderFarms();
+                });
+            }
+            if (clearBtn) {
+                clearBtn.addEventListener('click', function() {
+                    searchQuery = '';
+                    if (searchInput) searchInput.value = '';
+                    clearBtn.hidden = true;
+                    renderFarms();
+                });
+            }
+
+            document.querySelectorAll('.chip').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const v = btn.getAttribute('data-variety');
+                    if (!v) return;
+                    activeVariety = v;
+                    document.querySelectorAll('.chip').forEach(b => {
+                        const on = b === btn;
+                        b.classList.toggle('is-active', on);
+                        b.setAttribute('aria-selected', on ? 'true' : 'false');
+                    });
+                    renderFarms(true);
+                });
+            });
+
+            const fab = document.getElementById('mapHelpFab');
+            if (fab) {
+                fab.addEventListener('click', openGuide);
+            }
+
+            const guide = document.getElementById('mapGuide');
+            if (guide) {
+                guide.addEventListener('click', function(e) {
+                    const t = e.target;
+                    if (t && t.getAttribute && t.getAttribute('data-guide-close') === 'true') closeGuide();
+                });
+            }
+
+            const next = document.getElementById('guideNext');
+            if (next) next.addEventListener('click', advanceGuide);
+
+            const sheetClose = document.getElementById('mapSheetClose');
+            if (sheetClose) sheetClose.addEventListener('click', closeSheet);
+        }
+
+        function openGuide() {
+            guideStep = 0;
+            renderGuide();
+            const guide = document.getElementById('mapGuide');
+            if (guide) guide.hidden = false;
+            const fab = document.getElementById('mapHelpFab');
+            if (fab) fab.classList.add('is-opened');
+        }
+
+        function closeGuide() {
+            const guide = document.getElementById('mapGuide');
+            if (guide) guide.hidden = true;
+            const fab = document.getElementById('mapHelpFab');
+            if (fab) fab.classList.remove('is-opened');
+            try { localStorage.setItem('beanthentic_map_guide_seen', '1'); } catch (_e) {}
+        }
+
+        function maybeOpenGuide() {
+            try {
+                if (!localStorage.getItem('beanthentic_map_guide_seen')) {
+                    openGuide();
+                }
+            } catch (_e) {
+                openGuide();
+            }
+        }
+
+        function advanceGuide() {
+            guideStep += 1;
+            if (guideStep >= 2) {
+                closeGuide();
+                return;
+            }
+            renderGuide();
+        }
+
+        function renderGuide() {
+            const body = document.getElementById('guideBody');
+            const next = document.getElementById('guideNext');
+            if (!body || !next) return;
+            if (guideStep === 0) {
+                body.innerHTML = 'Use two fingers to zoom the map.<br/>Scroll the barangay list below the map;<br/>the row you tap highlights in green.';
+                next.textContent = 'Next >';
+            } else {
+                body.innerHTML = 'Tap a marker to see barangay details.<br/>Use Liberica / Robusta / Excelsa filters<br/>to show the coffee varieties.';
+                next.textContent = 'Done';
+            }
+        }
         
         function loadCoffeeFarms() {
             // Show loading state
@@ -1300,9 +1680,9 @@ class MapsModule:
                                 farms = data.farms;
                                 initializeMap(data.center);
                                 populateFarmList();
-                                updateStatistics();
                                 addCoffeeMarkers();
                                 refreshIcons();
+                                maybeOpenGuide();
                             } else {
                                 showError('Failed to load coffee farms data');
                             }
@@ -1325,27 +1705,7 @@ class MapsModule:
         }
         
         function addCoffeeMarkers() {
-            const coffeeIcon = createBarangayPinIcon();
-            applyPopupScale();
-            
-            farms.forEach(farm => {
-                const marker = L.marker([farm.latitude, farm.longitude], { icon: coffeeIcon })
-                    .addTo(map);
-                
-                const ll = L.latLng(farm.latitude, farm.longitude);
-                const popupContent = buildPopupHtml({
-                    name: farm.farm_name,
-                    barangay: farm.barangay,
-                    description: farm.description,
-                    varieties: farm.varieties
-                }, ll);
-                
-                marker.bindPopup(popupContent, popupBindingOptions());
-                marker.on('click', () => selectFarm(farm.id));
-                
-                marker.farmId = farm.id;
-                markers.push(marker);
-            });
+            renderMarkers();
         }
         
         function loadGeoJSONData(geojson) {
@@ -1369,45 +1729,23 @@ class MapsModule:
             });
             
             populateFarmList();
-            updateStatistics();
             refreshIcons();
+            addCoffeeMarkers();
+            maybeOpenGuide();
             
-            // Add GeoJSON layer to map
-            if (map && geojson) {
-                L.geoJSON(geojson, {
-                    pointToLayer: function(feature, latlng) {
-                        const coffeeIcon = createBarangayPinIcon();
-                        const marker = L.marker(latlng, { icon: coffeeIcon });
-                        const props = feature.properties;
-                        const popupContent = buildPopupHtml({
-                            name: props.name,
-                            barangay: props.barangay,
-                            description: props.description,
-                            varieties: props.varieties
-                        }, latlng);
-                        
-                        marker.bindPopup(popupContent, popupBindingOptions());
-                        marker.on('click', () => selectFarm(feature.properties.id));
-                        marker.farmId = feature.properties.id;
-                        markers.push(marker);
-                        return marker;
+            // Add city boundary if available
+            if (map && window.lipaCityBoundary) {
+                L.geoJSON(window.lipaCityBoundary, {
+                    style: function(feature) {
+                        return {
+                            color: feature.properties.stroke,
+                            weight: feature.properties['stroke-width'],
+                            opacity: feature.properties['stroke-opacity'],
+                            fillColor: feature.properties.fill,
+                            fillOpacity: feature.properties['fill-opacity']
+                        };
                     }
                 }).addTo(map);
-                
-                // Add city boundary if available
-                if (window.lipaCityBoundary) {
-                    L.geoJSON(window.lipaCityBoundary, {
-                        style: function(feature) {
-                            return {
-                                color: feature.properties.stroke,
-                                weight: feature.properties['stroke-width'],
-                                opacity: feature.properties['stroke-opacity'],
-                                fillColor: feature.properties.fill,
-                                fillOpacity: feature.properties['fill-opacity']
-                            };
-                        }
-                    }).addTo(map);
-                }
             }
         }
         
@@ -1415,21 +1753,20 @@ class MapsModule:
             const el = document.getElementById('map');
             el.classList.remove('loading');
             el.innerHTML = '';
-            map = L.map('map').setView([center.lat, center.lng], 12);
+            map = L.map('map', { zoomControl: false }).setView([center.lat, center.lng], 12);
             
             // Add OpenStreetMap tiles
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap contributors | Beanthentic Coffee',
                 maxZoom: 19
             }).addTo(map);
-            
-            // Add Google Street View layer
+
+            // Add Humanitarian layer and switcher above zoom controls
             const googleStreets = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap contributors, Tiles style by Humanitarian OpenStreetMap Team',
                 maxZoom: 19
             });
-            
-            // Add layer control for street view toggle
+
             const baseMaps = {
                 "Default": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     attribution: '© OpenStreetMap contributors | Beanthentic Coffee',
@@ -1437,9 +1774,13 @@ class MapsModule:
                 }),
                 "Humanitarian": googleStreets
             };
-            
+
+            // Zoom control bottom-right (mobile friendly)
+            L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+            // Layer switcher above zoom control
             L.control.layers(baseMaps, null, {
-                position: 'topright'
+                position: 'bottomright'
             }).addTo(map);
             
             // Add scale control
@@ -1448,24 +1789,75 @@ class MapsModule:
                 metric: true,
                 imperial: false
             }).addTo(map);
-            
-            applyPopupScale();
-            map.on('zoom zoomend', applyPopupScale);
+
+            markerLayer = L.layerGroup().addTo(map);
         }
         
         function populateFarmList() {
             const farmList = document.getElementById('farmList');
-            const farmCards = farms.map(farm => `
+            if (!farmList) return;
+            renderFarms();
+        }
+
+        function getFilteredFarms() {
+            const q = (searchQuery || '').toLowerCase();
+            return (farms || []).filter(f => {
+                const vOk = (f.varieties || []).includes(activeVariety);
+                if (!vOk) return false;
+                if (!q) return true;
+                const name = (f.farm_name || f.barangay || '').toLowerCase();
+                return name.includes(q);
+            });
+        }
+
+        function renderFarms(keepSelection) {
+            renderFarmList(keepSelection);
+            renderMarkers(keepSelection);
+            if (!keepSelection) closeSheet();
+        }
+
+        function renderFarmList(keepSelection) {
+            const farmList = document.getElementById('farmList');
+            if (!farmList) return;
+            const filtered = getFilteredFarms();
+            if (!filtered.length) {
+                farmList.innerHTML = '<div style="padding:10px;color:#6b7280;font-size:0.9rem">No barangays found.</div>';
+                return;
+            }
+            const farmCards = filtered.map(farm => `
                 <div class="farm-card" onclick="selectFarm(${farm.id})" id="farm-${farm.id}">
                     <div class="farm-name">Barangay ${escapeHtml(farm.farm_name)}</div>
-                    <div class="farm-location">Lipa City · Coffee-growing barangay</div>
                     <div class="farm-varieties">
-                        ${farm.varieties.map(v => `<span class="variety-tag">${escapeHtml(v)}</span>`).join('')}
+                        ${(farm.varieties || []).map(v => `<span class="variety-tag">${escapeHtml(v)}</span>`).join('')}
                     </div>
-                    <div class="farm-description">${escapeHtml(farm.description)}</div>
                 </div>
             `).join('');
             farmList.innerHTML = farmCards;
+
+            if (keepSelection && selectedFarm) {
+                const card = document.getElementById(`farm-${selectedFarm.id}`);
+                if (card) card.classList.add('selected-farm');
+            }
+        }
+
+        function renderMarkers(keepSelection) {
+            if (!map || !markerLayer) return;
+            const filtered = getFilteredFarms();
+            const coffeeIcon = createBarangayPinIcon();
+            markerLayer.clearLayers();
+            markers = [];
+            filtered.forEach(farm => {
+                const marker = L.marker([farm.latitude, farm.longitude], { icon: coffeeIcon });
+                marker.on('click', () => selectFarm(farm.id));
+                marker.farmId = farm.id;
+                marker.addTo(markerLayer);
+                markers.push(marker);
+            });
+
+            if (keepSelection && selectedFarm) {
+                const stillThere = filtered.some(f => f.id === selectedFarm.id);
+                if (!stillThere) closeSheet();
+            }
         }
         
         function selectFarm(farmId) {
@@ -1475,7 +1867,7 @@ class MapsModule:
             });
             
             // Add selection to new farm (sidebar only)
-            selectedFarm = farms.find(farm => farm.id === farmId);
+            selectedFarm = (farms || []).find(farm => farm.id === farmId);
             if (selectedFarm) {
                 // Highlight sidebar
                 const sidebarCard = document.getElementById(`farm-${farmId}`);
@@ -1486,27 +1878,34 @@ class MapsModule:
                 
                 // Center map on selected farm
                 map.setView([selectedFarm.latitude, selectedFarm.longitude], 15);
-                
-                // Open popup
-                markers.forEach(marker => {
-                    if (marker.farmId === farmId) {
-                        marker.openPopup();
-                    }
-                });
+                openSheet(selectedFarm);
             }
         }
-        
-        function updateStatistics() {
-            document.getElementById('totalFarms').textContent = farms.length;
-            const totalRecords = farms.reduce(function(s, f) { return s + (f.farm_count || 1); }, 0);
-            document.getElementById('totalBarangays').textContent = totalRecords;
-            
-            const allVarieties = farms.flatMap(f => f.varieties);
-            const uniqueVarieties = [...new Set(allVarieties)];
-            document.getElementById('totalVarieties').textContent = uniqueVarieties.length;
-            
-            // Calculate average elevation (placeholder - would need elevation data)
-            document.getElementById('avgElevation').textContent = '1,200';
+
+        function openSheet(farm) {
+            const sheet = document.getElementById('mapSheet');
+            if (!sheet || !farm) return;
+            const title = document.getElementById('sheetTitle');
+            const meta = document.getElementById('sheetMeta');
+            const desc = document.getElementById('sheetDesc');
+            const aStreet = document.getElementById('sheetStreetView');
+            const aMaps = document.getElementById('sheetGoogleMaps');
+
+            const lat = farm.latitude;
+            const lng = farm.longitude;
+            if (title) title.textContent = `Barangay ${farm.farm_name || farm.barangay || ''}`;
+            if (meta) {
+                meta.innerHTML = (farm.varieties || []).map(v => `<span class="bp-tag">${escapeHtml(v)}</span>`).join('');
+            }
+            if (desc) desc.textContent = farm.description || '';
+            if (aStreet) aStreet.href = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${lat},${lng}`;
+            if (aMaps) aMaps.href = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+            sheet.hidden = false;
+        }
+
+        function closeSheet() {
+            const sheet = document.getElementById('mapSheet');
+            if (sheet) sheet.hidden = true;
         }
         
         function showError(message) {

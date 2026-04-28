@@ -228,6 +228,23 @@
   </script>
   <script>
     (function () {
+      var USER_NAME_MAP_KEY = 'beanthentic_user_name_map';
+
+      function saveKnownUserName(email, name) {
+        var cleanEmail = String(email || '').trim().toLowerCase();
+        var cleanName = String(name || '').trim();
+        if (!cleanEmail || !cleanName) return;
+        try {
+          var raw = localStorage.getItem(USER_NAME_MAP_KEY) || sessionStorage.getItem(USER_NAME_MAP_KEY);
+          var map = raw ? JSON.parse(raw) : {};
+          map[cleanEmail] = cleanName;
+          localStorage.setItem(USER_NAME_MAP_KEY, JSON.stringify(map));
+          sessionStorage.setItem(USER_NAME_MAP_KEY, JSON.stringify(map));
+        } catch (_err) {
+          /* ignore */
+        }
+      }
+
       document.addEventListener('DOMContentLoaded', function () {
         var form = document.querySelector('.auth-form');
         if (!form) return;
@@ -250,6 +267,7 @@
               name: name,
               signedInAt: Date.now()
             };
+            saveKnownUserName(email, name);
             localStorage.setItem('beanthentic_user', JSON.stringify(user));
             sessionStorage.setItem('beanthentic_user', JSON.stringify(user));
           } catch (err) {

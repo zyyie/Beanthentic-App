@@ -4,13 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#508020" />
-  <title>Settings · Beanthentic Coffee</title>
+  <title>FAQ · Beanthentic Coffee</title>
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/responsive.css">
 </head>
-<body class="has-app-bottom-nav account-security-page">
+<body class="has-app-bottom-nav faq-page">
   <header>
     <div class="nav">
       <button
@@ -70,7 +70,7 @@
             </svg>
             <span>Updates</span>
           </a>
-          <a href="settings.php" class="header-drawer-link" aria-current="page">
+          <a href="settings.php" class="header-drawer-link">
             <svg class="header-drawer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
             <span>Settings</span>
           </a>
@@ -81,7 +81,7 @@
   </header>
 
   <main class="auth-main">
-    <div class="auth-card account-security-shell" style="max-width: 58rem;">
+    <div class="auth-card faq-shell" style="max-width: 58rem;">
       <a href="index.php#home" class="news-portal-back">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true">
           <path d="m12 19-7-7 7-7"/>
@@ -90,85 +90,69 @@
         Back to Home
       </a>
 
-      <h1>Account Security</h1>
+      <h1>FAQ</h1>
 
-      <section class="account-security-card">
-        <h2 class="account-security-title">Password Reset</h2>
-        <p class="account-security-lead">
-          Secure workflow: Enter your <strong>current password</strong> to verify before changing to a new password.
-        </p>
+      <section class="faq-card" aria-label="Frequently asked questions">
+        <h2 class="faq-title">Frequently Asked Questions</h2>
 
-        <form class="account-security-form" onsubmit="return false;">
-          <label for="acct-current-pass">Current Password</label>
-          <input id="acct-current-pass" type="password" autocomplete="current-password" />
+        <details class="faq-item" open>
+          <summary class="faq-summary">How do I reset my password?</summary>
+          <div class="faq-answer">
+            Go to <strong>Account Security</strong> and fill out the password reset form. Enter your current password, then provide a new password (minimum 6 characters).
+          </div>
+        </details>
 
-          <label for="acct-new-pass">New Password</label>
-          <input id="acct-new-pass" type="password" autocomplete="new-password" />
+        <details class="faq-item">
+          <summary class="faq-summary">What is Two-Factor Authentication (2FA)?</summary>
+          <div class="faq-answer">
+            Two-Factor Authentication adds an extra layer of security. After enabling 2FA, you will need to enter a code from your authenticator app in addition to your password.
+          </div>
+        </details>
 
-          <label for="acct-confirm-pass">Confirm New Password</label>
-          <input id="acct-confirm-pass" type="password" autocomplete="new-password" />
+        <details class="faq-item">
+          <summary class="faq-summary">How do I set up 2FA?</summary>
+          <div class="faq-answer">
+            <ol class="faq-steps">
+              <li>Open <strong>Account Security</strong>.</li>
+              <li>Click <strong>Enable 2FA</strong>.</li>
+              <li>Scan the QR code with your authenticator app.</li>
+              <li>Save backup recovery codes.</li>
+            </ol>
+          </div>
+        </details>
 
-          <button
-            type="button"
-            id="acct-update-pass-btn"
-            class="btn-primary account-security-btn"
-          >
-            Update Password
-          </button>
-        </form>
+        <details class="faq-item">
+          <summary class="faq-summary">What are backup recovery codes?</summary>
+          <div class="faq-answer">
+            Backup codes are one-time use codes you can use to access your account if you lose your authenticator device. Keep them in a secure place.
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-summary">How can I view my activity log?</summary>
+          <div class="faq-answer">
+            Open <strong>Activity Log</strong>. Use the search bar to filter by date, action, details, or IP address.
+          </div>
+        </details>
       </section>
     </div>
   </main>
+
+  <footer>
+    <div class="footer-inner">
+      <span><span class="footer-dot"></span> Beanthentic &copy; <span id="year"></span> · Brewed with care.</span>
+      <span>Serving honest coffee, one cup at a time.</span>
+    </div>
+  </footer>
 
   <script src="js/navigation.js"></script>
   <script src="js/ui.js"></script>
   <script>
     (function () {
-      function init() {
-        var currentPass = document.getElementById('acct-current-pass');
-        var newPass = document.getElementById('acct-new-pass');
-        var confirmPass = document.getElementById('acct-confirm-pass');
-        var updatePassBtn = document.getElementById('acct-update-pass-btn');
-
-        if (!updatePassBtn) return;
-
-        updatePassBtn.addEventListener('click', function () {
-          var cur = String((currentPass && currentPass.value) || '').trim();
-          var np = String((newPass && newPass.value) || '').trim();
-          var cp = String((confirmPass && confirmPass.value) || '').trim();
-
-          if (!cur || !np || !cp) {
-            if (window.uiController && typeof window.uiController.showNotification === 'function') {
-              window.uiController.showNotification('Please fill out all password fields.', 'info');
-            }
-            return;
-          }
-          if (np.length < 6) {
-            if (window.uiController && typeof window.uiController.showNotification === 'function') {
-              window.uiController.showNotification('New password must be at least 6 characters.', 'info');
-            }
-            return;
-          }
-          if (np !== cp) {
-            if (window.uiController && typeof window.uiController.showNotification === 'function') {
-              window.uiController.showNotification('New password and confirmation do not match.', 'info');
-            }
-            return;
-          }
-
-          if (currentPass) currentPass.value = '';
-          if (newPass) newPass.value = '';
-          if (confirmPass) confirmPass.value = '';
-
-          if (window.uiController && typeof window.uiController.showNotification === 'function') {
-            window.uiController.showNotification('Password updated.', 'info');
-          }
-        });
-      }
-
-      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-      else init();
+      var yearEl = document.getElementById('year');
+      if (yearEl) yearEl.textContent = String(new Date().getFullYear());
     })();
   </script>
 </body>
 </html>
+

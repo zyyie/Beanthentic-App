@@ -1,6 +1,7 @@
 // UI interactions and animations
 
 const BEANTHENTIC_USER_KEY = 'beanthentic_user';
+const BEANTHENTIC_USER_NAME_MAP_KEY = 'beanthentic_user_name_map';
 
 function escapeHtml(str) {
   return String(str)
@@ -22,6 +23,21 @@ function getBeanthenticUser() {
     return null;
   };
 
+  const enrichUser = (u) => {
+    if (!u) return null;
+    try {
+      const email = typeof u.email === 'string' ? u.email.trim().toLowerCase() : '';
+      const mapRaw = localStorage.getItem(BEANTHENTIC_USER_NAME_MAP_KEY) || sessionStorage.getItem(BEANTHENTIC_USER_NAME_MAP_KEY);
+      const map = mapRaw ? JSON.parse(mapRaw) : null;
+      if (email && map && typeof map[email] === 'string' && map[email].trim()) {
+        u.name = map[email].trim();
+      }
+    } catch (_err) {
+      /* ignore */
+    }
+    return u;
+  };
+
   try {
     const local = parseUser(localStorage.getItem(BEANTHENTIC_USER_KEY));
     if (local) {
@@ -30,7 +46,7 @@ function getBeanthenticUser() {
       } catch (_err) {
         /* ignore */
       }
-      return local;
+      return enrichUser(local);
     }
     const session = parseUser(sessionStorage.getItem(BEANTHENTIC_USER_KEY));
     if (session) {
@@ -39,12 +55,30 @@ function getBeanthenticUser() {
       } catch (_err2) {
         /* ignore */
       }
-      return session;
+      return enrichUser(session);
     }
   } catch (e) {
     /* ignore */
   }
   return null;
+}
+
+function formatBeanthenticDisplayName(user) {
+  if (!user) return 'Member';
+  const rawName = user.name && String(user.name).trim()
+    ? String(user.name).trim()
+    : '';
+  if (!rawName) {
+    return user.email ? user.email.split('@')[0] : 'Member';
+  }
+
+  const parts = rawName.split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) {
+    const firstName = parts[0];
+    const lastName = parts[parts.length - 1];
+    return `${lastName}, ${firstName}`;
+  }
+  return rawName;
 }
 
 function syncAuthNavigationLinks() {
@@ -87,9 +121,7 @@ function refreshHeaderAuthUI() {
   })();
 
   if (user) {
-    const label = user.name && String(user.name).trim()
-      ? String(user.name).trim()
-      : user.email.split('@')[0];
+    const label = formatBeanthenticDisplayName(user);
     if (snippet) snippet.hidden = false;
     if (display) display.textContent = label;
     if (drawerAccount) {
@@ -361,6 +393,77 @@ class UIController {
       if (e.key === 'Escape' && root.classList.contains('is-open')) close();
     });
 
+    // Settings dropdown submenu inside the drawer (restored after friend pull).
+    const settingsLink = Array.from(root.querySelectorAll('a.header-drawer-link')).find((a) => {
+      const href = (a.getAttribute('href') || '').trim().toLowerCase();
+      return href === 'settings.php' || /(^|\/)settings\.php$/i.test(href);
+    });
+
+    if (settingsLink && !settingsLink.dataset.dropdownReady) {
+      settingsLink.dataset.dropdownReady = '1';
+      settingsLink.classList.add('header-drawer-link--settings');
+      settingsLink.setAttribute('aria-haspopup', 'true');
+      settingsLink.setAttribute('aria-expanded', 'false');
+      // avoid showing loader because this is a dropdown toggle (not navigation)
+      settingsLink.setAttribute('data-no-loader', 'true');
+
+      const submenu = document.createElement('div');
+      submenu.className = 'header-drawer-submenu';
+      submenu.hidden = true;
+      submenu.setAttribute('aria-hidden', 'true');
+      submenu.innerHTML = `
+        <a class="header-drawer-submenu-link" href="settings.php#manage-account" data-submenu-key="account-security">
+          <span class="header-drawer-submenu-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              <path d="m9 12 2 2 4-4"></path>
+            </svg>
+          </span>
+          <span class="header-drawer-submenu-text">Account Security</span>
+        </a>
+        <a class="header-drawer-submenu-link" href="notification_settings.html" data-submenu-key="notification-settings">
+          <span class="header-drawer-submenu-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path>
+              <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path>
+            </svg>
+          </span>
+          <span class="header-drawer-submenu-text">Notifications Settings</span>
+        </a>
+        <a class="header-drawer-submenu-link" href="activity_log.html" data-submenu-key="activity-log">
+          <span class="header-drawer-submenu-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 3v18h18"></path>
+              <path d="M7 14l4-4 4 4 6-6"></path>
+            </svg>
+          </span>
+          <span class="header-drawer-submenu-text">Activity Log</span>
+        </a>
+        <a class="header-drawer-submenu-link" href="faq.html" data-submenu-key="faq">
+          <span class="header-drawer-submenu-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M9.09 9a3 3 0 1 1 5.82 1c0 2-3 2-3 4"></path>
+              <path d="M12 17h.01"></path>
+            </svg>
+          </span>
+          <span class="header-drawer-submenu-text">FAQ</span>
+        </a>
+      `;
+      settingsLink.insertAdjacentElement('afterend', submenu);
+    }
+
+    const toggleSettingsSubmenu = () => {
+      if (!settingsLink) return false;
+      const submenu = settingsLink.nextElementSibling;
+      if (!submenu || !submenu.classList || !submenu.classList.contains('header-drawer-submenu')) return false;
+      const expanded = settingsLink.getAttribute('aria-expanded') === 'true';
+      settingsLink.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+      submenu.hidden = expanded;
+      submenu.setAttribute('aria-hidden', expanded ? 'true' : 'false');
+      return true;
+    };
+
     root.querySelectorAll('a.header-drawer-link').forEach((a) => {
       a.addEventListener('click', (e) => {
         // Social → open Beanthentic Coffee Facebook page directly.
@@ -374,7 +477,20 @@ class UIController {
           window.setTimeout(close, 150);
           return;
         }
-        const href = a.getAttribute('href');
+        const href = (a.getAttribute('href') || '').trim();
+
+        // Settings in the drawer is a pure dropdown toggle (no navigation).
+        if (
+          a.classList.contains('header-drawer-link--settings') ||
+          href.toLowerCase() === 'settings.php' ||
+          /(^|\/)settings\.php$/i.test(href)
+        ) {
+          e.preventDefault();
+          e.stopPropagation();
+          toggleSettingsSubmenu();
+          return;
+        }
+
         // Same-window relative pages (e.g. privacy.php): resolve to absolute URL so file:// WebViews navigate reliably.
         if (href && !href.startsWith('#') && !/^https?:/i.test(href) && href.indexOf(':') === -1) {
           e.preventDefault();
@@ -387,6 +503,37 @@ class UIController {
         window.setTimeout(close, 150);
       });
     });
+
+    // Ensure submenu links also close the drawer (but do not override navigation).
+    root.querySelectorAll('.header-drawer-submenu-link').forEach((a) => {
+      a.addEventListener('click', () => window.setTimeout(close, 150));
+    });
+
+    // Highlight current submenu item (so it matches the "selected" look in Image 2).
+    try {
+      const currentPath = String(window.location.pathname || '').toLowerCase();
+      const currentHash = String(window.location.hash || '').toLowerCase();
+      const submenuLinks = Array.from(root.querySelectorAll('.header-drawer-submenu-link'));
+      submenuLinks.forEach((link) => link.removeAttribute('aria-current'));
+
+      const endsWith = (p, suffix) => p === suffix || p.endsWith('/' + suffix);
+
+      if (endsWith(currentPath, 'notification_settings.html')) {
+        const target = submenuLinks.find((a) => a.dataset.submenuKey === 'notification-settings');
+        if (target) target.setAttribute('aria-current', 'page');
+      } else if (endsWith(currentPath, 'activity_log.html')) {
+        const target = submenuLinks.find((a) => a.dataset.submenuKey === 'activity-log');
+        if (target) target.setAttribute('aria-current', 'page');
+      } else if (endsWith(currentPath, 'faq.html')) {
+        const target = submenuLinks.find((a) => a.dataset.submenuKey === 'faq');
+        if (target) target.setAttribute('aria-current', 'page');
+      } else if (endsWith(currentPath, 'settings.php')) {
+        // Settings page defaults to Account Security.
+        const key = 'account-security';
+        const target = submenuLinks.find((a) => a.dataset.submenuKey === key);
+        if (target) target.setAttribute('aria-current', 'page');
+      }
+    } catch (_e) {}
 
     if (signOutBtn) {
       signOutBtn.addEventListener('click', () => {

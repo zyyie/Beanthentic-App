@@ -225,6 +225,35 @@
   </script>
   <script>
     (function () {
+      var USER_NAME_MAP_KEY = 'beanthentic_user_name_map';
+
+      function getKnownUserName(email) {
+        var cleanEmail = String(email || '').trim().toLowerCase();
+        if (!cleanEmail) return '';
+        try {
+          var raw = localStorage.getItem(USER_NAME_MAP_KEY) || sessionStorage.getItem(USER_NAME_MAP_KEY);
+          var map = raw ? JSON.parse(raw) : {};
+          return map && typeof map[cleanEmail] === 'string' ? String(map[cleanEmail]).trim() : '';
+        } catch (_err) {
+          return '';
+        }
+      }
+
+      function saveKnownUserName(email, name) {
+        var cleanEmail = String(email || '').trim().toLowerCase();
+        var cleanName = String(name || '').trim();
+        if (!cleanEmail || !cleanName) return;
+        try {
+          var raw = localStorage.getItem(USER_NAME_MAP_KEY) || sessionStorage.getItem(USER_NAME_MAP_KEY);
+          var map = raw ? JSON.parse(raw) : {};
+          map[cleanEmail] = cleanName;
+          localStorage.setItem(USER_NAME_MAP_KEY, JSON.stringify(map));
+          sessionStorage.setItem(USER_NAME_MAP_KEY, JSON.stringify(map));
+        } catch (_err) {
+          /* ignore */
+        }
+      }
+
       document.addEventListener('DOMContentLoaded', function () {
         var form = document.querySelector('.auth-form');
         if (!form) return;
@@ -233,13 +262,15 @@
           var emailEl = document.getElementById('login-email');
           var email = emailEl ? String(emailEl.value || '').trim() : '';
           if (!email) return;
-          var name = email.indexOf('@') > 0 ? email.split('@')[0] : email;
+          var savedName = getKnownUserName(email);
+          var name = savedName || (email.indexOf('@') > 0 ? email.split('@')[0] : email);
           try {
             var user = {
               email: email,
               name: name,
               signedInAt: Date.now()
             };
+            if (savedName) saveKnownUserName(email, savedName);
             localStorage.setItem('beanthentic_user', JSON.stringify(user));
             sessionStorage.setItem('beanthentic_user', JSON.stringify(user));
           } catch (err) {

@@ -1522,6 +1522,499 @@ body.account-portfolio-page .app-bottom-nav-link--featured {
   word-break: break-all;
 }
 
+/* -------------------------------------------------------------------------- */
+/* Notification Settings (cards + toggles)                                     */
+/* -------------------------------------------------------------------------- */
+
+body.notification-settings-page {
+  background: #f3f4f6;
+}
+
+body.notification-settings-page .auth-main {
+  /* The screenshot layout sits higher (not vertically centered). */
+  align-items: flex-start;
+  padding-top: 1.25rem;
+}
+
+body.notification-settings-page .notif-settings-shell.auth-card {
+  max-width: 62rem !important;
+  border-radius: 18px;
+  padding: 1.35rem 1.35rem 1.55rem;
+  box-shadow: 0 14px 40px rgba(17, 24, 39, 0.08);
+}
+
+.settings-back-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.38rem 0.75rem;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: #6b574b;
+  background: rgba(245, 235, 225, 0.95);
+  border: 1px solid rgba(155, 99, 67, 0.22);
+  box-shadow: 0 8px 18px rgba(60, 34, 18, 0.08);
+  margin-bottom: 0.85rem;
+}
+
+.settings-back-pill:hover {
+  background: rgba(235, 217, 200, 0.98);
+  color: #4a3224;
+}
+
+.notif-card {
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(17, 24, 39, 0.06);
+  overflow: hidden;
+  margin-top: 1.1rem;
+}
+
+.notif-card__head {
+  padding: 1rem 1.1rem 0.35rem;
+  color: #111827;
+  font-size: 0.92rem;
+}
+
+.notif-card__head strong {
+  display: block;
+  font-size: 0.93rem;
+  letter-spacing: -0.01em;
+}
+
+.notif-card__subhead {
+  margin: 0;
+  padding: 0 1.1rem 0.6rem;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: rgba(17, 24, 39, 0.55);
+}
+
+.notif-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1.1rem;
+  border-top: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.notif-row__text {
+  min-width: 0;
+}
+
+.notif-row__text strong {
+  display: block;
+  font-size: 0.88rem;
+  color: #111827;
+}
+
+.notif-row__text span {
+  display: block;
+  margin-top: 0.18rem;
+  font-size: 0.78rem;
+  color: rgba(17, 24, 39, 0.55);
+  line-height: 1.35;
+}
+
+/* Toggle switch */
+.switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 26px;
+  flex-shrink: 0;
+}
+
+.switch input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.switch__track {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: #cbd5e1;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.switch__track::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: #ffffff;
+  box-shadow: 0 6px 14px rgba(17, 24, 39, 0.18);
+  transition: transform 0.2s ease;
+}
+
+.switch input:checked + .switch__track {
+  background: #147539;
+}
+
+.switch input:checked + .switch__track::after {
+  transform: translateX(20px);
+}
+
+.switch input:focus-visible + .switch__track {
+  box-shadow: 0 0 0 3px rgba(20, 117, 57, 0.22);
+}
+
+.notif-save-btn.btn-primary {
+  margin-top: 0.95rem;
+  width: auto;
+  min-width: 12rem;
+  border-radius: 10px;
+  padding: 0.65rem 0.95rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  background: linear-gradient(180deg, #a86d4a 0%, #9b6343 45%, #7a4a33 100%) !important;
+  box-shadow: 0 10px 22px rgba(60, 34, 18, 0.22) !important;
+}
+
+@media (max-width: 520px) {
+  body.notification-settings-page .notif-settings-shell.auth-card {
+    padding: 1.1rem 1.05rem 1.35rem;
+  }
+
+  .notif-card__head,
+  .notif-row {
+    padding-left: 0.9rem;
+    padding-right: 0.9rem;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Activity Log (settings page)                                               */
+/* -------------------------------------------------------------------------- */
+
+body.activity-log-page {
+  background: #f3f4f6;
+}
+
+body.activity-log-page .auth-main {
+  align-items: flex-start;
+  padding-top: 1.25rem;
+}
+
+body.activity-log-page .activity-log-shell.auth-card {
+  max-width: 62rem !important;
+  border-radius: 18px;
+  padding: 1.35rem 1.35rem 1.55rem;
+  box-shadow: 0 14px 40px rgba(17, 24, 39, 0.08);
+}
+
+.activity-card {
+  margin-top: 1rem;
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(17, 24, 39, 0.05);
+  overflow: hidden;
+}
+
+.activity-controls {
+  padding: 0.85rem 0.95rem 0.7rem;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.55rem;
+}
+
+.activity-control label {
+  display: block;
+  margin-bottom: 0.32rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #374151;
+}
+
+.activity-control select,
+.activity-control input {
+  width: 100%;
+  max-width: 18rem;
+  padding: 0.48rem 0.56rem;
+  border-radius: 8px;
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  background: #ffffff;
+  font-size: 0.78rem;
+  color: #111827;
+}
+
+.activity-control input::placeholder {
+  color: #9ca3af;
+}
+
+.activity-table-wrap {
+  overflow: auto;
+}
+
+.activity-table {
+  width: 100%;
+  min-width: 46rem;
+  border-collapse: collapse;
+}
+
+.activity-table thead th {
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #374151;
+  background: #f9fafb;
+  padding: 0.58rem 0.95rem;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.activity-table tbody td {
+  font-size: 0.76rem;
+  color: #111827;
+  padding: 0.52rem 0.95rem;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  vertical-align: middle;
+}
+
+.activity-pill {
+  display: inline-block;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.activity-pill--login { color: #166534; }
+.activity-pill--logout { color: #475569; }
+.activity-pill--security { color: #7c2d12; }
+.activity-pill--data { color: #1d4ed8; }
+
+.activity-ip {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.75rem;
+  color: #4b5563;
+  background: transparent;
+}
+
+.activity-empty {
+  text-align: center;
+  color: #6b7280;
+}
+
+@media (max-width: 720px) {
+  body.activity-log-page .activity-log-shell.auth-card {
+    padding: 1.1rem 1.05rem 1.35rem;
+  }
+
+  .activity-controls,
+  .activity-table thead th,
+  .activity-table tbody td {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* FAQ (settings page)                                                        */
+/* -------------------------------------------------------------------------- */
+
+body.faq-page {
+  background: #f3f4f6;
+}
+
+body.faq-page .auth-main {
+  align-items: flex-start;
+  padding-top: 1.25rem;
+}
+
+body.faq-page .faq-shell.auth-card {
+  max-width: 62rem !important;
+  border-radius: 18px;
+  padding: 1.35rem 1.35rem 1.55rem;
+  box-shadow: 0 14px 40px rgba(17, 24, 39, 0.08);
+}
+
+.faq-card {
+  margin-top: 0.95rem;
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(17, 24, 39, 0.05);
+  padding: 0.8rem 0.75rem;
+}
+
+.faq-title {
+  margin: 0 0 0.65rem;
+  font-size: 0.84rem;
+  font-weight: 800;
+  color: #111827;
+  padding: 0 0.25rem;
+}
+
+.faq-item {
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 8px;
+  margin-bottom: 0.45rem;
+  overflow: hidden;
+}
+
+.faq-item:last-child {
+  margin-bottom: 0;
+}
+
+.faq-summary {
+  position: relative;
+  list-style: none;
+  cursor: pointer;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #111827;
+  padding: 0.55rem 2rem 0.55rem 0.65rem;
+}
+
+.faq-summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq-summary::after {
+  content: "▾";
+  position: absolute;
+  right: 0.65rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.78rem;
+  color: #6b7280;
+}
+
+.faq-item[open] .faq-summary::after {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+.faq-answer {
+  padding: 0.1rem 0.65rem 0.65rem;
+  border-top: 1px solid rgba(15, 23, 42, 0.06);
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: #4b5563;
+}
+
+.faq-answer strong {
+  color: #1f2937;
+}
+
+.faq-steps {
+  margin: 0.35rem 0 0;
+  padding-left: 1rem;
+}
+
+.faq-steps li {
+  margin: 0.15rem 0;
+}
+
+@media (max-width: 720px) {
+  body.faq-page .faq-shell.auth-card {
+    padding: 1.1rem 1.05rem 1.35rem;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Account Security (settings page)                                           */
+/* -------------------------------------------------------------------------- */
+
+body.account-security-page {
+  background: #f3f4f6;
+}
+
+body.account-security-page .auth-main {
+  align-items: flex-start;
+  padding-top: 1.25rem;
+}
+
+body.account-security-page .account-security-shell.auth-card {
+  max-width: 62rem !important;
+  border-radius: 18px;
+  padding: 1.35rem 1.35rem 1.55rem;
+  box-shadow: 0 14px 40px rgba(17, 24, 39, 0.08);
+}
+
+.account-security-card {
+  margin-top: 0.95rem;
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(17, 24, 39, 0.05);
+  padding: 0.9rem 0.95rem 1rem;
+}
+
+.account-security-title {
+  margin: 0;
+  font-size: 0.84rem;
+  font-weight: 800;
+  color: #111827;
+}
+
+.account-security-lead {
+  margin: 0.35rem 0 0.75rem;
+  font-size: 0.74rem;
+  line-height: 1.45;
+  color: #4b5563;
+}
+
+.account-security-form label {
+  display: block;
+  margin: 0 0 0.28rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #374151;
+}
+
+.account-security-form input {
+  width: 100%;
+  margin: 0 0 0.65rem;
+  padding: 0.52rem 0.68rem;
+  border-radius: 8px;
+  border: 1px solid rgba(155, 99, 67, 0.22);
+  background: #ffffff;
+  color: #111827;
+  font-size: 0.8rem;
+}
+
+.account-security-form input:focus {
+  outline: none;
+  border-color: rgba(155, 99, 67, 0.55);
+  box-shadow: 0 0 0 3px rgba(155, 99, 67, 0.12);
+}
+
+.account-security-btn.btn-primary {
+  width: auto;
+  min-width: 8.4rem;
+  margin-top: 0.15rem;
+  border-radius: 8px;
+  padding: 0.56rem 0.82rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  background: linear-gradient(180deg, #a86d4a 0%, #9b6343 45%, #7a4a33 100%) !important;
+  box-shadow: 0 9px 20px rgba(60, 34, 18, 0.2) !important;
+}
+
+@media (max-width: 720px) {
+  body.account-security-page .account-security-shell.auth-card {
+    padding: 1.1rem 1.05rem 1.35rem;
+  }
+
+  .account-security-card {
+    padding: 0.8rem 0.75rem 0.9rem;
+  }
+}
+
 /* News page — GI Portal–style shell + static certificate preview (no PDF iframe / no inner scroll) */
 body.news-portal-page {
   background: #f3f4f6;

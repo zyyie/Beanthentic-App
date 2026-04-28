@@ -81,7 +81,7 @@
   </header>
 
   <main class="auth-main">
-    <div class="auth-card" style="max-width: 36rem;">
+    <div class="auth-card" style="max-width: 48rem;">
       <a href="index.php#home" class="news-portal-back">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true">
           <path d="m12 19-7-7 7-7"/>
@@ -91,11 +91,100 @@
       </a>
       <h1>Privacy Policy</h1>
       <p class="auth-lead">How Beanthentic Coffee handles information when you use this app.</p>
-      <p style="font-size:0.9rem;color:#6b574b;line-height:1.6;">
-        We respect your privacy. This app may collect only what you choose to provide (for example, when you sign in).
-        Data is used to improve your experience and to support local farmers through our platform. We do not sell your personal information.
-        For questions, contact us through the channels linked from <strong>Social</strong> in the menu.
-      </p>
+      <div style="display:grid; gap:1rem; font-size:0.92rem; color:#6b574b; line-height:1.7;">
+        <section>
+          <h2 style="margin:0 0 0.35rem; font-size:1rem; color:#2c241c;">1. Overview</h2>
+          <p style="margin:0;">
+            Beanthentic is a coffee-focused platform designed to help users explore local coffee information, support farmer visibility,
+            and use tools such as account access, GI registration, profile sharing, maps, and related settings pages. This Privacy Policy
+            explains what information may be collected through the app, how it is used, and how it is protected.
+          </p>
+        </section>
+
+        <section>
+          <h2 style="margin:0 0 0.35rem; font-size:1rem; color:#2c241c;">2. Information We May Collect</h2>
+          <p style="margin:0 0 0.35rem;">
+            Depending on the feature you use, Beanthentic may collect information that you voluntarily provide, including:
+          </p>
+          <ul style="margin:0; padding-left:1.15rem;">
+            <li>Your name and email address when you create or use an account.</li>
+            <li>Farmer or farm registration details submitted through the GI-related forms.</li>
+            <li>Profile-related information shown through QR or profile sharing features.</li>
+            <li>Preference data such as notification settings and saved app options.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 style="margin:0 0 0.35rem; font-size:1rem; color:#2c241c;">3. How We Use Your Information</h2>
+          <p style="margin:0 0 0.35rem;">
+            The information collected through Beanthentic may be used to:
+          </p>
+          <ul style="margin:0; padding-left:1.15rem;">
+            <li>Provide account access and personalize the app experience.</li>
+            <li>Process and display GI registration or profile-related submissions.</li>
+            <li>Generate profile links, QR references, and related account tools.</li>
+            <li>Save your settings and improve usability across sessions.</li>
+            <li>Support platform administration, review workflows, and user assistance.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 style="margin:0 0 0.35rem; font-size:1rem; color:#2c241c;">4. Local Storage and Device Data</h2>
+          <p style="margin:0;">
+            Some Beanthentic features use local or session storage on your device to remember your account state, settings, saved profile
+            preferences, and similar app data. This helps the app function smoothly without requiring you to re-enter the same details every time.
+          </p>
+        </section>
+
+        <section>
+          <h2 style="margin:0 0 0.35rem; font-size:1rem; color:#2c241c;">5. Profile Links, QR Features, and Shared Data</h2>
+          <p style="margin:0;">
+            If you use Beanthentic profile or QR features, some information you choose to save or share may be included in generated links
+            or profile pages. Please review the information you submit and only share links or QR codes when you are comfortable doing so.
+          </p>
+        </section>
+
+        <section>
+          <h2 style="margin:0 0 0.35rem; font-size:1rem; color:#2c241c;">6. Data Sharing</h2>
+          <p style="margin:0;">
+            Beanthentic does not sell your personal information. Information may be used within the platform to support its intended services,
+            including farmer visibility, account functions, registration review workflows, and user support. Data may also be displayed where
+            required by the feature you are actively using.
+          </p>
+        </section>
+
+        <section>
+          <h2 style="margin:0 0 0.35rem; font-size:1rem; color:#2c241c;">7. Data Security</h2>
+          <p style="margin:0;">
+            We aim to handle information responsibly and limit collection to what is relevant to the app’s functions. However, no digital
+            system can guarantee absolute security. Users should also protect their own devices, accounts, and shared links.
+          </p>
+        </section>
+
+        <section>
+          <h2 style="margin:0 0 0.35rem; font-size:1rem; color:#2c241c;">8. Your Choices</h2>
+          <p style="margin:0;">
+            You may choose what information to provide in Beanthentic. You may also sign out, adjust settings, and avoid sharing optional
+            profile or registration details when not required by a feature.
+          </p>
+        </section>
+
+        <section>
+          <h2 style="margin:0 0 0.35rem; font-size:1rem; color:#2c241c;">9. Updates to This Policy</h2>
+          <p style="margin:0;">
+            This Privacy Policy may be updated from time to time to reflect changes in the app, its features, or its data practices.
+            Continued use of Beanthentic after updates means you accept the revised policy.
+          </p>
+        </section>
+
+        <section>
+          <h2 style="margin:0 0 0.35rem; font-size:1rem; color:#2c241c;">10. Contact</h2>
+          <p style="margin:0;">
+            If you have questions about this Privacy Policy or how your information is used in Beanthentic, please contact the team through
+            the official channels linked in <strong>Social</strong> within the app menu.
+          </p>
+        </section>
+      </div>
     </div>
   </main>
 

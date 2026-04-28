@@ -1,5 +1,5 @@
 <?php
-  $title = 'News · Beanthentic Coffee';
+  $title = 'GI Updates · Beanthentic Coffee';
 ?>
 <!doctype html>
 <html lang="en">
@@ -92,7 +92,7 @@
             <path d="M8 9h8M8 13h6M8 17h4"/>
           </svg>
         </div>
-        <h1 class="news-portal-hero-title">News &amp; official documents</h1>
+        <h1 class="news-portal-hero-title">GI Updates</h1>
       </div>
     </div>
   </div>
@@ -103,24 +103,6 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
         Back to Home
       </a>
-      <p class="news-portal-lead">
-        Below is the official <strong>IPOPHL Certificate of Registration</strong> for Batangas Kapeng Barako.
-      </p>
-      <figure class="news-cert-figure news-cert-figure--static">
-        <div class="news-cert-img-viewport">
-          <img
-            src="news/certificate-of-registration-preview.png"
-            width="1191"
-            height="1684"
-            alt="IPOPHL Certificate of Registration for Batangas Kapeng Barako"
-            decoding="async"
-            loading="lazy"
-          />
-        </div>
-        <figcaption class="news-cert-caption">
-          Intellectual Property Office of the Philippines — Certificate of Registration (preview). Source document retained in app assets for reference.
-        </figcaption>
-      </figure>
     </div>
   </main>
 

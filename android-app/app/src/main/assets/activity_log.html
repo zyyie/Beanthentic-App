@@ -4,13 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#508020" />
-  <title>Settings · Beanthentic Coffee</title>
+  <title>Activity Log · Beanthentic Coffee</title>
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/responsive.css">
 </head>
-<body class="has-app-bottom-nav account-security-page">
+<body class="has-app-bottom-nav activity-log-page">
   <header>
     <div class="nav">
       <button
@@ -70,7 +70,7 @@
             </svg>
             <span>Updates</span>
           </a>
-          <a href="settings.php" class="header-drawer-link" aria-current="page">
+          <a href="settings.php" class="header-drawer-link">
             <svg class="header-drawer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
             <span>Settings</span>
           </a>
@@ -81,7 +81,7 @@
   </header>
 
   <main class="auth-main">
-    <div class="auth-card account-security-shell" style="max-width: 58rem;">
+    <div class="auth-card activity-log-shell" style="max-width: 58rem;">
       <a href="index.php#home" class="news-portal-back">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true">
           <path d="m12 19-7-7 7-7"/>
@@ -90,80 +90,104 @@
         Back to Home
       </a>
 
-      <h1>Account Security</h1>
+      <h1>Activity Log</h1>
+      <p class="auth-lead">Search and filter admin actions (login times, IP addresses, and specific data changes).</p>
 
-      <section class="account-security-card">
-        <h2 class="account-security-title">Password Reset</h2>
-        <p class="account-security-lead">
-          Secure workflow: Enter your <strong>current password</strong> to verify before changing to a new password.
-        </p>
+      <section class="activity-card">
+        <div class="activity-controls">
+          <div class="activity-control">
+            <label for="activity-filter">Action Filter</label>
+            <select id="activity-filter">
+              <option value="all">All actions</option>
+              <option value="login">Admin Login</option>
+              <option value="logout">Admin Logout</option>
+              <option value="security">Security Change</option>
+              <option value="data">Data Update</option>
+            </select>
+          </div>
+          <div class="activity-control activity-control--search">
+            <label for="activity-search">Search</label>
+            <input id="activity-search" type="search" placeholder="Search (date, action, details, IP)" />
+          </div>
+        </div>
 
-        <form class="account-security-form" onsubmit="return false;">
-          <label for="acct-current-pass">Current Password</label>
-          <input id="acct-current-pass" type="password" autocomplete="current-password" />
-
-          <label for="acct-new-pass">New Password</label>
-          <input id="acct-new-pass" type="password" autocomplete="new-password" />
-
-          <label for="acct-confirm-pass">Confirm New Password</label>
-          <input id="acct-confirm-pass" type="password" autocomplete="new-password" />
-
-          <button
-            type="button"
-            id="acct-update-pass-btn"
-            class="btn-primary account-security-btn"
-          >
-            Update Password
-          </button>
-        </form>
+        <div class="activity-table-wrap" role="region" aria-label="Activity table" tabindex="0">
+          <table class="activity-table">
+            <thead>
+              <tr>
+                <th>Date &amp; Time</th>
+                <th>Action</th>
+                <th>Details</th>
+                <th>IP Address</th>
+              </tr>
+            </thead>
+            <tbody id="activity-tbody"></tbody>
+          </table>
+        </div>
       </section>
     </div>
   </main>
+
+  <footer>
+    <div class="footer-inner">
+      <span><span class="footer-dot"></span> Beanthentic &copy; <span id="year"></span> · Brewed with care.</span>
+      <span>Serving honest coffee, one cup at a time.</span>
+    </div>
+  </footer>
 
   <script src="js/navigation.js"></script>
   <script src="js/ui.js"></script>
   <script>
     (function () {
-      function init() {
-        var currentPass = document.getElementById('acct-current-pass');
-        var newPass = document.getElementById('acct-new-pass');
-        var confirmPass = document.getElementById('acct-confirm-pass');
-        var updatePassBtn = document.getElementById('acct-update-pass-btn');
+      var yearEl = document.getElementById('year');
+      if (yearEl) yearEl.textContent = String(new Date().getFullYear());
+    })();
+  </script>
+  <script>
+    (function () {
+      var rows = [
+        { dt: '2026-03-25 10:22', type: 'login', action: 'Admin Login', details: 'Successful login', ip: '127.0.0.1' },
+        { dt: '2026-03-25 12:04', type: 'security', action: 'Security Change', details: 'Enabled 2FA (UI sample)', ip: '127.0.0.1' },
+        { dt: '2026-03-25 14:18', type: 'data', action: 'Data Update', details: 'Edited farmer record remarks', ip: '127.0.0.1' },
+        { dt: '2026-03-26 09:05', type: 'logout', action: 'Admin Logout', details: 'Session ended', ip: '127.0.0.1' }
+      ];
 
-        if (!updatePassBtn) return;
+      function norm(s) { return String(s || '').toLowerCase(); }
+      function matchesQuery(r, q) {
+        if (!q) return true;
+        var hay = [r.dt, r.action, r.details, r.ip].join(' | ');
+        return norm(hay).indexOf(norm(q)) !== -1;
+      }
 
-        updatePassBtn.addEventListener('click', function () {
-          var cur = String((currentPass && currentPass.value) || '').trim();
-          var np = String((newPass && newPass.value) || '').trim();
-          var cp = String((confirmPass && confirmPass.value) || '').trim();
+      function render() {
+        var tbody = document.getElementById('activity-tbody');
+        if (!tbody) return;
+        var filter = (document.getElementById('activity-filter') || {}).value || 'all';
+        var q = (document.getElementById('activity-search') || {}).value || '';
 
-          if (!cur || !np || !cp) {
-            if (window.uiController && typeof window.uiController.showNotification === 'function') {
-              window.uiController.showNotification('Please fill out all password fields.', 'info');
-            }
-            return;
-          }
-          if (np.length < 6) {
-            if (window.uiController && typeof window.uiController.showNotification === 'function') {
-              window.uiController.showNotification('New password must be at least 6 characters.', 'info');
-            }
-            return;
-          }
-          if (np !== cp) {
-            if (window.uiController && typeof window.uiController.showNotification === 'function') {
-              window.uiController.showNotification('New password and confirmation do not match.', 'info');
-            }
-            return;
-          }
-
-          if (currentPass) currentPass.value = '';
-          if (newPass) newPass.value = '';
-          if (confirmPass) confirmPass.value = '';
-
-          if (window.uiController && typeof window.uiController.showNotification === 'function') {
-            window.uiController.showNotification('Password updated.', 'info');
-          }
+        var out = rows.filter(function (r) {
+          if (filter && filter !== 'all' && r.type !== filter) return false;
+          return matchesQuery(r, q);
         });
+
+        tbody.innerHTML = out.map(function (r) {
+          return (
+            '<tr>' +
+              '<td>' + r.dt + '</td>' +
+              '<td><span class="activity-pill activity-pill--' + r.type + '">' + r.action + '</span></td>' +
+              '<td>' + r.details + '</td>' +
+              '<td><code class="activity-ip">' + r.ip + '</code></td>' +
+            '</tr>'
+          );
+        }).join('') || '<tr><td colspan="4" class="activity-empty">No results.</td></tr>';
+      }
+
+      function init() {
+        var filterEl = document.getElementById('activity-filter');
+        var searchEl = document.getElementById('activity-search');
+        if (filterEl) filterEl.addEventListener('change', render);
+        if (searchEl) searchEl.addEventListener('input', render);
+        render();
       }
 
       if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

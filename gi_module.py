@@ -1187,54 +1187,6 @@ class GIModule:
     
     <div class="main-content">
         <div class="container">
-            <a href="/" class="back-link">
-                <i data-lucide="arrow-left"></i>
-                Back to Home
-            </a>
-
-            <div class="app-shell-intro">
-                <p class="app-tagline">
-                    A <strong>Geographical Indication (GI)</strong> helps buyers recognize coffee tied to your region’s climate, soil, and farming traditions.
-                    Use this portal to submit structured farm data so reviewers can evaluate uniqueness, consistency, and traceability—key criteria in GI programs worldwide.
-                </p>
-                <div class="process-rail" aria-label="Registration step">
-                    <div class="process-step">
-                        <div class="process-step-num"><i data-lucide="user-round"></i></div>
-                        <h3>Register farm</h3>
-                        <p>Official contact, location, and farm footprint in one profile.</p>
-                    </div>
-                </div>
-                <div class="detail-grid">
-                    <div class="detail-tile">
-                        <h4><i data-lucide="clipboard-list"></i> What to prepare</h4>
-                        <ul>
-                            <li>Valid email and PH mobile (09XXXXXXXXX)</li>
-                            <li>Batangas · Lipa City · Barangay, plus full farm address</li>
-                            <li>Optional farm size (hectares) for context</li>
-                        </ul>
-                    </div>
-                    <div class="detail-tile">
-                        <h4><i data-lucide="shield-check"></i> Data &amp; privacy</h4>
-                        <ul>
-                            <li>Information is stored for GI workflow review</li>
-                            <li>Use accurate details—errors may delay certification</li>
-                            <li>Keep your Farmer ID private; needed to apply and check status</li>
-                        </ul>
-                    </div>
-                    <div class="detail-tile">
-                        <h4><i data-lucide="clock"></i> Review timeline</h4>
-                        <ul>
-                            <li>Applications start as <strong>pending</strong></li>
-                            <li>Reviewers may add notes when status changes</li>
-                            <li>Check the Status tab anytime with your Farmer ID</li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="callout-info">
-                    <strong>Tip:</strong> Complete every required field. For “Farm location details,” describe landmarks, elevation context, and barangay-level specificity—stronger applications reference soil, microclimate, and post-harvest steps.
-                </div>
-            </div>
-            
             <div class="tabs" role="tablist">
                 <button type="button" class="tab active" onclick="showTab('register', this)" role="tab" aria-selected="true">
                     <i data-lucide="user-plus"></i>

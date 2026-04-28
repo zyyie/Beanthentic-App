@@ -134,33 +134,6 @@
           </div>
         </section>
 
-        <nav class="account-portfolio-quick" aria-label="Shortcuts">
-          <a href="index.php#home" class="account-portfolio-tile">
-            <span class="account-portfolio-tile-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-            </span>
-            <span class="account-portfolio-tile-label">Home</span>
-          </a>
-          <a href="http://10.0.2.2:5000/gi" data-beanthentic-flask="/gi" class="account-portfolio-tile">
-            <span class="account-portfolio-tile-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
-            </span>
-            <span class="account-portfolio-tile-label">Register</span>
-          </a>
-          <a href="http://10.0.2.2:5000/maps" data-beanthentic-flask="/maps" class="account-portfolio-tile">
-            <span class="account-portfolio-tile-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/></svg>
-            </span>
-            <span class="account-portfolio-tile-label">Map</span>
-          </a>
-          <a href="index.php#about-mission-vision" class="account-portfolio-tile">
-            <span class="account-portfolio-tile-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><circle cx="12" cy="8" r="1" fill="currentColor" stroke="none"/></svg>
-            </span>
-            <span class="account-portfolio-tile-label">About</span>
-          </a>
-        </nav>
-
         <div class="account-portfolio-actions">
           <button type="button" id="account-page-sign-out" class="btn-primary account-portfolio-signout">Sign out</button>
           <a href="index.php#home" class="account-portfolio-back-link">← Back to home</a>
@@ -273,6 +246,20 @@
   </script>
   <script>
     (function () {
+      var USER_NAME_MAP_KEY = 'beanthentic_user_name_map';
+
+      function getKnownUserName(email) {
+        var cleanEmail = String(email || '').trim().toLowerCase();
+        if (!cleanEmail) return '';
+        try {
+          var raw = localStorage.getItem(USER_NAME_MAP_KEY) || sessionStorage.getItem(USER_NAME_MAP_KEY);
+          var map = raw ? JSON.parse(raw) : {};
+          return map && typeof map[cleanEmail] === 'string' ? String(map[cleanEmail]).trim() : '';
+        } catch (_err) {
+          return '';
+        }
+      }
+
       function getUser() {
         function parseUser(raw) {
           if (!raw) return null;
@@ -285,11 +272,15 @@
         try {
           var localUser = parseUser(localStorage.getItem('beanthentic_user'));
           if (localUser) {
+            var localName = getKnownUserName(localUser.email);
+            if (localName) localUser.name = localName;
             try { sessionStorage.setItem('beanthentic_user', JSON.stringify(localUser)); } catch (_err2) {}
             return localUser;
           }
           var sessionUser = parseUser(sessionStorage.getItem('beanthentic_user'));
           if (sessionUser) {
+            var sessionName = getKnownUserName(sessionUser.email);
+            if (sessionName) sessionUser.name = sessionName;
             try { localStorage.setItem('beanthentic_user', JSON.stringify(sessionUser)); } catch (_err3) {}
             return sessionUser;
           }
@@ -329,6 +320,18 @@
           return '—';
         }
       }
+      function formatDisplayName(u) {
+        if (!u) return 'Member';
+        var rawName = (u.name && String(u.name).trim()) ? String(u.name).trim() : '';
+        if (!rawName) return (String(u.email).split('@')[0] || 'Member');
+        var parts = rawName.split(/\s+/).filter(Boolean);
+        if (parts.length >= 2) {
+          var firstName = parts[0];
+          var lastName = parts[parts.length - 1];
+          return lastName + ', ' + firstName;
+        }
+        return rawName;
+      }
       function renderProfile() {
         var u = getUser();
         var root = document.getElementById('account-portfolio-root');
@@ -337,11 +340,12 @@
           root.hidden = true;
           return;
         }
-        var name = (u.name && String(u.name).trim()) ? String(u.name).trim() : (String(u.email).split('@')[0] || 'Member');
-        var first = name.split(/\s+/)[0] || name;
+        var rawName = (u.name && String(u.name).trim()) ? String(u.name).trim() : (String(u.email).split('@')[0] || 'Member');
+        var name = formatDisplayName(u);
+        var first = rawName.split(/\s+/)[0] || rawName;
         var email = String(u.email || '');
         var ini = document.getElementById('account-avatar-initials');
-        if (ini) ini.textContent = initialsFromName(name);
+        if (ini) ini.textContent = initialsFromName(rawName);
         var elName = document.getElementById('account-display-name');
         if (elName) elName.textContent = name;
         var elEmail = document.getElementById('account-display-email');

@@ -517,9 +517,8 @@ class GIModule:
             max-width: 52rem;
         }
         .process-rail {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 0.75rem;
+            display: flex;
+            justify-content: center;
             margin-bottom: 1.5rem;
         }
         .process-step {
@@ -529,6 +528,7 @@ class GIModule:
             padding: 1rem 0.85rem;
             text-align: center;
             box-shadow: 0 4px 14px rgba(17, 24, 39, 0.06);
+            width: min(100%, 470px);
         }
         .process-step-num {
             display: inline-flex;
@@ -542,6 +542,10 @@ class GIModule:
             font-size: 0.8rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
+        }
+        .process-step-num svg {
+            width: 14px;
+            height: 14px;
         }
         .process-step h3 {
             font-size: 0.88rem;
@@ -879,6 +883,23 @@ class GIModule:
         .btn:active {
             transform: translateY(0);
         }
+        .btn.is-loading {
+            cursor: wait;
+            pointer-events: none;
+            transform: none;
+            opacity: 0.95;
+        }
+        .btn-spinner {
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.35);
+            border-top-color: #ffffff;
+            border-radius: 999px;
+            animation: gi-btn-spin 0.75s linear infinite;
+        }
+        @keyframes gi-btn-spin {
+            to { transform: rotate(360deg); }
+        }
         
         .btn-secondary {
             background: #6b7280;
@@ -1143,8 +1164,7 @@ class GIModule:
                 gap: 0.75rem;
             }
             .process-rail {
-                grid-template-columns: 1fr;
-                gap: 0.65rem;
+                justify-content: center;
             }
             .detail-grid {
                 grid-template-columns: 1fr;
@@ -1179,7 +1199,7 @@ class GIModule:
                 </p>
                 <div class="process-rail" aria-label="Registration step">
                     <div class="process-step">
-                        <div class="process-step-num">1</div>
+                        <div class="process-step-num"><i data-lucide="user-round"></i></div>
                         <h3>Register farm</h3>
                         <p>Official contact, location, and farm footprint in one profile.</p>
                     </div>
@@ -1223,6 +1243,17 @@ class GIModule:
             </div>
             
             <div id="register" class="tab-content active">
+                <div id="giRegisterSuccess" class="card" style="display:none; margin:0 0 14px; border:1px solid rgba(34,197,94,0.35);">
+                    <div class="card-header" style="padding:14px 16px;">
+                        <div class="card-icon" style="background:rgba(34,197,94,0.12); color:#166534;">
+                            <i data-lucide="check-circle"></i>
+                        </div>
+                        <div>
+                            <h2 class="card-title" style="margin:0;">Successful</h2>
+                            <p class="card-subtitle" style="margin:2px 0 0;">Data sent successfully.</p>
+                        </div>
+                    </div>
+                </div>
                 <div class="card">
                     <div class="card-header">
                         <div class="card-icon">
@@ -1234,30 +1265,18 @@ class GIModule:
                         </div>
                     </div>
                     
-                    <div id="giRegisterSuccess" class="card" style="display:none; margin:0 0 14px; border:1px solid rgba(34,197,94,0.35); box-shadow:none;">
-                        <div class="card-header" style="padding:14px 16px;">
-                            <div class="card-icon" style="background:rgba(34,197,94,0.12); color:#166534;">
-                                <i data-lucide="check-circle"></i>
-                            </div>
-                            <div>
-                                <h2 class="card-title" style="margin:0;">Successful</h2>
-                                <p class="card-subtitle" style="margin:2px 0 0;">Data sent successfully.</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <form id="farmerForm" novalidate>
+                    <form id="farmerForm" novalidate autocomplete="off">
                         <div class="form-grid">
                             <div class="form-group">
                                 <label for="farmerName">Full Name <span class="required">*</span></label>
-                                <input type="text" id="farmerName" name="name" required minlength="3" maxlength="120" autocomplete="name" placeholder="Your full legal name (at least 3 letters)">
+                                <input type="text" id="farmerName" name="name" required minlength="3" maxlength="120" autocomplete="off" placeholder="Your full legal name (at least 3 letters)">
                                 <span class="field-error" data-error-for="name" role="alert"></span>
                             </div>
                             
                             <div class="form-group">
                                 <label for="farmerEmail">Email Address <span class="required">*</span></label>
                                 <div style="display:flex; gap:8px; align-items:center;">
-                                    <input type="email" id="farmerEmail" name="email" required maxlength="254" autocomplete="email" placeholder="your.email@example.com" style="flex:1 1 auto;">
+                                    <input type="email" id="farmerEmail" name="email" required maxlength="254" autocomplete="off" placeholder="your.email@example.com" style="flex:1 1 auto;">
                                     <button type="button" id="editFarmerEmailBtn" data-edit-target="farmerEmail" class="btn" style="padding:0.5rem 0.85rem; min-height:40px; display:none;">
                                         <i data-lucide="pencil"></i>
                                         Edit
@@ -1268,7 +1287,7 @@ class GIModule:
                             
                             <div class="form-group">
                                 <label for="farmerPhone">Mobile number <span class="required">*</span></label>
-                                <input type="tel" id="farmerPhone" name="phone" required maxlength="13" inputmode="numeric" placeholder="09XXXXXXXXX" pattern="[0-9+]*" autocomplete="tel">
+                                <input type="tel" id="farmerPhone" name="phone" required maxlength="13" inputmode="numeric" placeholder="09XXXXXXXXX" pattern="[0-9+]*" autocomplete="off">
                                 <div class="form-help">Required: Philippine mobile only (11 digits starting with 09).</div>
                                 <span class="field-error" data-error-for="phone" role="alert"></span>
                             </div>
@@ -1325,12 +1344,12 @@ class GIModule:
                             <div class="form-grid">
                                 <div class="form-group">
                                     <label for="farmHouse">House No. / Street <span class="required">*</span></label>
-                                    <input type="text" id="farmHouse" name="farm_house" required minlength="4" maxlength="180" placeholder="House number, street name, sitio/purok">
+                                    <input type="text" id="farmHouse" name="farm_house" required minlength="4" maxlength="180" autocomplete="off" placeholder="House number, street name, sitio/purok">
                                     <span class="field-error" data-error-for="farm_house" role="alert"></span>
                                 </div>
                                 <div class="form-group">
                                     <label for="farmLandmark">Landmark <span class="required">*</span></label>
-                                    <input type="text" id="farmLandmark" name="farm_landmark" required minlength="4" maxlength="220" placeholder="Nearest landmark (e.g., school, church, junction)">
+                                    <input type="text" id="farmLandmark" name="farm_landmark" required minlength="4" maxlength="220" autocomplete="off" placeholder="Nearest landmark (e.g., school, church, junction)">
                                     <span class="field-error" data-error-for="farm_landmark" role="alert"></span>
                                 </div>
                             </div>
@@ -1622,6 +1641,39 @@ class GIModule:
         const GI_REG_OK = 'gi_registration_ok';
         const GI_FARMER_ID = 'gi_farmer_id';
 
+        function setRegisterButtonLoading(btn, isLoading) {
+            if (!btn) return;
+            if (isLoading) {
+                if (btn.dataset.loading === '1') return;
+                btn.dataset.loading = '1';
+                btn.dataset.loadingSince = String(Date.now());
+                btn.dataset.originalHtml = btn.innerHTML;
+                btn.disabled = true;
+                btn.classList.add('is-loading');
+                btn.setAttribute('aria-busy', 'true');
+                btn.innerHTML = '<span class="btn-spinner" aria-hidden="true"></span><span>Registering...</span>';
+                return;
+            }
+            if (btn.dataset.loading !== '1') return;
+            btn.dataset.loading = '0';
+            btn.disabled = false;
+            btn.classList.remove('is-loading');
+            btn.setAttribute('aria-busy', 'false');
+            if (btn.dataset.originalHtml) btn.innerHTML = btn.dataset.originalHtml;
+            refreshIcons(btn);
+        }
+
+        function endRegisterButtonLoading(btn) {
+            if (!btn) return;
+            const started = parseInt(btn.dataset.loadingSince || '0', 10);
+            const elapsed = Math.max(0, Date.now() - (isNaN(started) ? 0 : started));
+            const minVisibleMs = 700;
+            const delay = Math.max(0, minVisibleMs - elapsed);
+            setTimeout(function () {
+                setRegisterButtonLoading(btn, false);
+            }, delay);
+        }
+
         function hasCompletedRegistration() {
             return sessionStorage.getItem(GI_REG_OK) === '1';
         }
@@ -1669,6 +1721,7 @@ class GIModule:
         document.getElementById('farmerForm').addEventListener('submit', function(e) {
             e.preventDefault();
             clearErrors(this);
+            const submitBtn = this.querySelector('button[type="submit"]');
             const fd = new FormData(this);
             const data = Object.fromEntries(fd.entries());
             const ve = validateFarmerClient(data);
@@ -1717,6 +1770,7 @@ class GIModule:
                 });
             };
             wireFieldEditButtons();
+            setRegisterButtonLoading(submitBtn, true);
 
             fetch('/api/gi/farmers', {
                 method: 'POST',
@@ -1729,6 +1783,7 @@ class GIModule:
                     farmerId = body.farmer_id;
                     sessionStorage.setItem(GI_REG_OK, '1');
                     sessionStorage.setItem(GI_FARMER_ID, String(farmerId));
+                    try { localStorage.setItem('beanthentic_farmer_id', String(farmerId)); } catch (_e) {}
                     showAlert('Registration successful! Farmer ID: ' + farmerId + '.', 'success');
                     try {
                         const box = document.getElementById('giRegisterSuccess');
@@ -1739,6 +1794,9 @@ class GIModule:
                             if (editEmailBtn) editEmailBtn.style.display = '';
                             if (editSizeBtn) editSizeBtn.style.display = '';
                             refreshIcons();
+                            requestAnimationFrame(function () {
+                                box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            });
                         }
                     } catch (_e) {}
                     // Keep the user's submitted values visible in textboxes,
@@ -1749,8 +1807,12 @@ class GIModule:
                     if (body.errors) applyServerErrors(body.errors);
                     else showAlert(body.error || 'Registration failed.', 'error');
                 }
+                endRegisterButtonLoading(submitBtn);
             })
-            .catch(err => showAlert('Registration failed: ' + err.message, 'error'));
+            .catch(err => {
+                showAlert('Registration failed: ' + err.message, 'error');
+                endRegisterButtonLoading(submitBtn);
+            });
         });
 
         document.getElementById('applicationForm').addEventListener('submit', function(e) {
@@ -1913,7 +1975,7 @@ class GIModule:
                 </span>
                 <span class="app-bottom-nav-label">Home</span>
             </a>
-            <a href="/#about-mission-vision" class="app-bottom-nav-link">
+            <a href="/about.php" class="app-bottom-nav-link">
                 <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
                     <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
                 </span>
@@ -1935,10 +1997,79 @@ class GIModule:
                 <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
                     <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                 </span>
-                <span class="app-bottom-nav-label">Sign in</span>
+                <span class="app-bottom-nav-label">Account</span>
             </a>
         </div>
     </nav>
+    <script>
+        (function () {
+            function syncBottomNavAccount() {
+                var a = document.getElementById('nav-signin');
+                if (!a) return;
+                var lbl = a.querySelector('.app-bottom-nav-label');
+                function parseUser(raw) {
+                    if (!raw) return null;
+                    try {
+                        var u = JSON.parse(raw);
+                        if (u && u.email) return u;
+                    } catch (_err) {}
+                    return null;
+                }
+                var u = null;
+                try {
+                    u = parseUser(localStorage.getItem('beanthentic_user'));
+                    if (u) {
+                        try { sessionStorage.setItem('beanthentic_user', JSON.stringify(u)); } catch (_err2) {}
+                    } else {
+                        u = parseUser(sessionStorage.getItem('beanthentic_user'));
+                        if (u) {
+                            try { localStorage.setItem('beanthentic_user', JSON.stringify(u)); } catch (_err3) {}
+                        }
+                    }
+                } catch (e) {}
+                if (u && u.email) {
+                    a.setAttribute('href', '/account.php');
+                    if (lbl) lbl.textContent = 'Account';
+                } else {
+                    a.setAttribute('href', '/login.php');
+                    if (lbl) lbl.textContent = 'Sign In';
+                }
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', syncBottomNavAccount);
+            } else {
+                syncBottomNavAccount();
+            }
+
+            window.addEventListener('storage', function (e) {
+                if (!e || e.key === 'beanthentic_user') syncBottomNavAccount();
+            });
+            window.addEventListener('beanthentic-auth-changed', syncBottomNavAccount);
+
+            document.addEventListener('DOMContentLoaded', function () {
+                var a = document.getElementById('nav-signin');
+                if (!a) return;
+                a.addEventListener('click', function (e) {
+                    function parseUser(raw) {
+                        if (!raw) return null;
+                        try {
+                            var u = JSON.parse(raw);
+                            if (u && u.email) return u;
+                        } catch (_err) {}
+                        return null;
+                    }
+                    var u = null;
+                    try {
+                        u = parseUser(localStorage.getItem('beanthentic_user')) || parseUser(sessionStorage.getItem('beanthentic_user'));
+                    } catch (err) {}
+                    e.preventDefault();
+                    if (u && u.email) window.location.assign('/account.php');
+                    else window.location.assign('/login.php');
+                }, true);
+            });
+        })();
+    </script>
 </body>
 </html>
         '''

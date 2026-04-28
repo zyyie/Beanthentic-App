@@ -4,6 +4,32 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#25671E" />
+  <script>
+    // Guest-only page guard: if already signed in, never stay on signup page.
+    (function () {
+      function parseUser(raw) {
+        if (!raw) return null;
+        try {
+          var u = JSON.parse(raw);
+          if (u && u.email) return u;
+        } catch (_err) {}
+        return null;
+      }
+      try {
+        var localUser = parseUser(localStorage.getItem('beanthentic_user'));
+        var sessionUser = parseUser(sessionStorage.getItem('beanthentic_user'));
+        var user = localUser || sessionUser;
+        if (!user) return;
+        try {
+          localStorage.setItem('beanthentic_user', JSON.stringify(user));
+          sessionStorage.setItem('beanthentic_user', JSON.stringify(user));
+        } catch (_syncErr) {}
+        window.location.replace('account.php');
+      } catch (_e) {
+        /* stay on page if storage is unavailable */
+      }
+    })();
+  </script>
   <title>Sign up · Beanthentic Coffee</title>
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">
@@ -103,13 +129,6 @@
     </div>
   </main>
 
-  <footer>
-    <div class="footer-inner">
-      <span><span class="footer-dot"></span> Beanthentic &copy; <span id="year"><?php echo date('Y'); ?></span> · Brewed with care.</span>
-      <span>Serving honest coffee, one cup at a time.</span>
-    </div>
-  </footer>
-
   <nav class="app-bottom-nav" aria-label="Quick navigation">
     <div class="app-bottom-nav-inner">
       <a href="index.php#home" id="nav-home" class="app-bottom-nav-link">
@@ -128,30 +147,16 @@
           aria-controls="bottom-nav-about-menu"
         >
           <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
-            <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><circle cx="12" cy="8" r="1" fill="currentColor" stroke="none"/></svg>
           </span>
           <span class="app-bottom-nav-label">About</span>
         </button>
         <div id="bottom-nav-about-menu" class="app-bottom-nav-about-menu" role="menu" hidden aria-label="About sections">
           <div class="app-bottom-nav-about-group" role="none">
-            <button
-              type="button"
-              id="bottom-nav-history-toggle"
-              class="app-bottom-nav-about-item app-bottom-nav-about-history-btn"
-              aria-expanded="false"
-              aria-controls="bottom-nav-history-submenu"
-            >
-              <span>History</span>
-              <span class="app-bottom-nav-history-chevron" aria-hidden="true"></span>
-            </button>
-            <div id="bottom-nav-history-submenu" class="app-bottom-nav-history-submenu" role="group" aria-label="History — varieties" hidden>
-              <a href="index.php#about-liberica" class="app-bottom-nav-about-item app-bottom-nav-about-item--nested" role="menuitem">Liberica</a>
-              <a href="index.php#about-robusta" class="app-bottom-nav-about-item app-bottom-nav-about-item--nested" role="menuitem">Robusta</a>
-              <a href="index.php#about-excelsa" class="app-bottom-nav-about-item app-bottom-nav-about-item--nested" role="menuitem">Excelsa</a>
-            </div>
+            <a href="about.php#about-history" class="app-bottom-nav-about-item" role="menuitem" data-no-loader="true">History</a>
           </div>
-          <a href="index.php#about-mission-vision" class="app-bottom-nav-about-item" role="menuitem">Mission and Vision</a>
-          <a href="index.php#about-how-to-get-there" class="app-bottom-nav-about-item" role="menuitem">How to Get There</a>
+          <a href="about.php#about-vision" class="app-bottom-nav-about-item" role="menuitem" data-no-loader="true">Vision</a>
+          <a href="about.php#about-mission" class="app-bottom-nav-about-item" role="menuitem" data-no-loader="true">Mission</a>
         </div>
       </div>
       <a href="http://10.0.2.2:5000/gi" data-beanthentic-flask="/gi" class="app-bottom-nav-link app-bottom-nav-link--featured">
@@ -240,11 +245,13 @@
             return;
           }
           try {
-            localStorage.setItem('beanthentic_user', JSON.stringify({
+            var user = {
               email: email,
               name: name,
               signedInAt: Date.now()
-            }));
+            };
+            localStorage.setItem('beanthentic_user', JSON.stringify(user));
+            sessionStorage.setItem('beanthentic_user', JSON.stringify(user));
           } catch (err) {
             /* ignore */
           }

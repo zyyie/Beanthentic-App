@@ -7,9 +7,27 @@
   <script>
     // Auth gate: redirect guests before homepage renders (prevents flicker).
     (function () {
+      function parseUser(raw) {
+        if (!raw) return null;
+        try {
+          var u = JSON.parse(raw);
+          return (u && u.email) ? u : null;
+        } catch (_err) {
+          return null;
+        }
+      }
       try {
-        var u = JSON.parse(localStorage.getItem('beanthentic_user') || 'null');
-        if (!(u && u.email)) {
+        var localUser = parseUser(localStorage.getItem('beanthentic_user'));
+        if (localUser) {
+          try { sessionStorage.setItem('beanthentic_user', JSON.stringify(localUser)); } catch (_err2) {}
+          return;
+        }
+        var sessionUser = parseUser(sessionStorage.getItem('beanthentic_user'));
+        if (sessionUser) {
+          try { localStorage.setItem('beanthentic_user', JSON.stringify(sessionUser)); } catch (_err3) {}
+          return;
+        }
+        if (!sessionUser) {
           window.location.replace('login.php');
         }
       } catch (e) {
@@ -359,13 +377,6 @@
     </div>
   </main>
 
-  <footer>
-    <div class="footer-inner">
-      <span><span class="footer-dot"></span> Beanthentic &copy; <span id="year"><?php echo date('Y'); ?></span> · Brewed with care.</span>
-      <span>Serving honest coffee, one cup at a time.</span>
-    </div>
-  </footer>
-
   <nav class="app-bottom-nav" aria-label="Quick navigation">
     <div class="app-bottom-nav-inner">
       <a href="#home" class="app-bottom-nav-link is-active" aria-current="page">
@@ -375,20 +386,18 @@
         <span class="app-bottom-nav-label">Home</span>
       </a>
       <div class="app-bottom-nav-about">
-        <button
-          type="button"
+        <a
+          href="about.php#about-history"
+          data-no-loader="true"
           class="app-bottom-nav-link app-bottom-nav-about-btn"
           id="bottom-nav-about-toggle"
-          aria-expanded="false"
-          aria-haspopup="true"
-          aria-controls="bottom-nav-about-menu"
         >
           <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
-            <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><circle cx="12" cy="8" r="1" fill="currentColor" stroke="none"/></svg>
           </span>
           <span class="app-bottom-nav-label">About</span>
-        </button>
-        <div id="bottom-nav-about-menu" class="app-bottom-nav-about-menu" role="menu" hidden aria-label="About sections">
+        </a>
+        <div id="bottom-nav-about-menu-disabled" class="app-bottom-nav-about-menu" role="menu" hidden aria-label="About sections">
           <div class="app-bottom-nav-about-group" role="none">
             <button
               type="button"
@@ -484,7 +493,7 @@
         } catch (e2) {
           a.setAttribute('href', 'login.php');
         }
-        if (lbl) lbl.textContent = 'Account';
+        if (lbl) lbl.textContent = 'Sign In';
       }
       if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', syncBottomNavSignIn);
       else syncBottomNavSignIn();
@@ -556,34 +565,7 @@
   </script>
 
   <script>
-    (function () {
-      function syncAppBottomNav() {
-        var bar = document.querySelector('.app-bottom-nav');
-        if (!bar) return;
-        var hash = location.hash || '#home';
-        var aboutActive = /^#about/.test(hash);
-        bar.querySelectorAll('a[href^="#"]').forEach(function (a) {
-          a.classList.remove('is-active');
-          a.removeAttribute('aria-current');
-        });
-        var aboutBtn = bar.querySelector('.app-bottom-nav-about-btn');
-        if (aboutBtn) {
-          aboutBtn.classList.remove('is-active');
-          aboutBtn.removeAttribute('aria-current');
-        }
-        if (aboutActive) {
-          if (aboutBtn) {
-            aboutBtn.classList.add('is-active');
-            aboutBtn.setAttribute('aria-current', 'page');
-          }
-        } else {
-          var hm = bar.querySelector('a[href="#home"]');
-          if (hm) { hm.classList.add('is-active'); hm.setAttribute('aria-current', 'page'); }
-        }
-      }
-      syncAppBottomNav();
-      window.addEventListener('hashchange', syncAppBottomNav);
-    })();
+    // Bottom nav active state is handled globally in js/ui.js (syncAppBottomNavActive).
   </script>
 </body>
 </html>

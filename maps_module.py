@@ -1524,7 +1524,7 @@ class MapsModule:
                 </span>
                 <span class="app-bottom-nav-label">Home</span>
             </a>
-            <a href="/#about-mission-vision" class="app-bottom-nav-link">
+            <a href="/about.php" class="app-bottom-nav-link">
                 <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
                     <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
                 </span>
@@ -1534,7 +1534,7 @@ class MapsModule:
                 <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
                     <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
                 </span>
-                <span class="app-bottom-nav-label">GI Portal</span>
+                <span class="app-bottom-nav-label">Register</span>
             </a>
             <a href="/maps" class="app-bottom-nav-link is-active" aria-current="page">
                 <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
@@ -1550,6 +1550,75 @@ class MapsModule:
             </a>
         </div>
     </nav>
+    <script>
+        (function () {
+            function syncBottomNavAccount() {
+                var a = document.getElementById('nav-signin');
+                if (!a) return;
+                var lbl = a.querySelector('.app-bottom-nav-label');
+                function parseUser(raw) {
+                    if (!raw) return null;
+                    try {
+                        var u = JSON.parse(raw);
+                        if (u && u.email) return u;
+                    } catch (_err) {}
+                    return null;
+                }
+                var u = null;
+                try {
+                    u = parseUser(localStorage.getItem('beanthentic_user'));
+                    if (u) {
+                        try { sessionStorage.setItem('beanthentic_user', JSON.stringify(u)); } catch (_err2) {}
+                    } else {
+                        u = parseUser(sessionStorage.getItem('beanthentic_user'));
+                        if (u) {
+                            try { localStorage.setItem('beanthentic_user', JSON.stringify(u)); } catch (_err3) {}
+                        }
+                    }
+                } catch (e) {}
+                if (u && u.email) {
+                    a.setAttribute('href', '/account.php');
+                    if (lbl) lbl.textContent = 'Account';
+                } else {
+                    a.setAttribute('href', '/login.php');
+                    if (lbl) lbl.textContent = 'Sign In';
+                }
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', syncBottomNavAccount);
+            } else {
+                syncBottomNavAccount();
+            }
+
+            window.addEventListener('storage', function (e) {
+                if (!e || e.key === 'beanthentic_user') syncBottomNavAccount();
+            });
+            window.addEventListener('beanthentic-auth-changed', syncBottomNavAccount);
+
+            document.addEventListener('DOMContentLoaded', function () {
+                var a = document.getElementById('nav-signin');
+                if (!a) return;
+                a.addEventListener('click', function (e) {
+                    function parseUser(raw) {
+                        if (!raw) return null;
+                        try {
+                            var u = JSON.parse(raw);
+                            if (u && u.email) return u;
+                        } catch (_err) {}
+                        return null;
+                    }
+                    var u = null;
+                    try {
+                        u = parseUser(localStorage.getItem('beanthentic_user')) || parseUser(sessionStorage.getItem('beanthentic_user'));
+                    } catch (err) {}
+                    e.preventDefault();
+                    if (u && u.email) window.location.assign('/account.php');
+                    else window.location.assign('/login.php');
+                }, true);
+            });
+        })();
+    </script>
 </body>
 </html>
         '''

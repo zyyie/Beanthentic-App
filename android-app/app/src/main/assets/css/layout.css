@@ -69,10 +69,12 @@ header {
     transform: translateY(10px);
     opacity: 0;
   }
+
   60% {
     transform: translateY(-2px);
     opacity: 1;
   }
+
   100% {
     transform: translateY(0);
     opacity: 1;
@@ -257,7 +259,7 @@ body.nav-menu-open {
     width: 100%;
   }
 
-  .nav-links > a {
+  .nav-links>a {
     padding: 0.55rem 0.4rem;
     border-radius: 10px;
   }
@@ -614,17 +616,19 @@ footer {
   gap: 5px;
   padding: 0;
   flex-shrink: 0;
-  color: var(--navbar-fg);
+  color: #ffffff;
   -webkit-tap-highlight-color: transparent;
+  box-shadow: none;
   transition: background 0.18s ease, transform 0.12s ease;
 }
 
 .header-burger-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.10);
+  box-shadow: none;
 }
 
 .header-burger-btn:active {
-  background: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.16);
   transform: scale(0.97);
 }
 
@@ -633,7 +637,7 @@ footer {
 }
 
 .header-burger-btn:focus-visible {
-  outline: 2px solid rgba(253, 250, 246, 0.95);
+  outline: 2px solid rgba(255, 255, 255, 0.92);
   outline-offset: 2px;
 }
 
@@ -668,8 +672,13 @@ body.header-drawer-open .header-burger-btn:focus-visible,
   display: block;
   width: 20px;
   height: 2px;
-  background: var(--navbar-fg);
+  background: currentColor;
   border-radius: 999px;
+}
+
+body.header-drawer-open .header-burger-btn,
+.header-burger-btn[aria-expanded="true"] {
+  color: var(--navbar-fg);
 }
 
 .header-account-snippet {
@@ -1201,8 +1210,8 @@ body.has-app-bottom-nav {
 }
 
 /* Keep Sign in / Map from shrinking too much on narrow screens */
-.app-bottom-nav-inner > a:nth-child(4),
-.app-bottom-nav-inner > a:nth-child(5) {
+.app-bottom-nav-inner>a:nth-child(4),
+.app-bottom-nav-inner>a:nth-child(5) {
   min-width: 3.25rem;
 }
 
@@ -1275,7 +1284,8 @@ body.has-app-bottom-nav {
 /* Center “GI Portal” tab — always emphasized (app-style) */
 .app-bottom-nav-link--featured {
   position: relative;
-  z-index: 2; /* below other tabs so Home / About / Map / Sign in stay visible on overlap */
+  z-index: 2;
+  /* below other tabs so Home / About / Map / Sign in stay visible on overlap */
   align-self: flex-end;
   max-width: 28%;
   margin-bottom: 0.15rem;

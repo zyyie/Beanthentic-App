@@ -145,7 +145,7 @@
             <span class="account-portfolio-tile-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
             </span>
-            <span class="account-portfolio-tile-label">GI Portal</span>
+            <span class="account-portfolio-tile-label">Register</span>
           </a>
           <a href="http://10.0.2.2:5000/maps" data-beanthentic-flask="/maps" class="account-portfolio-tile">
             <span class="account-portfolio-tile-icon" aria-hidden="true">
@@ -155,7 +155,7 @@
           </a>
           <a href="index.php#about-mission-vision" class="account-portfolio-tile">
             <span class="account-portfolio-tile-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><circle cx="12" cy="8" r="1" fill="currentColor" stroke="none"/></svg>
             </span>
             <span class="account-portfolio-tile-label">About</span>
           </a>
@@ -169,13 +169,6 @@
     </article>
   </main>
 
-  <footer>
-    <div class="footer-inner">
-      <span><span class="footer-dot"></span> Beanthentic &copy; <span id="year"><?php echo date('Y'); ?></span> · Brewed with care.</span>
-      <span>Serving honest coffee, one cup at a time.</span>
-    </div>
-  </footer>
-
   <nav class="app-bottom-nav" aria-label="Quick navigation">
     <div class="app-bottom-nav-inner">
       <a href="index.php#home" id="nav-home" class="app-bottom-nav-link">
@@ -184,47 +177,17 @@
         </span>
         <span class="app-bottom-nav-label">Home</span>
       </a>
-      <div class="app-bottom-nav-about">
-        <button
-          type="button"
-          class="app-bottom-nav-link app-bottom-nav-about-btn"
-          id="bottom-nav-about-toggle"
-          aria-expanded="false"
-          aria-haspopup="true"
-          aria-controls="bottom-nav-about-menu"
-        >
-          <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
-            <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-          </span>
-          <span class="app-bottom-nav-label">About</span>
-        </button>
-        <div id="bottom-nav-about-menu" class="app-bottom-nav-about-menu" role="menu" hidden aria-label="About sections">
-          <div class="app-bottom-nav-about-group" role="none">
-            <button
-              type="button"
-              id="bottom-nav-history-toggle"
-              class="app-bottom-nav-about-item app-bottom-nav-about-history-btn"
-              aria-expanded="false"
-              aria-controls="bottom-nav-history-submenu"
-            >
-              <span>History</span>
-              <span class="app-bottom-nav-history-chevron" aria-hidden="true"></span>
-            </button>
-            <div id="bottom-nav-history-submenu" class="app-bottom-nav-history-submenu" role="group" aria-label="History — varieties" hidden>
-              <a href="index.php#about-liberica" class="app-bottom-nav-about-item app-bottom-nav-about-item--nested" role="menuitem">Liberica</a>
-              <a href="index.php#about-robusta" class="app-bottom-nav-about-item app-bottom-nav-about-item--nested" role="menuitem">Robusta</a>
-              <a href="index.php#about-excelsa" class="app-bottom-nav-about-item app-bottom-nav-about-item--nested" role="menuitem">Excelsa</a>
-            </div>
-          </div>
-          <a href="index.php#about-mission-vision" class="app-bottom-nav-about-item" role="menuitem">Mission and Vision</a>
-          <a href="index.php#about-how-to-get-there" class="app-bottom-nav-about-item" role="menuitem">How to Get There</a>
-        </div>
-      </div>
+      <a href="about.php" class="app-bottom-nav-link app-bottom-nav-about-btn">
+        <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
+          <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><circle cx="12" cy="8" r="1" fill="currentColor" stroke="none"/></svg>
+        </span>
+        <span class="app-bottom-nav-label">About</span>
+      </a>
       <a href="http://10.0.2.2:5000/gi" data-beanthentic-flask="/gi" class="app-bottom-nav-link app-bottom-nav-link--featured">
         <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
           <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
         </span>
-        <span class="app-bottom-nav-label">GI Portal</span>
+        <span class="app-bottom-nav-label">Register</span>
       </a>
       <a href="http://10.0.2.2:5000/maps" data-beanthentic-flask="/maps" class="app-bottom-nav-link">
         <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
@@ -306,32 +269,30 @@
     })();
   </script>
   <script>
-    (function () {
-      function syncAppBottomNav() {
-        var bar = document.querySelector('.app-bottom-nav');
-        if (!bar) return;
-        var onAccount = /account\.php/i.test(location.pathname);
-        bar.querySelectorAll('a').forEach(function (a) {
-          a.classList.remove('is-active');
-          a.removeAttribute('aria-current');
-        });
-        if (onAccount) {
-          var lk = document.getElementById('nav-signin');
-          if (lk) {
-            lk.classList.add('is-active');
-            lk.setAttribute('aria-current', 'page');
-          }
-        }
-      }
-      syncAppBottomNav();
-    })();
+    // Bottom nav active state is handled globally in js/ui.js (syncAppBottomNavActive).
   </script>
   <script>
     (function () {
       function getUser() {
+        function parseUser(raw) {
+          if (!raw) return null;
+          try {
+            var u = JSON.parse(raw);
+            if (u && u.email) return u;
+          } catch (_err) {}
+          return null;
+        }
         try {
-          var u = JSON.parse(localStorage.getItem('beanthentic_user') || 'null');
-          if (u && u.email) return u;
+          var localUser = parseUser(localStorage.getItem('beanthentic_user'));
+          if (localUser) {
+            try { sessionStorage.setItem('beanthentic_user', JSON.stringify(localUser)); } catch (_err2) {}
+            return localUser;
+          }
+          var sessionUser = parseUser(sessionStorage.getItem('beanthentic_user'));
+          if (sessionUser) {
+            try { localStorage.setItem('beanthentic_user', JSON.stringify(sessionUser)); } catch (_err3) {}
+            return sessionUser;
+          }
         } catch (e) {}
         return null;
       }
@@ -397,7 +358,7 @@
             ". You're part of the Beanthentic community—we connect you with traceable coffee, verified grower stories, and tools like the GI Portal and origin map.";
         }
 
-        // GI QR (points to /gi with prefilled user info)
+        // Profile QR (points to dedicated /profile.php page)
         (function renderGiQr() {
           var img = document.getElementById('account-profile-qr-img');
           var linkEl = document.getElementById('account-profile-qr-link');
@@ -425,14 +386,21 @@
           }
           if (!base) base = 'http://10.0.2.2:5000';
 
-          var giUrl;
+          var profileUrl;
+          var farmerId = '';
           try {
-            giUrl = new URL('gi', base.replace(/\/?$/, '/')).href;
+            farmerId = String(localStorage.getItem('beanthentic_farmer_id') || '').trim();
+          } catch (_e) {}
+          try {
+            profileUrl = new URL('profile.php', base.replace(/\/?$/, '/')).href;
           } catch (e2) {
-            giUrl = base.replace(/\/$/, '') + '/gi';
+            profileUrl = base.replace(/\/$/, '') + '/profile.php';
           }
 
-          var fullGiUrl = giUrl + '?name=' + encodeURIComponent(name) + '&email=' + encodeURIComponent(email);
+          var fullGiUrl = profileUrl
+            + '?farmer_id=' + encodeURIComponent(farmerId)
+            + '&name=' + encodeURIComponent(name)
+            + '&email=' + encodeURIComponent(email);
           // Use the exact QRServer template: ...?size=150x150&data=<PROFILE_URL>
           var qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + encodeURIComponent(fullGiUrl);
 
@@ -510,6 +478,7 @@
         btn.addEventListener('click', function () {
           try {
             localStorage.removeItem('beanthentic_user');
+            sessionStorage.removeItem('beanthentic_user');
           } catch (e) {}
           try {
             window.location.assign(new URL('index.php#home', location.href).href);

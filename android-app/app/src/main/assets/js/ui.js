@@ -11,15 +11,65 @@ function escapeHtml(str) {
 }
 
 function getBeanthenticUser() {
-  try {
-    const raw = localStorage.getItem(BEANTHENTIC_USER_KEY);
+  const parseUser = (raw) => {
     if (!raw) return null;
-    const u = JSON.parse(raw);
-    if (u && typeof u.email === 'string' && u.email) return u;
+    try {
+      const u = JSON.parse(raw);
+      if (u && typeof u.email === 'string' && u.email) return u;
+    } catch (e) {
+      /* ignore */
+    }
+    return null;
+  };
+
+  try {
+    const local = parseUser(localStorage.getItem(BEANTHENTIC_USER_KEY));
+    if (local) {
+      try {
+        sessionStorage.setItem(BEANTHENTIC_USER_KEY, JSON.stringify(local));
+      } catch (_err) {
+        /* ignore */
+      }
+      return local;
+    }
+    const session = parseUser(sessionStorage.getItem(BEANTHENTIC_USER_KEY));
+    if (session) {
+      try {
+        localStorage.setItem(BEANTHENTIC_USER_KEY, JSON.stringify(session));
+      } catch (_err2) {
+        /* ignore */
+      }
+      return session;
+    }
   } catch (e) {
     /* ignore */
   }
   return null;
+}
+
+function syncAuthNavigationLinks() {
+  const user = getBeanthenticUser();
+  const links = Array.from(document.querySelectorAll('a.app-bottom-nav-link--signin'));
+  if (links.length === 0) return;
+
+  links.forEach((link) => {
+    const label = link.querySelector('.app-bottom-nav-label');
+    if (user && user.email) {
+      try {
+        link.setAttribute('href', new URL('account.php', window.location.href).href);
+      } catch (_err) {
+        link.setAttribute('href', 'account.php');
+      }
+      if (label) label.textContent = 'Account';
+      return;
+    }
+    try {
+      link.setAttribute('href', new URL('login.php', window.location.href).href);
+    } catch (_err2) {
+      link.setAttribute('href', 'login.php');
+    }
+    if (label) label.textContent = 'Sign In';
+  });
 }
 
 function refreshHeaderAuthUI() {
@@ -59,6 +109,71 @@ function refreshHeaderAuthUI() {
   }
 
   window.dispatchEvent(new CustomEvent('beanthentic-auth-changed'));
+  syncAuthNavigationLinks();
+}
+
+function syncAppBottomNavActive() {
+  const bar = document.querySelector('.app-bottom-nav');
+  if (!bar) return;
+
+  const path = (location.pathname || '').toLowerCase();
+  const hash = (location.hash || '').toLowerCase();
+
+  const isIndex = /(^|\/)(index\.php)?$/.test(path) || path === '/' || path.endsWith('/index.php');
+  const isAboutPage =
+    path.endsWith('/about.php') ||
+    path.endsWith('/about') ||
+    path.endsWith('/mission-vision.php') ||
+    path.endsWith('/mission-vision') ||
+    path.endsWith('/how-to-get-there.php') ||
+    path.endsWith('/how-to-get-there');
+  const isAccount = path.endsWith('/account.php');
+  const isLogin = path.endsWith('/login.php') || path.endsWith('/signup.php');
+  const isMaps = path.includes('/maps');
+  const isGi = path.includes('/gi');
+
+  // Clear current active state
+  bar.querySelectorAll('.app-bottom-nav-link').forEach((a) => {
+    a.classList.remove('is-active');
+    a.removeAttribute('aria-current');
+  });
+
+  const setActive = (selectorOrEl) => {
+    const el = typeof selectorOrEl === 'string' ? bar.querySelector(selectorOrEl) : selectorOrEl;
+    if (!el) return;
+    el.classList.add('is-active');
+    el.setAttribute('aria-current', 'page');
+  };
+
+  // Decide active tab deterministically
+  if (isAccount || isLogin) {
+    setActive('#nav-signin');
+    return;
+  }
+  if (isAboutPage) {
+    // About button may be a link or a button depending on page
+    setActive('.app-bottom-nav-about-btn, a[href*="about.php"]');
+    return;
+  }
+  if (isMaps) {
+    setActive('a[data-beanthentic-flask="/maps"], a[href*="/maps"]');
+    return;
+  }
+  if (isGi) {
+    setActive('a[data-beanthentic-flask="/gi"], a[href*="/gi"]');
+    return;
+  }
+  if (isIndex) {
+    if (hash.startsWith('#about')) {
+      setActive('.app-bottom-nav-about-btn');
+    } else {
+      setActive('a[href="#home"], a[href$="index.php#home"], a[href$="/#home"]');
+    }
+    return;
+  }
+
+  // Fallback: default to Home if present
+  setActive('a[href="#home"], a[href$="index.php#home"], a[href$="/#home"]');
 }
 
 /** Keeps the brown variety pill in sync with the visible About panel. */
@@ -76,6 +191,23 @@ class UIController {
   }
 
   init() {
+    syncAuthNavigationLinks();
+    document.addEventListener(
+      'click',
+      (e) => {
+        const link = e.target && e.target.closest ? e.target.closest('a.app-bottom-nav-link--signin') : null;
+        if (!link) return;
+        const user = getBeanthenticUser();
+        if (user && user.email) return;
+        e.preventDefault();
+        try {
+          window.location.assign(new URL('login.php', window.location.href).href);
+        } catch (_err) {
+          window.location.assign('login.php');
+        }
+      },
+      true
+    );
     this.setupGlobalPageLoader();
     this.setupAnimations();
     this.setupInteractions();
@@ -92,6 +224,10 @@ class UIController {
     this.setupHeaderAccountShortcut();
     this.setupHeaderNavDrawer();
     this.loadYear();
+    syncAppBottomNavActive();
+    window.addEventListener('hashchange', syncAppBottomNavActive);
+    window.addEventListener('popstate', syncAppBottomNavActive);
+    window.addEventListener('beanthentic-auth-changed', syncAuthNavigationLinks);
   }
 
   setupHeaderAccountShortcut() {
@@ -256,6 +392,7 @@ class UIController {
       signOutBtn.addEventListener('click', () => {
         try {
           localStorage.removeItem(BEANTHENTIC_USER_KEY);
+          sessionStorage.removeItem(BEANTHENTIC_USER_KEY);
         } catch (err) {
           /* ignore */
         }
@@ -453,7 +590,7 @@ class UIController {
           );
         } else {
           const homeNav = document.querySelector('#nav-home[href]');
-          let url = 'index.php#about-history';
+          let url = 'about.php#about-history';
           if (homeNav) {
             const href = homeNav.getAttribute('href') || '';
             if (href.includes('#')) url = `${href.replace(/#.*$/, '')}#about-history`;
@@ -485,7 +622,8 @@ class UIController {
   setupHomeAboutViewSwitch() {
     const homeSection = document.getElementById('home');
     const aboutMissionSection = document.getElementById('about-mission-vision');
-    if (!homeSection || !aboutMissionSection) return;
+    if (!aboutMissionSection) return;
+    const hasHomeSection = !!homeSection;
 
     /**
      * History + Liberica/Robusta/Excelsa: walang homepage hero sa taas (parang hiwalay na page).
@@ -502,11 +640,13 @@ class UIController {
       const showHome = view === 'home';
       const hideHomeHero = !showHome && aboutPanelsWithoutHomeHero.has(aboutPanelId);
 
-      homeSection.hidden = !showHome && hideHomeHero;
-      homeSection.setAttribute(
-        'aria-hidden',
-        showHome ? 'false' : hideHomeHero ? 'true' : 'false'
-      );
+      if (hasHomeSection) {
+        homeSection.hidden = !showHome && hideHomeHero;
+        homeSection.setAttribute(
+          'aria-hidden',
+          showHome ? 'false' : hideHomeHero ? 'true' : 'false'
+        );
+      }
       aboutMissionSection.hidden = showHome;
       aboutMissionSection.setAttribute('aria-hidden', showHome ? 'true' : 'false');
       document.body.classList.toggle('beanthentic-about-only', hideHomeHero);
@@ -566,6 +706,9 @@ class UIController {
         const panelId = activateAboutPanel(h);
         setView('about', panelId);
         scrollAboutSectionToTop(panelId);
+      } else if (!hasHomeSection) {
+        const panelId = activateAboutPanel('about-mission-vision');
+        setView('about', panelId);
       } else {
         setView('home');
       }
@@ -620,7 +763,7 @@ class UIController {
       });
     });
 
-    document.querySelectorAll('a[href="#home"], .logo').forEach((link) => {
+    if (hasHomeSection) document.querySelectorAll('a[href="#home"]').forEach((link) => {
       link.addEventListener('click', (e) => {
         e.preventDefault();
         setView('home');
@@ -756,7 +899,7 @@ class UIController {
       button.addEventListener('mouseenter', () => {
         button.style.transform = 'translateY(-1px)';
       });
-      
+
       button.addEventListener('mouseleave', () => {
         button.style.transform = 'translateY(0)';
       });
@@ -764,20 +907,20 @@ class UIController {
 
     // Add ripple effect to buttons
     document.querySelectorAll('.btn-primary').forEach(button => {
-      button.addEventListener('click', function(e) {
+      button.addEventListener('click', function (e) {
         const ripple = document.createElement('span');
         const rect = this.getBoundingClientRect();
         const size = Math.max(rect.width, rect.height);
         const x = e.clientX - rect.left - size / 2;
         const y = e.clientY - rect.top - size / 2;
-        
+
         ripple.style.width = ripple.style.height = size + 'px';
         ripple.style.left = x + 'px';
         ripple.style.top = y + 'px';
         ripple.classList.add('ripple');
-        
+
         this.appendChild(ripple);
-        
+
         setTimeout(() => {
           ripple.remove();
         }, 600);
@@ -940,13 +1083,13 @@ class UIController {
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
     notification.textContent = message;
-    
+
     document.body.appendChild(notification);
-    
+
     setTimeout(() => {
       notification.classList.add('show');
     }, 100);
-    
+
     setTimeout(() => {
       notification.classList.remove('show');
       setTimeout(() => {

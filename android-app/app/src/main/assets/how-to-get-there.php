@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#25671E" />
+  <title>How to Get There · Beanthentic Coffee</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <style>
+    .section-main {
+      min-height: calc(100vh - 180px);
+      padding: 1rem 0 6.25rem;
+      background: #ffffff;
+    }
+    .section-wrap { max-width: 980px; margin: 0 auto; padding: 0 16px; }
+    .section-card {
+      background: #fff;
+      border-radius: 14px;
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      box-shadow: 0 8px 20px rgba(17, 24, 39, 0.08);
+      padding: 1rem;
+    }
+    .section-title {
+      margin: 0 0 0.6rem;
+      color: #25671E;
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+    .section-copy { margin: 0 0 0.75rem; color: #374151; line-height: 1.6; }
+    .section-actions { margin-bottom: 0.8rem; }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      text-decoration: none;
+      font-weight: 600;
+      color: #25671E;
+    }
+    .back-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body class="has-app-bottom-nav">
+  <main class="section-main">
+    <div class="section-wrap">
+      <div class="section-actions">
+        <a class="back-link" href="about.php">← Back to About</a>
+      </div>
+      <article class="section-card">
+        <h1 class="section-title">How to Get There</h1>
+        <p class="section-copy">
+          Coffee Bean Farms in Lipa City, Batangas can be reached by land transportation from Manila and other nearby
+          areas via Sto. Tomas and Tanauan, Batangas. It is accessible through buses, jeepneys, and other public utility
+          vehicles passing along South Luzon Expressway (SLEX) and Maharlika Highway going to Lipa City. The usual route
+          follows Manila to Sto. Tomas, Sto. Tomas to Tanauan, and Tanauan to Lipa City proper. Travel time is approximately
+          2 to 3 hours depending on traffic conditions.
+        </p>
+        <p class="section-copy">
+          Commuting options include buses and jeepneys that regularly ply routes from Manila to Batangas. From Manila,
+          passengers may ride buses bound for Lipa City or Batangas Grand Terminal. These buses pass through Sto. Tomas
+          and Tanauan before reaching Lipa City. Jeepneys are also available for inter-town travel once inside Batangas.
+        </p>
+        <p class="section-copy">
+          The major terminals in the area are the following:
+          <br><br>
+          Buendia Bus Terminals (Manila)<br>
+          Sto. Tomas Public Terminal<br>
+          Tanauan City Transport Terminal<br>
+          Lipa City Grand Terminal
+        </p>
+        <p class="section-copy">
+          These terminals are utilized for passenger transport and the movement of goods and services between Metro Manila
+          and Batangas, as well as within nearby municipalities.
+        </p>
+        <p class="section-copy">
+          The transport system in Lipa City is supported by buses, jeepneys, and tricycles that accommodate passengers
+          going to commercial and agricultural destinations such as Coffee Bean Farms. These vehicles operate daily with
+          regular trips along the Manila-Sto. Tomas-Tanauan-Lipa route, ensuring convenient access for commuters and visitors.
+        </p>
+      </article>
+    </div>
+  </main>
+</body>
+</html>

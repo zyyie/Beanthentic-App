@@ -124,13 +124,6 @@
     </div>
   </main>
 
-  <footer>
-    <div class="footer-inner">
-      <span><span class="footer-dot"></span> Beanthentic &copy; <span id="year"><?php echo date('Y'); ?></span> · Brewed with care.</span>
-      <span>Serving honest coffee, one cup at a time.</span>
-    </div>
-  </footer>
-
   <script src="js/navigation.js"></script>
   <script src="js/ui.js"></script>
 </body>

@@ -1,5 +1,5 @@
 <?php
-  $title = 'GI Updates · Beanthentic Coffee';
+  $title = 'Register Farm Updates · Beanthentic Coffee';
 ?>
 <!doctype html>
 <html lang="en">
@@ -92,7 +92,7 @@
             <path d="M8 9h8M8 13h6M8 17h4"/>
           </svg>
         </div>
-        <h1 class="news-portal-hero-title">GI Updates</h1>
+        <h1 class="news-portal-hero-title">Register Farm Updates</h1>
       </div>
     </div>
   </div>

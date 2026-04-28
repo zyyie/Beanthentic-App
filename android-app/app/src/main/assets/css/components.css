@@ -1128,7 +1128,7 @@ body.account-portfolio-page .account-portfolio-main {
 }
 
 .account-portfolio-main {
-  /* Extra space: bottom tab bar + GI tab used to stick up (-16px) — avoid overlap / “lumulusot” */
+  /* Extra space: bottom tab bar + Register Farm tab used to stick up (-16px) — avoid overlap / “lumulusot” */
   min-height: calc(100vh - 7rem);
   padding: 1.25rem max(1rem, env(safe-area-inset-left))
     calc(4.5rem + env(safe-area-inset-bottom, 0px) + 20px) max(1rem, env(safe-area-inset-right));
@@ -1426,7 +1426,7 @@ body.account-portfolio-page .account-portfolio-quick {
   }
 }
 
-/* Account: GI “raised” tab uses negative margin globally — here it looked like UI leaking into the profile */
+/* Account: Register Farm “raised” tab uses negative margin globally — here it looked like UI leaking into the profile */
 body.account-portfolio-page .app-bottom-nav {
   background: #faf8f5;
   backdrop-filter: none;
@@ -2015,7 +2015,7 @@ body.account-security-page .account-security-shell.auth-card {
   }
 }
 
-/* News page — GI Portal–style shell + static certificate preview (no PDF iframe / no inner scroll) */
+/* News page — Register Farm Portal–style shell + static certificate preview (no PDF iframe / no inner scroll) */
 body.news-portal-page {
   background: #f3f4f6;
 }
@@ -2230,3 +2230,4 @@ body.news-portal-page {
 .auth-switch a:hover {
   text-decoration: underline;
 }
+

@@ -181,7 +181,16 @@ class MapsModule:
     
     def read_coffee_database_csv(self):
         """Read and parse the coffee-database.csv file"""
-        csv_file_path = os.path.join(os.path.dirname(__file__), 'coffee-database.csv')
+        module_dir = os.path.dirname(__file__)
+        csv_candidates = [
+            os.path.join(module_dir, 'coffee-database.csv'),
+            os.path.join(os.path.dirname(module_dir), 'coffee-database.csv'),
+            os.path.join(os.path.dirname(os.path.dirname(module_dir)), 'coffee-database.csv'),
+            os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(module_dir))), 'coffee-database.csv'),
+            os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(module_dir)))), 'coffee-database.csv'),
+            os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(module_dir))))), 'coffee-database.csv'),
+        ]
+        csv_file_path = next((p for p in csv_candidates if os.path.exists(p)), csv_candidates[0])
         barangay_coords = self.get_barangay_coordinates()
         coffee_farms = []
         
@@ -1493,6 +1502,7 @@ class MapsModule:
         let activeVariety = 'Liberica';
         let searchQuery = '';
         let markerLayer = null;
+        let lipaBoundaryLayer = null;
         let guideStep = 0;
 
         function escapeHtml(s) {
@@ -1696,12 +1706,32 @@ class MapsModule:
             fetch('/api/maps/lipa-city-boundary')
                 .then(response => response.json())
                 .then(boundary => {
-                    // Boundary will be loaded when map is initialized
                     window.lipaCityBoundary = boundary;
+                    renderLipaCityBoundary();
                 })
                 .catch(error => {
                     console.log('Could not load city boundary:', error);
                 });
+        }
+
+        function boundaryStyle(feature) {
+            return {
+                color: feature.properties.stroke,
+                weight: feature.properties['stroke-width'],
+                opacity: feature.properties['stroke-opacity'],
+                fillColor: feature.properties.fill,
+                fillOpacity: feature.properties['fill-opacity']
+            };
+        }
+
+        function renderLipaCityBoundary() {
+            if (!map || !window.lipaCityBoundary) return;
+            if (lipaBoundaryLayer) {
+                map.removeLayer(lipaBoundaryLayer);
+            }
+            lipaBoundaryLayer = L.geoJSON(window.lipaCityBoundary, {
+                style: boundaryStyle
+            }).addTo(map);
         }
         
         function addCoffeeMarkers() {
@@ -1732,21 +1762,7 @@ class MapsModule:
             refreshIcons();
             addCoffeeMarkers();
             maybeOpenGuide();
-            
-            // Add city boundary if available
-            if (map && window.lipaCityBoundary) {
-                L.geoJSON(window.lipaCityBoundary, {
-                    style: function(feature) {
-                        return {
-                            color: feature.properties.stroke,
-                            weight: feature.properties['stroke-width'],
-                            opacity: feature.properties['stroke-opacity'],
-                            fillColor: feature.properties.fill,
-                            fillOpacity: feature.properties['fill-opacity']
-                        };
-                    }
-                }).addTo(map);
-            }
+            renderLipaCityBoundary();
         }
         
         function initializeMap(center) {
@@ -1791,6 +1807,7 @@ class MapsModule:
             }).addTo(map);
 
             markerLayer = L.layerGroup().addTo(map);
+            renderLipaCityBoundary();
         }
         
         function populateFarmList() {
@@ -1929,7 +1946,7 @@ class MapsModule:
                 </span>
                 <span class="app-bottom-nav-label">About</span>
             </a>
-            <a href="/gi" class="app-bottom-nav-link app-bottom-nav-link--featured">
+            <a href="/register-farm" class="app-bottom-nav-link app-bottom-nav-link--featured">
                 <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
                     <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
                 </span>
@@ -2021,3 +2038,4 @@ class MapsModule:
 </body>
 </html>
         '''
+

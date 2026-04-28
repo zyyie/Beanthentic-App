@@ -334,7 +334,7 @@ class MainActivity : AppCompatActivity() {
             webView.webViewClient = object : WebViewClient() {
                 /**
                  * file:// → http:// navigation often does nothing unless we load explicitly.
-                 * GI/Map are served by Flask (gi_module.py / maps_module.py) at /gi and /maps.
+                 * Register Farm/Map are served by Flask (register_farm_module.py / maps_module.py) at /register-farm and /maps.
                  */
                 override fun shouldOverrideUrlLoading(
                     view: WebView?,
@@ -345,10 +345,10 @@ class MainActivity : AppCompatActivity() {
                         val full = uri.toString()
                         if (tryHandleIntentOrMapsUrl(full)) return true
                     }
-                    // file:// → http(s):// often needs explicit loadUrl; Flask serves GI/Map from Python modules.
+                    // file:// → http(s):// often needs explicit loadUrl; Flask serves Register Farm/Map from Python modules.
                     if (uri != null) {
                         val sch = uri.scheme?.lowercase() ?: ""
-                        // Ensure GI/Map/News (http/https main frame) always loads reliably.
+                        // Ensure Register Farm/Map/News (http/https main frame) always loads reliably.
                         if ((sch == "http" || sch == "https") && request?.isForMainFrame != false) {
                             val full = uri.toString()
                             // Physical phone case: JS may have already hardcoded 10.0.2.2.
@@ -362,11 +362,11 @@ class MainActivity : AppCompatActivity() {
                             return true
                         }
                     }
-                    // file:///gi or file:///maps from old /gi links — send to Flask (gi_module / maps_module).
+                    // file:///register-farm or file:///maps from old links — send to Flask modules.
                     if (uri != null && uri.scheme == "file") {
                         val path = uri.path?.trimEnd('/') ?: ""
-                        if (path == "/gi") {
-                            view?.loadUrl("${flaskBase}/gi")
+                        if (path == "/register-farm") {
+                            view?.loadUrl("${flaskBase}/register-farm")
                             return true
                         }
                         if (path == "/maps") {
@@ -567,3 +567,5 @@ class MainActivity : AppCompatActivity() {
 
     private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
 }
+
+

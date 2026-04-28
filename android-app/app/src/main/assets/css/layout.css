@@ -1158,7 +1158,7 @@ body.has-app-bottom-nav {
   justify-content: space-between;
   gap: 0.125rem;
   padding: 0.35rem max(0.35rem, env(safe-area-inset-left)) 0.45rem max(0.35rem, env(safe-area-inset-right));
-  /* Let Map + Sign in stay above the raised GI tab so they stay visible/tappable */
+  /* Let Map + Sign in stay above the raised Register Farm tab so they stay visible/tappable */
   position: relative;
 }
 
@@ -1325,7 +1325,7 @@ body.has-app-bottom-nav {
   min-width: 3.25rem;
 }
 
-/* Sign in tab: stay tappable above GI pill (all pages with app-bottom-nav) */
+/* Sign in tab: stay tappable above Register Farm pill (all pages with app-bottom-nav) */
 .app-bottom-nav a.app-bottom-nav-link--signin {
   position: relative;
   z-index: 15;
@@ -1391,7 +1391,7 @@ body.has-app-bottom-nav {
   stroke-width: 2.25px;
 }
 
-/* Center “GI Portal” tab — always emphasized (app-style) */
+/* Center “Register Farm Portal” tab — always emphasized (app-style) */
 .app-bottom-nav-link--featured {
   position: relative;
   z-index: 2;

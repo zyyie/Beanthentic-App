@@ -153,11 +153,11 @@
           <a href="about.php#about-mission" class="app-bottom-nav-about-item" role="menuitem" data-no-loader="true">Mission</a>
         </div>
       </div>
-      <a href="http://10.0.2.2:5000/gi" data-beanthentic-flask="/gi" class="app-bottom-nav-link app-bottom-nav-link--featured">
+      <a href="http://10.0.2.2:5000/register-farm" data-beanthentic-flask="/register-farm" class="app-bottom-nav-link app-bottom-nav-link--featured">
         <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
           <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
         </span>
-        <span class="app-bottom-nav-label">GI Portal</span>
+        <span class="app-bottom-nav-label">Register Farm</span>
       </a>
       <a href="http://10.0.2.2:5000/maps" data-beanthentic-flask="/maps" class="app-bottom-nav-link">
         <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
@@ -287,3 +287,4 @@
   </script>
 </body>
 </html>
+

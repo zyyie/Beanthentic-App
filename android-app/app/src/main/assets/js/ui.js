@@ -162,7 +162,7 @@ function syncAppBottomNavActive() {
   const isAccount = path.endsWith('/account.php');
   const isLogin = path.endsWith('/login.php') || path.endsWith('/signup.php');
   const isMaps = path.includes('/maps');
-  const isGi = path.includes('/gi');
+  const isRegisterFarm = path.includes('/register-farm');
 
   // Clear current active state
   bar.querySelectorAll('.app-bottom-nav-link').forEach((a) => {
@@ -191,8 +191,8 @@ function syncAppBottomNavActive() {
     setActive('a[data-beanthentic-flask="/maps"], a[href*="/maps"]');
     return;
   }
-  if (isGi) {
-    setActive('a[data-beanthentic-flask="/gi"], a[href*="/gi"]');
+  if (isRegisterFarm) {
+    setActive('a[data-beanthentic-flask="/register-farm"], a[href*="/register-farm"]');
     return;
   }
   if (isIndex) {
@@ -1250,3 +1250,4 @@ class UIController {
 document.addEventListener('DOMContentLoaded', () => {
   window.uiController = new UIController();
 });
+

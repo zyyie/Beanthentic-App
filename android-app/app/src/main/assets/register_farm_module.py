@@ -2,8 +2,19 @@ from flask import request, jsonify, render_template_string
 import sqlite3
 import os
 import re
+import shutil
 
 EMAIL_RE = re.compile(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+ANDROID_APP_DIR = os.path.abspath(os.path.join(MODULE_DIR, "..", "..", "..", ".."))
+PROJECT_ROOT = os.path.abspath(os.path.join(ANDROID_APP_DIR, ".."))
+REGISTER_DB_PATH = os.path.join(ANDROID_APP_DIR, "register_farm_database.db")
+ROOT_REGISTER_DB_COMPAT_PATH = os.path.join(PROJECT_ROOT, "register_farm_database.db")
+LEGACY_DB_NAME = "g" + "i_database.db"
+LEGACY_DB_PATHS = [
+    os.path.join(ANDROID_APP_DIR, LEGACY_DB_NAME),
+    os.path.join(PROJECT_ROOT, LEGACY_DB_NAME),
+]
 
 
 def _truthy(val):
@@ -54,7 +65,7 @@ def validate_farmer_payload(data):
     if not EMAIL_RE.match(email):
         errors["email"] = "Enter a valid email address."
     if not phone:
-        errors["phone"] = "Mobile number is required (09XXXXXXXXX) for GI verification and follow-up."
+        errors["phone"] = "Mobile number is required (09XXXXXXXXX) for Register Farm verification and follow-up."
     elif not re.match(r"^09\d{9}$", phone):
         errors["phone"] = "Use Philippine mobile format: 09XXXXXXXXX (11 digits)."
 
@@ -233,16 +244,26 @@ def validate_application_payload(data, cursor):
     }, {}
 
 
-class GIModule:
+class RegisterFarmModule:
     def __init__(self, app):
         self.app = app
         self.init_database()
         self.setup_routes()
     
     def init_database(self):
-        """Initialize SQLite database for GI data"""
-        if not os.path.exists('gi_database.db'):
-            conn = sqlite3.connect('gi_database.db')
+        """Initialize SQLite database for Register Farm data"""
+        if not os.path.exists(REGISTER_DB_PATH):
+            # One-time compatibility migration from old DB locations.
+            for source_path in [ROOT_REGISTER_DB_COMPAT_PATH] + LEGACY_DB_PATHS:
+                if os.path.exists(source_path):
+                    try:
+                        shutil.copyfile(source_path, REGISTER_DB_PATH)
+                        break
+                    except Exception:
+                        continue
+
+        if not os.path.exists(REGISTER_DB_PATH):
+            conn = sqlite3.connect(REGISTER_DB_PATH)
             cursor = conn.cursor()
             
             # Create farmers table
@@ -321,7 +342,7 @@ class GIModule:
             conn.close()
         else:
             # Ensure schema upgrades for existing DB.
-            conn = sqlite3.connect('gi_database.db')
+            conn = sqlite3.connect(REGISTER_DB_PATH)
             cursor = conn.cursor()
             cursor.execute("PRAGMA table_info(farmers)")
             cols = {row[1] for row in cursor.fetchall()}
@@ -331,16 +352,16 @@ class GIModule:
             conn.close()
     
     def setup_routes(self):
-        """Setup API routes for GI module"""
+        """Setup API routes for Register Farm module"""
         
-        @self.app.route('/api/gi/farmers', methods=['POST'])
+        @self.app.route('/api/register-farm/farmers', methods=['POST'])
         def register_farmer():
             data = request.get_json(silent=True)
             cleaned, errs = validate_farmer_payload(data)
             if errs:
                 return jsonify({'success': False, 'errors': errs}), 400
             try:
-                conn = sqlite3.connect('gi_database.db')
+                conn = sqlite3.connect(REGISTER_DB_PATH)
                 cursor = conn.cursor()
                 cursor.execute('''
                     INSERT INTO farmers (name, email, phone, region, province, municipality, barangay, farm_address, farm_size)
@@ -367,10 +388,10 @@ class GIModule:
             except Exception as e:
                 return jsonify({'success': False, 'errors': {'_error': str(e)}}), 400
         
-        @self.app.route('/api/gi/applications', methods=['POST'])
+        @self.app.route('/api/register-farm/applications', methods=['POST'])
         def submit_gi_application():
             data = request.get_json(silent=True)
-            conn = sqlite3.connect('gi_database.db')
+            conn = sqlite3.connect(REGISTER_DB_PATH)
             cursor = conn.cursor()
             cleaned, errs = validate_application_payload(data, cursor)
             if errs:
@@ -395,16 +416,16 @@ class GIModule:
                 return jsonify({
                     'success': True,
                     'application_id': application_id,
-                    'message': 'GI application submitted successfully',
+                    'message': 'Register farm application submitted successfully',
                 })
             except Exception as e:
                 conn.close()
                 return jsonify({'success': False, 'errors': {'_error': str(e)}}), 400
         
-        @self.app.route('/api/gi/varieties', methods=['GET'])
+        @self.app.route('/api/register-farm/varieties', methods=['GET'])
         def get_coffee_varieties():
             try:
-                conn = sqlite3.connect('gi_database.db')
+                conn = sqlite3.connect(REGISTER_DB_PATH)
                 cursor = conn.cursor()
                 
                 cursor.execute('SELECT * FROM coffee_varieties')
@@ -424,10 +445,10 @@ class GIModule:
             except Exception as e:
                 return jsonify({'success': False, 'error': str(e)}), 500
         
-        @self.app.route('/api/gi/applications/<int:farmer_id>', methods=['GET'])
+        @self.app.route('/api/register-farm/applications/<int:farmer_id>', methods=['GET'])
         def get_farmer_applications(farmer_id):
             try:
-                conn = sqlite3.connect('gi_database.db')
+                conn = sqlite3.connect(REGISTER_DB_PATH)
                 cursor = conn.cursor()
                 
                 cursor.execute('''
@@ -459,13 +480,13 @@ class GIModule:
             except Exception as e:
                 return jsonify({'success': False, 'error': str(e)}), 500
         
-        @self.app.route('/gi')
-        def gi_portal():
-            """Serve GI portal page"""
-            return render_template_string(self.get_gi_portal_html())
+        @self.app.route('/register-farm')
+        def register_farm_portal():
+            """Serve Register Farm portal page"""
+            return render_template_string(self.get_register_farm_portal_html())
     
-    def get_gi_portal_html(self):
-        """Return HTML for GI portal"""
+    def get_register_farm_portal_html(self):
+        """Return HTML for Register Farm portal"""
         return '''
 <!DOCTYPE html>
 <html lang="en">
@@ -476,7 +497,7 @@ class GIModule:
     <meta name="color-scheme" content="light">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <title>GI Portal - Beanthentic Coffee</title>
+    <title>Register Farm Portal - Beanthentic Coffee</title>
     <link rel="stylesheet" href="/css/base.css">
     <link rel="stylesheet" href="/css/layout.css">
     <link rel="stylesheet" href="/css/components.css">
@@ -1180,7 +1201,7 @@ class GIModule:
                     <i data-lucide="badge-check"></i>
                 </div>
                 <h1>Register</h1>
-                <p>Register your farm details for GI profiling—built for Philippine coffee growers.</p>
+                <p>Register your farm details for Register Farm profiling—built for Philippine coffee growers.</p>
             </div>
         </div>
     </div>
@@ -1195,7 +1216,7 @@ class GIModule:
             </div>
             
             <div id="register" class="tab-content active">
-                <div id="giRegisterSuccess" class="card" style="display:none; margin:0 0 14px; border:1px solid rgba(34,197,94,0.35);">
+                <div id="registerFarmSuccess" class="card" style="display:none; margin:0 0 14px; border:1px solid rgba(34,197,94,0.35);">
                     <div class="card-header" style="padding:14px 16px;">
                         <div class="card-icon" style="background:rgba(34,197,94,0.12); color:#166534;">
                             <i data-lucide="check-circle"></i>
@@ -1213,7 +1234,7 @@ class GIModule:
                         </div>
                         <div>
                             <h2 class="card-title">Farmer Registration</h2>
-                            <p class="card-subtitle">Create your account to start the GI certification process</p>
+                            <p class="card-subtitle">Create your account to start the Register Farm process</p>
                         </div>
                     </div>
                     
@@ -1323,7 +1344,7 @@ class GIModule:
                         <div class="form-group">
                             <label class="checkbox-label" for="agreeRegistration">
                                 <input type="checkbox" id="agreeRegistration" name="agree_registration" value="yes">
-                                <span>I certify that my registration details are <strong>true and complete</strong> to the best of my knowledge, and I understand false information may affect GI eligibility.</span>
+                                <span>I certify that my registration details are <strong>true and complete</strong> to the best of my knowledge, and I understand false information may affect Register Farm eligibility.</span>
                             </label>
                             <span class="field-error" data-error-for="agree_registration" role="alert"></span>
                         </div>
@@ -1343,7 +1364,7 @@ class GIModule:
                             <i data-lucide="file-text"></i>
                         </div>
                         <div>
-                            <h2 class="card-title">GI Certification Application</h2>
+                            <h2 class="card-title">Register Farm Certification Application</h2>
                             <p class="card-subtitle">Provide detailed information about your coffee's unique geographical characteristics</p>
                         </div>
                     </div>
@@ -1419,7 +1440,7 @@ class GIModule:
                         <div class="form-group">
                             <label class="checkbox-label" for="agreeDeclaration">
                                 <input type="checkbox" id="agreeDeclaration" name="agree_declaration" value="yes">
-                                <span>I declare that this GI application is <strong>accurate</strong>; I understand reviewers may verify details and that misleading information can lead to rejection.</span>
+                                <span>I declare that this Register Farm application is <strong>accurate</strong>; I understand reviewers may verify details and that misleading information can lead to rejection.</span>
                             </label>
                             <span class="field-error" data-error-for="agree_declaration" role="alert"></span>
                         </div>
@@ -1440,7 +1461,7 @@ class GIModule:
                         </div>
                         <div>
                             <h2 class="card-title">Application Status</h2>
-                            <p class="card-subtitle">Track the progress of your GI certification applications</p>
+                            <p class="card-subtitle">Track the progress of your Register Farm certification applications</p>
                         </div>
                     </div>
                     
@@ -1576,7 +1597,7 @@ class GIModule:
             return err;
         }
 
-        fetch('/api/gi/varieties')
+        fetch('/api/register-farm/varieties')
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -1590,8 +1611,8 @@ class GIModule:
                 }
             });
 
-        const GI_REG_OK = 'gi_registration_ok';
-        const GI_FARMER_ID = 'gi_farmer_id';
+        const REGISTER_FARM_REG_OK = 'register_farm_registration_ok';
+        const REGISTER_FARM_FARMER_ID = 'register_farm_farmer_id';
 
         function setRegisterButtonLoading(btn, isLoading) {
             if (!btn) return;
@@ -1627,12 +1648,12 @@ class GIModule:
         }
 
         function hasCompletedRegistration() {
-            return sessionStorage.getItem(GI_REG_OK) === '1';
+            return sessionStorage.getItem(REGISTER_FARM_REG_OK) === '1';
         }
 
         function showTab(tabName, btn) {
             if (tabName === 'apply' && !hasCompletedRegistration()) {
-                showAlert('Complete Step 1 first: register your farm with all required fields marked with * and submit successfully. You will then be able to apply for GI.', 'error');
+                showAlert('Complete Step 1 first: register your farm with all required fields marked with * and submit successfully. You will then be able to apply for Register Farm.', 'error');
                 const regBtn = document.querySelector('.tab[onclick*="register"]');
                 if (regBtn) { regBtn.focus(); }
                 return;
@@ -1646,14 +1667,14 @@ class GIModule:
                 btn.setAttribute('aria-selected', 'true');
             }
             if (tabName === 'apply') {
-                const fid = sessionStorage.getItem(GI_FARMER_ID);
+                const fid = sessionStorage.getItem(REGISTER_FARM_FARMER_ID);
                 const inp = document.getElementById('farmerId');
                 if (fid && inp && !inp.value.trim()) inp.value = fid;
             }
             refreshIcons();
         }
 
-        // Prefill GI registration fields from QR/link query params (?name=&email=).
+        // Prefill Register Farm registration fields from QR/link query params (?name=&email=).
         (function prefillFromUrl() {
             try {
                 const p = new URLSearchParams(window.location.search || '');
@@ -1724,7 +1745,7 @@ class GIModule:
             wireFieldEditButtons();
             setRegisterButtonLoading(submitBtn, true);
 
-            fetch('/api/gi/farmers', {
+            fetch('/api/register-farm/farmers', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -1733,12 +1754,12 @@ class GIModule:
             .then(({ ok, body }) => {
                 if (body.success) {
                     farmerId = body.farmer_id;
-                    sessionStorage.setItem(GI_REG_OK, '1');
-                    sessionStorage.setItem(GI_FARMER_ID, String(farmerId));
+                    sessionStorage.setItem(REGISTER_FARM_REG_OK, '1');
+                    sessionStorage.setItem(REGISTER_FARM_FARMER_ID, String(farmerId));
                     try { localStorage.setItem('beanthentic_farmer_id', String(farmerId)); } catch (_e) {}
                     showAlert('Registration successful! Farmer ID: ' + farmerId + '.', 'success');
                     try {
-                        const box = document.getElementById('giRegisterSuccess');
+                        const box = document.getElementById('registerFarmSuccess');
                         if (box) {
                             box.style.display = 'block';
                             const editEmailBtn = document.getElementById('editFarmerEmailBtn');
@@ -1770,7 +1791,7 @@ class GIModule:
         document.getElementById('applicationForm').addEventListener('submit', function(e) {
             e.preventDefault();
             if (!hasCompletedRegistration()) {
-                showAlert('Complete farmer registration first (Step 1) and submit successfully before applying for GI.', 'error');
+                showAlert('Complete farmer registration first (Step 1) and submit successfully before applying for Register Farm.', 'error');
                 return;
             }
             clearErrors(this);
@@ -1795,7 +1816,7 @@ class GIModule:
                 historical_significance: (data.historical_significance || '').trim(),
                 agree_declaration: data.agree_declaration === 'yes' ? 'yes' : ''
             };
-            fetch('/api/gi/applications', {
+            fetch('/api/register-farm/applications', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -1849,7 +1870,7 @@ class GIModule:
                 return;
             }
             if (errSpan) errSpan.textContent = '';
-            fetch('/api/gi/applications/' + n)
+            fetch('/api/register-farm/applications/' + n)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) displayApplications(data.applications);
@@ -1933,7 +1954,7 @@ class GIModule:
                 </span>
                 <span class="app-bottom-nav-label">About</span>
             </a>
-            <a href="/gi" class="app-bottom-nav-link app-bottom-nav-link--featured is-active" aria-current="page">
+            <a href="/register-farm" class="app-bottom-nav-link app-bottom-nav-link--featured is-active" aria-current="page">
                 <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
                     <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
                 </span>
@@ -2025,3 +2046,5 @@ class GIModule:
 </body>
 </html>
         '''
+
+

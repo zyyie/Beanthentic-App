@@ -96,7 +96,7 @@
           <h2 style="margin:0 0 0.35rem; font-size:1rem; color:#2c241c;">1. Overview</h2>
           <p style="margin:0;">
             Beanthentic is a coffee-focused platform designed to help users explore local coffee information, support farmer visibility,
-            and use tools such as account access, GI registration, profile sharing, maps, and related settings pages. This Privacy Policy
+            and use tools such as account access, Register Farm registration, profile sharing, maps, and related settings pages. This Privacy Policy
             explains what information may be collected through the app, how it is used, and how it is protected.
           </p>
         </section>
@@ -108,7 +108,7 @@
           </p>
           <ul style="margin:0; padding-left:1.15rem;">
             <li>Your name and email address when you create or use an account.</li>
-            <li>Farmer or farm registration details submitted through the GI-related forms.</li>
+            <li>Farmer or farm registration details submitted through the Register Farm-related forms.</li>
             <li>Profile-related information shown through QR or profile sharing features.</li>
             <li>Preference data such as notification settings and saved app options.</li>
           </ul>
@@ -121,7 +121,7 @@
           </p>
           <ul style="margin:0; padding-left:1.15rem;">
             <li>Provide account access and personalize the app experience.</li>
-            <li>Process and display GI registration or profile-related submissions.</li>
+            <li>Process and display Register Farm registration or profile-related submissions.</li>
             <li>Generate profile links, QR references, and related account tools.</li>
             <li>Save your settings and improve usability across sessions.</li>
             <li>Support platform administration, review workflows, and user assistance.</li>

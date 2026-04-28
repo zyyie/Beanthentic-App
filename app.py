@@ -4,15 +4,53 @@ import os
 import re
 import html
 import sqlite3
-from gi_module import GIModule
-from maps_module import MapsModule
+import importlib.util
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ASSETS_DIR = os.path.join(BASE_DIR, "android-app", "app", "src", "main", "assets")
+REGISTER_DB_PATH = os.path.join(BASE_DIR, "android-app", "register_farm_database.db")
+ROOT_REGISTER_DB_COMPAT_PATH = os.path.join(BASE_DIR, "register_farm_database.db")
+LEGACY_REGISTER_DB_COMPAT_PATH = os.path.join(BASE_DIR, "g" + "i_database.db")
 
 app = Flask(__name__, static_folder=ASSETS_DIR, static_url_path="")
 
-gi_module = GIModule(app)
+def _load_register_farm_module_class():
+    """Load Register Farm module from assets directory."""
+    assets_module = os.path.join(ASSETS_DIR, "register_farm_module.py")
+    if not os.path.exists(assets_module):
+        raise FileNotFoundError(f"Missing register farm module: {assets_module}")
+    spec = importlib.util.spec_from_file_location("beanthentic_assets_register_farm_module", assets_module)
+    if not spec or not spec.loader:
+        raise ImportError("Unable to load register farm module spec")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    module_cls = getattr(module, "RegisterFarmModule", None)
+    if module_cls is None:
+        raise ImportError("register_farm_module.py must export RegisterFarmModule")
+    return module_cls
+
+
+RegisterFarmModule = _load_register_farm_module_class()
+register_farm_module = RegisterFarmModule(app)
+
+
+def _load_maps_module_class():
+    """Prefer maps module co-located with PHP assets, with safe fallback."""
+    assets_maps_module = os.path.join(ASSETS_DIR, "maps_module.py")
+    if os.path.exists(assets_maps_module):
+        spec = importlib.util.spec_from_file_location("beanthentic_assets_maps_module", assets_maps_module)
+        if spec and spec.loader:
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            maps_cls = getattr(module, "MapsModule", None)
+            if maps_cls is not None:
+                return maps_cls
+    from maps_module import MapsModule as RootMapsModule
+
+    return RootMapsModule
+
+
+MapsModule = _load_maps_module_class()
 maps_module = MapsModule(app)
 
 
@@ -103,7 +141,13 @@ def profile_page():
     farmer = None
     if farmer_id_raw.isdigit():
         try:
-            conn = sqlite3.connect(os.path.join(BASE_DIR, "gi_database.db"))
+            if os.path.exists(REGISTER_DB_PATH):
+                db_path = REGISTER_DB_PATH
+            elif os.path.exists(ROOT_REGISTER_DB_COMPAT_PATH):
+                db_path = ROOT_REGISTER_DB_COMPAT_PATH
+            else:
+                db_path = LEGACY_REGISTER_DB_COMPAT_PATH
+            conn = sqlite3.connect(db_path)
             conn.row_factory = sqlite3.Row
             cur = conn.cursor()
             cur.execute(
@@ -176,7 +220,7 @@ def profile_page():
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="theme-color" content="#25671E" />
-<title>Profile · Beanthentic GI</title>
+<title>Profile · Beanthentic Register Farm</title>
 <link rel="stylesheet" href="/css/base.css">
 <link rel="stylesheet" href="/css/layout.css">
 <link rel="stylesheet" href="/css/components.css">
@@ -195,31 +239,6 @@ def profile_page():
     padding: 2.2rem 0 1.8rem;
     text-align: center;
     position: relative;
-  }}
-  .header-back {{
-    position: absolute;
-    left: 16px;
-    top: 18px;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 12px;
-    border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    background: rgba(255, 255, 255, 0.10);
-    color: #ffffff;
-    text-decoration: none;
-    font-size: 0.9rem;
-    font-weight: 600;
-    backdrop-filter: blur(6px);
-    -webkit-tap-highlight-color: transparent;
-  }}
-  .header-back:hover {{ background: rgba(255, 255, 255, 0.16); }}
-  .header-back:active {{ transform: scale(0.98); }}
-  .header-back svg {{ width: 18px; height: 18px; }}
-  @media (max-width: 480px) {{
-    .header-back {{ left: 12px; top: 14px; padding: 9px 10px; }}
-    .header-back span {{ display: none; }}
   }}
   .header h1 {{ margin: 0; font-size: 1.55rem; font-weight: 700; }}
   .header p {{ margin: .35rem 0 0; opacity: .92; font-size: .94rem; }}
@@ -327,14 +346,8 @@ def profile_page():
 </head>
 <body>
   <header class="header">
-    <a class="header-back" href="/account.php" id="profile-back-btn" aria-label="Back to Account">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M15 18l-6-6 6-6"></path>
-      </svg>
-      <span>Back to Account</span>
-    </a>
     <h1>Register</h1>
-    <p>Profile details for GI registration — view only.</p>
+    <p>Profile details for Register Farm — view only.</p>
   </header>
   <main class="main-content">
     <div class="container">
@@ -394,20 +407,6 @@ def profile_page():
       </section>
     </div>
   </main>
-  <script>
-    (function () {{
-      var btn = document.getElementById('profile-back-btn');
-      if (!btn) return;
-      btn.addEventListener('click', function (e) {{
-        e.preventDefault();
-        try {{
-          window.location.assign('/account.php');
-        }} catch (_e2) {{
-          window.location.assign('account.php');
-        }}
-      }});
-    }})();
-  </script>
 </body>
 </html>"""
     return Response(body, mimetype="text/html; charset=utf-8")
@@ -416,4 +415,4 @@ def profile_page():
 if __name__ == "__main__":
     # Run on LAN so phones on same Wi‑Fi can reach it:
     # http://192.168.0.104:8000 (example)
-    app.run(debug=True, host="0.0.0.0", port=8000)
+    app.run(debug=True, host="0.0.0.0", port=8080)

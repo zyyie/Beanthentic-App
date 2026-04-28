@@ -156,7 +156,7 @@
         </span>
         <span class="app-bottom-nav-label">About</span>
       </a>
-      <a href="http://10.0.2.2:5000/gi" data-beanthentic-flask="/gi" class="app-bottom-nav-link app-bottom-nav-link--featured">
+      <a href="http://10.0.2.2:5000/register-farm" data-beanthentic-flask="/register-farm" class="app-bottom-nav-link app-bottom-nav-link--featured">
         <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
           <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
         </span>
@@ -359,11 +359,11 @@
           elBio.textContent =
             'Welcome, ' +
             first +
-            ". You're part of the Beanthentic community—we connect you with traceable coffee, verified grower stories, and tools like the GI Portal and origin map.";
+            ". You're part of the Beanthentic community—we connect you with traceable coffee, verified grower stories, and tools like Register Farm and origin map.";
         }
 
         // Profile QR (points to dedicated /profile.php page)
-        (function renderGiQr() {
+        (function renderRegisterFarmQr() {
           var img = document.getElementById('account-profile-qr-img');
           var linkEl = document.getElementById('account-profile-qr-link');
           if (!img) return;
@@ -441,7 +441,7 @@
           if (shareBtn && !shareBtn.dataset.bound) {
             shareBtn.dataset.bound = 'true';
             shareBtn.addEventListener('click', function () {
-              var shareData = { title: 'Beanthentic GI Info', text: 'My Beanthentic GI info', url: fullGiUrl };
+              var shareData = { title: 'Beanthentic Register Farm Info', text: 'My Beanthentic Register Farm info', url: fullGiUrl };
               if (navigator.share) {
                 navigator.share(shareData).catch(function () { /* ignore */ });
                 return;
@@ -495,3 +495,4 @@
   </script>
 </body>
 </html>
+

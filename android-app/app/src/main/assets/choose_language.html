@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#143d22" />
+  <title>Choose Language · Beanthentic</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body class="choose-lang-page">
+  <main class="choose-lang-main">
+    <div class="choose-lang-card">
+      <img class="choose-lang-logo" src="beanthentic_logo.png" alt="Beanthentic" width="280" height="280" decoding="async" />
+      <h1 class="choose-lang-title">Choose Language</h1>
+      <p class="choose-lang-subtitle">Pumili ng wika</p>
+      <div class="choose-lang-actions" role="group" aria-label="Language">
+        <button type="button" class="choose-lang-option" id="choose-lang-en" data-lang="en">
+          English
+        </button>
+        <button type="button" class="choose-lang-option" id="choose-lang-fil" data-lang="fil">
+          Filipino
+        </button>
+      </div>
+    </div>
+  </main>
+  <script src="js/auth_lang.js"></script>
+  <script>
+    (function () {
+      var ALLOWED = { 'login.php': true, 'signup.php': true };
+      var params = new URLSearchParams(typeof location !== 'undefined' ? location.search : '');
+      var rawNext = params.get('next') || 'login.php';
+      var next = ALLOWED[rawNext] ? rawNext : 'login.php';
+
+      function goNext() {
+        try {
+          window.location.replace(new URL(next, location.href).href);
+        } catch (_e) {
+          window.location.replace(next);
+        }
+      }
+
+      function pick(lang) {
+        if (window.BeanthenticAuthLang) window.BeanthenticAuthLang.setLang(lang);
+        goNext();
+      }
+
+      document.getElementById('choose-lang-en').addEventListener('click', function () {
+        pick('en');
+      });
+      document.getElementById('choose-lang-fil').addEventListener('click', function () {
+        pick('fil');
+      });
+    })();
+  </script>
+</body>
+</html>

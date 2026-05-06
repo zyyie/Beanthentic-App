@@ -603,7 +603,7 @@ footer {
 
 /* Header burger — opens menu (Social, Privacy, account) */
 .header-burger-btn {
-  display: inline-flex;
+  display: none !important;
   width: 40px;
   height: 40px;
   border-radius: 10px;
@@ -620,6 +620,11 @@ footer {
   -webkit-tap-highlight-color: transparent;
   box-shadow: none;
   transition: background 0.18s ease, transform 0.12s ease;
+}
+
+/* Sidebar drawer is temporarily disabled with burger hidden. */
+.header-nav-drawer {
+  display: none !important;
 }
 
 .header-burger-btn:hover {
@@ -1132,7 +1137,7 @@ body.header-drawer-open {
 }
 
 body.has-app-bottom-nav {
-  padding-bottom: calc(3.75rem + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(4.85rem + env(safe-area-inset-bottom, 0px));
 }
 
 .app-bottom-nav {
@@ -1143,11 +1148,13 @@ body.has-app-bottom-nav {
   /* Above Leaflet map controls (~1000); below full-screen loaders */
   z-index: 1100;
   padding-bottom: env(safe-area-inset-bottom, 0px);
-  background: rgba(253, 250, 246, 0.94);
-  backdrop-filter: saturate(160%) blur(14px);
-  -webkit-backdrop-filter: saturate(160%) blur(14px);
-  border-top: 1px solid rgba(46, 111, 28, 0.12);
-  box-shadow: 0 -8px 32px rgba(22, 38, 28, 0.09);
+  padding-top: 0.35rem;
+  background: #ffffff;
+  border-top: none;
+  border-radius: 22px 22px 0 0;
+  box-shadow:
+    0 -10px 28px rgba(88, 60, 140, 0.12),
+    0 -4px 14px rgba(22, 38, 28, 0.08);
 }
 
 .app-bottom-nav-inner {
@@ -1157,8 +1164,7 @@ body.has-app-bottom-nav {
   align-items: flex-end;
   justify-content: space-between;
   gap: 0.125rem;
-  padding: 0.35rem max(0.35rem, env(safe-area-inset-left)) 0.45rem max(0.35rem, env(safe-area-inset-right));
-  /* Let Map + Sign in stay above the raised Register Farm tab so they stay visible/tappable */
+  padding: 0.2rem max(0.35rem, env(safe-area-inset-left)) 0.5rem max(0.35rem, env(safe-area-inset-right));
   position: relative;
 }
 
@@ -1302,27 +1308,29 @@ body.has-app-bottom-nav {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  gap: 0.2rem;
-  padding: 0.4rem 0.2rem 0.35rem;
+  gap: 0.18rem;
+  padding: 0.35rem 0.15rem 0.25rem;
   border-radius: 14px;
   text-decoration: none !important;
-  color: #4a5c44 !important;
-  font-size: 0.625rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  color: #2a5530 !important;
+  font-size: 0.58rem;
+  font-weight: 750;
+  letter-spacing: 0.03em;
+  text-transform: none;
   line-height: 1.15;
   -webkit-tap-highlight-color: transparent;
   transition:
     background 0.18s ease,
     color 0.18s ease,
-    transform 0.12s ease;
+    transform 0.12s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease;
+  border: 1px solid transparent;
 }
 
-/* Keep Sign in / Map from shrinking too much on narrow screens */
-.app-bottom-nav-inner>a:nth-child(4),
-.app-bottom-nav-inner>a:nth-child(5) {
-  min-width: 3.25rem;
+/* Outer tabs: keep tappable on narrow screens */
+.app-bottom-nav-inner > a.app-bottom-nav-link {
+  min-width: 2.85rem;
 }
 
 /* Sign in tab: stay tappable above Register Farm pill (all pages with app-bottom-nav) */
@@ -1337,7 +1345,13 @@ body.has-app-bottom-nav {
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 28px;
+  flex-shrink: 0;
+}
+
+/* Same icon row height on every side tab so labels share one baseline */
+.app-bottom-nav-link:not(.app-bottom-nav-link--featured) .app-bottom-nav-icon-wrap {
+  height: 36px;
+  min-height: 36px;
 }
 
 .app-bottom-nav-icon {
@@ -1346,6 +1360,17 @@ body.has-app-bottom-nav {
   flex-shrink: 0;
   opacity: 0.88;
   transition: opacity 0.18s ease;
+}
+
+/* Transaction: larger glyph centered in the shared slot */
+#nav-qr .app-bottom-nav-icon {
+  width: 32px;
+  height: 32px;
+}
+
+#nav-signin .app-bottom-nav-icon--account {
+  width: 28px;
+  height: 28px;
 }
 
 .app-bottom-nav-label {
@@ -1358,60 +1383,106 @@ body.has-app-bottom-nav {
   padding: 0 1px;
 }
 
-.app-bottom-nav-link:hover {
-  background: rgba(46, 111, 28, 0.06);
-  color: #2e4a28 !important;
+@media (hover: hover) and (pointer: fine) {
+  .app-bottom-nav-link:hover:not(.app-bottom-nav-link--featured) {
+    background: #e8f5e9;
+    color: var(--beanthentic-green) !important;
+    border-color: rgba(46, 111, 28, 0.2);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+    border-radius: 16px;
+    transform: translateY(-0.5px);
+  }
+
+  .app-bottom-nav-link:hover:not(.app-bottom-nav-link--featured) .app-bottom-nav-icon {
+    opacity: 1;
+    stroke-width: 2.25px;
+  }
 }
 
-.app-bottom-nav-link:active {
-  transform: scale(0.97);
-}
-
-.app-bottom-nav-link.is-active:not(.app-bottom-nav-link--featured),
-.app-bottom-nav-link[aria-current="page"]:not(.app-bottom-nav-link--featured) {
+.app-bottom-nav-link:active:not(.app-bottom-nav-link--featured),
+.app-bottom-nav-link.is-bottom-nav-press:not(.app-bottom-nav-link--featured),
+.app-bottom-nav-link:focus-visible:not(.app-bottom-nav-link--featured) {
+  outline: none;
+  transform: scale(0.98);
   color: var(--beanthentic-green) !important;
-  background: rgba(46, 111, 28, 0.11);
+  background: #e8f5e9;
+  border-color: rgba(46, 111, 28, 0.22);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+  border-radius: 16px;
 }
 
-.app-bottom-nav-link.is-active:not(.app-bottom-nav-link--featured) .app-bottom-nav-icon,
-.app-bottom-nav-link[aria-current="page"]:not(.app-bottom-nav-link--featured) .app-bottom-nav-icon {
+.app-bottom-nav-link:active:not(.app-bottom-nav-link--featured) .app-bottom-nav-icon,
+.app-bottom-nav-link.is-bottom-nav-press:not(.app-bottom-nav-link--featured) .app-bottom-nav-icon,
+.app-bottom-nav-link:focus-visible:not(.app-bottom-nav-link--featured) .app-bottom-nav-icon {
   opacity: 1;
   stroke-width: 2.25px;
 }
 
-.app-bottom-nav-about-btn.is-active:not(.app-bottom-nav-link--featured),
-.app-bottom-nav-about-btn[aria-current="page"]:not(.app-bottom-nav-link--featured) {
-  color: var(--beanthentic-green) !important;
-  background: rgba(46, 111, 28, 0.11);
+.app-bottom-nav-link--featured:focus-visible {
+  background: transparent !important;
 }
 
-.app-bottom-nav-about-btn.is-active:not(.app-bottom-nav-link--featured) .app-bottom-nav-icon,
-.app-bottom-nav-about-btn[aria-current="page"]:not(.app-bottom-nav-link--featured) .app-bottom-nav-icon {
-  opacity: 1;
-  stroke-width: 2.25px;
+.app-bottom-nav-link--featured:active .app-bottom-nav-icon-wrap,
+.app-bottom-nav-link--featured:focus-visible .app-bottom-nav-icon-wrap,
+.app-bottom-nav-link--featured.is-bottom-nav-press .app-bottom-nav-icon-wrap {
+  filter: brightness(1.05);
+  box-shadow:
+    0 11px 24px rgba(99, 60, 180, 0.34),
+    0 7px 16px rgba(20, 61, 34, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.24);
 }
 
-/* Center “Register Farm Portal” tab — always emphasized (app-style) */
+/* Center Register — elevated circular FAB (mint bar) */
 .app-bottom-nav-link--featured {
   position: relative;
-  z-index: 2;
-  /* below other tabs so Home / About / Map / Sign in stay visible on overlap */
+  z-index: 20;
   align-self: flex-end;
-  max-width: 28%;
-  margin-bottom: 0.15rem;
-  margin-top: -16px;
-  padding: 0.55rem 0.2rem 0.45rem !important;
-  border-radius: 18px 18px 14px 14px !important;
-  background: linear-gradient(165deg, #3a9f48 0%, var(--beanthentic-green) 50%, var(--beanthentic-green-dark) 100%) !important;
-  color: #ffffff !important;
-  border: 1px solid rgba(255, 255, 255, 0.38) !important;
-  box-shadow:
-    0 10px 26px rgba(25, 110, 50, 0.45),
-    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  flex: 0 0 auto;
+  max-width: 4.2rem;
+  min-width: 3.5rem;
+  margin: 0;
+  padding: 0 0.1rem 0.15rem !important;
+  gap: 0.12rem;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #1a4d22 !important;
 }
 
 .app-bottom-nav-link--featured .app-bottom-nav-icon-wrap {
-  height: 30px;
+  width: 3.2rem;
+  height: 3.2rem;
+  margin-top: -1.05rem;
+  border-radius: 50%;
+  background: linear-gradient(165deg, #2a8a3e 0%, #1b5c2e 55%, #143d22 100%);
+  box-shadow:
+    0 12px 26px rgba(99, 60, 180, 0.38),
+    0 8px 18px rgba(20, 61, 34, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+/* Register FAB: one icon at a time (stacked center; never side-by-side in flex) */
+#nav-register .app-bottom-nav-icon-wrap {
+  position: relative;
+}
+
+#nav-register .app-bottom-nav-register-svg {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#nav-register .app-bottom-nav-register-svg--complete {
+  display: none !important;
+}
+
+#nav-register.is-register-complete .app-bottom-nav-register-svg--pending {
+  display: none !important;
+}
+
+#nav-register.is-register-complete .app-bottom-nav-register-svg--complete {
+  display: block !important;
 }
 
 .app-bottom-nav-link--featured .app-bottom-nav-icon {
@@ -1420,28 +1491,44 @@ body.has-app-bottom-nav {
   stroke-width: 2.25px;
 }
 
-.app-bottom-nav-link--featured .app-bottom-nav-label {
+/* Register: pending = filled white shield; complete = outline shield + check */
+.app-bottom-nav-link--featured .app-bottom-nav-register-svg--pending {
+  stroke: none !important;
+  fill: #ffffff !important;
   color: #ffffff !important;
+}
+
+.app-bottom-nav-link--featured .app-bottom-nav-register-svg--pending path {
+  fill: #ffffff !important;
+}
+
+.app-bottom-nav-link--featured .app-bottom-nav-register-svg--complete {
+  fill: none !important;
+}
+
+.app-bottom-nav-link--featured .app-bottom-nav-register-svg--complete path {
+  fill: none;
+}
+
+.app-bottom-nav-link--featured .app-bottom-nav-label {
+  color: #1a4d22 !important;
   font-weight: 800;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  font-size: 0.55rem;
 }
 
 .app-bottom-nav-link--featured:hover {
-  filter: brightness(1.07);
-  color: #ffffff !important;
-  background: linear-gradient(165deg, #43a858 0%, var(--beanthentic-green-accent) 45%, var(--beanthentic-green-dark) 100%) !important;
+  filter: none;
+  background: transparent !important;
+}
+
+.app-bottom-nav-link--featured:hover .app-bottom-nav-icon-wrap {
+  filter: brightness(1.06);
 }
 
 .app-bottom-nav-link--featured:active {
-  transform: scale(0.96);
-}
-
-.app-bottom-nav-link--featured.is-active,
-.app-bottom-nav-link--featured[aria-current="page"] {
-  background: linear-gradient(165deg, #45b05c 0%, var(--beanthentic-green) 48%, #1a5c14 100%) !important;
-  box-shadow:
-    0 12px 30px rgba(25, 120, 55, 0.55),
-    inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  transform: scale(0.97);
 }
 
 @media (min-width: 480px) {
@@ -1457,14 +1544,15 @@ body.has-app-bottom-nav {
     border-radius: 16px;
   }
 
-  .app-bottom-nav-icon-wrap {
-    height: 30px;
+  .app-bottom-nav-link:not(.app-bottom-nav-link--featured) .app-bottom-nav-icon-wrap {
+    height: 38px;
+    min-height: 38px;
   }
 }
 
 @media (min-width: 901px) {
   body.has-app-bottom-nav {
-    padding-bottom: calc(4rem + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
   }
 
   .app-bottom-nav-inner {

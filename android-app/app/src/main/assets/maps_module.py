@@ -1932,42 +1932,74 @@ class MapsModule:
         }
     </script>
 
-    <nav class="app-bottom-nav" aria-label="Quick navigation">
+    <nav class="app-bottom-nav app-bottom-nav--mint" aria-label="Quick navigation">
         <div class="app-bottom-nav-inner">
-            <a href="/#home" class="app-bottom-nav-link">
+            <a href="/#home" id="nav-home" class="app-bottom-nav-link">
                 <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
                     <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                 </span>
                 <span class="app-bottom-nav-label">Home</span>
             </a>
-            <a href="/about.php" class="app-bottom-nav-link">
+            <a href="/qr.php" id="nav-qr" class="app-bottom-nav-link">
                 <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
-                    <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                    <svg class="app-bottom-nav-icon app-bottom-nav-icon--transaction" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6 7.25h9v2H6z"/><path fill="currentColor" d="M15 6 19 8.25 15 10.5z"/><path fill="currentColor" d="M9 14.25h9v2H9z"/><path fill="currentColor" d="M9 13.25 5 15.25 9 17.25z"/></svg>
                 </span>
-                <span class="app-bottom-nav-label">About</span>
+                <span class="app-bottom-nav-label">Transaction</span>
             </a>
-            <a href="/register-farm" class="app-bottom-nav-link app-bottom-nav-link--featured">
+            <a href="/register-farm" id="nav-register" class="app-bottom-nav-link app-bottom-nav-link--featured">
                 <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
-                    <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                    <svg class="app-bottom-nav-icon app-bottom-nav-register-svg app-bottom-nav-register-svg--pending" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    <svg class="app-bottom-nav-icon app-bottom-nav-register-svg app-bottom-nav-register-svg--complete" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
                 </span>
                 <span class="app-bottom-nav-label">Register</span>
             </a>
-            <a href="/maps" class="app-bottom-nav-link is-active" aria-current="page">
+            <a href="/transaction-history.html" id="nav-history" class="app-bottom-nav-link app-bottom-nav-link--history">
                 <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
-                    <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+                    <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
                 </span>
-                <span class="app-bottom-nav-label">Map</span>
+                <span class="app-bottom-nav-label">History</span>
             </a>
             <a href="/login.php" id="nav-signin" class="app-bottom-nav-link app-bottom-nav-link--signin" data-no-loader="true">
                 <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
-                    <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <svg class="app-bottom-nav-icon app-bottom-nav-icon--account" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.75"/><path d="M5.5 21v-.75a5 5 0 0 1 5-5h3a5 5 0 0 1 5 5v.75"/></svg>
                 </span>
-                <span class="app-bottom-nav-label">Sign in</span>
+                <span class="app-bottom-nav-label">Account</span>
             </a>
         </div>
     </nav>
     <script>
         (function () {
+            function syncMintBottomNavActive() {
+                var bar = document.querySelector('.app-bottom-nav');
+                if (!bar) return;
+                var path = (location.pathname || '').toLowerCase();
+                bar.querySelectorAll('.app-bottom-nav-link').forEach(function (a) {
+                    a.removeAttribute('aria-current');
+                });
+                function setActive(sel) {
+                    var el = bar.querySelector(sel);
+                    if (!el) return;
+                    el.setAttribute('aria-current', 'page');
+                }
+                if (path.indexOf('/register-farm') !== -1) {
+                    setActive('#nav-register');
+                } else if (path.indexOf('/maps') !== -1) {
+                    setActive('#nav-home');
+                }
+            }
+
+            function syncRegisterNavIconFromStorage() {
+                var nav = document.getElementById('nav-register');
+                if (!nav) return;
+                var done = false;
+                try {
+                    var id = localStorage.getItem('beanthentic_farmer_id');
+                    done = !!(id && String(id).trim());
+                } catch (_e) {}
+                nav.classList.toggle('is-register-complete', done);
+            }
+            window.beanthenticSyncRegisterNavIcon = syncRegisterNavIconFromStorage;
+
             function syncBottomNavAccount() {
                 var a = document.getElementById('nav-signin');
                 if (!a) return;
@@ -2002,13 +2034,21 @@ class MapsModule:
             }
 
             if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', syncBottomNavAccount);
+                document.addEventListener('DOMContentLoaded', function () {
+                    syncBottomNavAccount();
+                    syncMintBottomNavActive();
+                    syncRegisterNavIconFromStorage();
+                });
             } else {
                 syncBottomNavAccount();
+                syncMintBottomNavActive();
+                syncRegisterNavIconFromStorage();
             }
 
             window.addEventListener('storage', function (e) {
-                if (!e || e.key === 'beanthentic_user') syncBottomNavAccount();
+                if (!e) return;
+                if (e.key === 'beanthentic_user') syncBottomNavAccount();
+                if (e.key === 'beanthentic_farmer_id') syncRegisterNavIconFromStorage();
             });
             window.addEventListener('beanthentic-auth-changed', syncBottomNavAccount);
 

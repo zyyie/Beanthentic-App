@@ -49,14 +49,7 @@ function getBeanthenticUser() {
       return enrichUser(local);
     }
     const session = parseUser(sessionStorage.getItem(BEANTHENTIC_USER_KEY));
-    if (session) {
-      try {
-        localStorage.setItem(BEANTHENTIC_USER_KEY, JSON.stringify(session));
-      } catch (_err2) {
-        /* ignore */
-      }
-      return enrichUser(session);
-    }
+    if (session) return enrichUser(session);
   } catch (e) {
     /* ignore */
   }
@@ -149,9 +142,11 @@ function syncAppBottomNavActive() {
   if (!bar) return;
 
   const path = (location.pathname || '').toLowerCase();
-  const hash = (location.hash || '').toLowerCase();
 
   const isIndex = /(^|\/)(index\.php)?$/.test(path) || path === '/' || path.endsWith('/index.php');
+  const isTransactionHistoryPage =
+    path.endsWith('/transaction-history.html') ||
+    path.endsWith('/transaction-history.php');
   const isAboutPage =
     path.endsWith('/about.php') ||
     path.endsWith('/about') ||
@@ -161,51 +156,100 @@ function syncAppBottomNavActive() {
     path.endsWith('/how-to-get-there');
   const isAccount = path.endsWith('/account.php');
   const isLogin = path.endsWith('/login.php') || path.endsWith('/signup.php');
-  const isMaps = path.includes('/maps');
+  const isQr = path.endsWith('/qr.php');
   const isRegisterFarm = path.includes('/register-farm');
 
-  // Clear current active state
+  // Keep only accessibility state (no persistent "selected" pill styling in CSS)
   bar.querySelectorAll('.app-bottom-nav-link').forEach((a) => {
-    a.classList.remove('is-active');
     a.removeAttribute('aria-current');
   });
 
   const setActive = (selectorOrEl) => {
     const el = typeof selectorOrEl === 'string' ? bar.querySelector(selectorOrEl) : selectorOrEl;
     if (!el) return;
-    el.classList.add('is-active');
     el.setAttribute('aria-current', 'page');
   };
 
-  // Decide active tab deterministically
   if (isAccount || isLogin) {
     setActive('#nav-signin');
     return;
   }
-  if (isAboutPage) {
-    // About button may be a link or a button depending on page
-    setActive('.app-bottom-nav-about-btn, a[href*="about.php"]');
-    return;
-  }
-  if (isMaps) {
-    setActive('a[data-beanthentic-flask="/maps"], a[href*="/maps"]');
+  if (isQr) {
+    setActive('#nav-qr');
     return;
   }
   if (isRegisterFarm) {
-    setActive('a[data-beanthentic-flask="/register-farm"], a[href*="/register-farm"]');
+    setActive('#nav-register');
+    return;
+  }
+  if (isTransactionHistoryPage) {
+    setActive('#nav-history');
     return;
   }
   if (isIndex) {
-    if (hash.startsWith('#about')) {
-      setActive('.app-bottom-nav-about-btn');
-    } else {
-      setActive('a[href="#home"], a[href$="index.php#home"], a[href$="/#home"]');
-    }
+    setActive('#nav-home');
     return;
   }
 
-  // Fallback: default to Home if present
-  setActive('a[href="#home"], a[href$="index.php#home"], a[href$="/#home"]');
+  setActive('#nav-home');
+}
+
+const BEANTHENTIC_FARMER_ID_KEY = 'beanthentic_farmer_id';
+
+function hasRegisteredFarmPersisted() {
+  try {
+    const id = localStorage.getItem(BEANTHENTIC_FARMER_ID_KEY);
+    if (id != null && String(id).trim() !== '') return true;
+  } catch (_e) {
+    /* ignore */
+  }
+  return false;
+}
+
+function syncRegisterNavIconState() {
+  const nav = document.getElementById('nav-register');
+  if (!nav) return;
+  nav.classList.toggle('is-register-complete', hasRegisteredFarmPersisted());
+}
+
+window.beanthenticSyncRegisterNavIcon = syncRegisterNavIconState;
+
+/** Short "press flash" for bottom nav (no persistent selected highlight). */
+function bindBottomNavPressFlash() {
+  const bar = document.querySelector('.app-bottom-nav');
+  if (!bar || bar.dataset.pressFlashBound === '1') return;
+  bar.dataset.pressFlashBound = '1';
+
+  const clear = (link) => {
+    if (!link) return;
+    link.classList.remove('is-bottom-nav-press');
+  };
+
+  let lastLink = null;
+  let lastTimer = null;
+
+  const flash = (link) => {
+    if (!link) return;
+    if (lastTimer) clearTimeout(lastTimer);
+    if (lastLink && lastLink !== link) clear(lastLink);
+    lastLink = link;
+    link.classList.add('is-bottom-nav-press');
+    lastTimer = setTimeout(() => {
+      clear(link);
+      if (lastLink === link) lastLink = null;
+    }, 160);
+  };
+
+  bar.addEventListener(
+    'pointerdown',
+    (e) => {
+      const link = e.target && e.target.closest ? e.target.closest('a.app-bottom-nav-link') : null;
+      if (!link || !bar.contains(link)) return;
+      if (e.button != null && e.button !== 0) return;
+      flash(link);
+    },
+    true
+  );
 }
 
 /** Keeps the brown variety pill in sync with the visible About panel. */
@@ -257,9 +301,14 @@ class UIController {
     this.setupHeaderNavDrawer();
     this.loadYear();
     syncAppBottomNavActive();
+    syncRegisterNavIconState();
+    bindBottomNavPressFlash();
     window.addEventListener('hashchange', syncAppBottomNavActive);
     window.addEventListener('popstate', syncAppBottomNavActive);
     window.addEventListener('beanthentic-auth-changed', syncAuthNavigationLinks);
+    window.addEventListener('storage', (e) => {
+      if (e && e.key === BEANTHENTIC_FARMER_ID_KEY) syncRegisterNavIconState();
+    });
   }
 
   setupHeaderAccountShortcut() {
@@ -288,6 +337,17 @@ class UIController {
   }
 
   setupGlobalPageLoader() {
+    const body = document.body;
+    if (
+      body &&
+      (body.classList.contains('login-page') ||
+        body.classList.contains('signup-page') ||
+        body.classList.contains('tutorial-page'))
+    ) {
+      /* Auth / onboarding pages manage their own loaders (e.g. post-login overlay). */
+      return;
+    }
+
     let loader = document.getElementById('page-loader');
     if (!loader) {
       loader = document.createElement('div');
@@ -295,7 +355,8 @@ class UIController {
       loader.style.position = 'fixed';
       loader.style.inset = '0';
       loader.style.background = '#ffffff';
-      loader.style.display = 'flex';
+      /* Hidden until the user navigates via a link — avoids covering login/signup/etc. */
+      loader.style.display = 'none';
       loader.style.alignItems = 'center';
       loader.style.justifyContent = 'center';
       loader.style.flexDirection = 'column';
@@ -314,11 +375,22 @@ class UIController {
     }
 
     let startedAt = Date.now();
-    const minVisibleMs = 450;
+    const minVisibleMs = 2000;
     let hideTimer = null;
 
     const hideLoader = () => {
       if (!loader) return;
+      let visible = false;
+      try {
+        visible =
+          loader.style.display === 'flex' || window.getComputedStyle(loader).display === 'flex';
+      } catch (_err) {
+        visible = loader.style.display === 'flex';
+      }
+      if (!visible) {
+        loader.style.display = 'none';
+        return;
+      }
       const elapsed = Date.now() - startedAt;
       const delay = Math.max(0, minVisibleMs - elapsed);
       if (hideTimer) clearTimeout(hideTimer);
@@ -329,7 +401,7 @@ class UIController {
 
     window.addEventListener('load', hideLoader);
     if (hideTimer) clearTimeout(hideTimer);
-    hideTimer = setTimeout(hideLoader, minVisibleMs + 2200);
+    hideTimer = setTimeout(hideLoader, minVisibleMs + 2000);
 
     document.addEventListener(
       'click',

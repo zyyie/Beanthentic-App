@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#25671E" />
+  <title>Transaction History · Beanthentic Coffee</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <style>
+    body {
+      margin: 0;
+      background: #f7faf7;
+    }
+    .txn-history-page header {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: linear-gradient(180deg, #1d7a2a 0%, #145e1e 100%);
+      border-bottom: none;
+      border-radius: 0 0 14px 14px;
+      padding-top: env(safe-area-inset-top);
+    }
+    .txn-history-page .nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      min-height: 4.6rem;
+      padding: 0.72rem max(1.05rem, env(safe-area-inset-left, 0px)) 0.78rem
+        max(1.05rem, env(safe-area-inset-right, 0px));
+    }
+    .txn-header-back {
+      position: absolute;
+      left: max(1.05rem, env(safe-area-inset-left, 0px));
+      top: 50%;
+      transform: translateY(-50%);
+      border: 0;
+      background: transparent;
+      color: #ffffff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      padding: 0;
+      line-height: 0;
+    }
+    .txn-header-back svg {
+      width: 24px;
+      height: 24px;
+    }
+    .txn-history-page .txn-header-brand {
+      margin: 0;
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 1.7rem;
+      line-height: 1;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+      text-align: center;
+    }
+
+    .txn-history-shell {
+      width: min(100%, 680px);
+      margin: 0 auto;
+      padding: 1rem 0.9rem 6.8rem;
+      box-sizing: border-box;
+    }
+    .txn-filters {
+      margin-top: 0.2rem;
+      display: grid;
+      gap: 0.45rem;
+    }
+    .txn-chip-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.4rem;
+    }
+    .txn-chip {
+      min-height: 2.05rem;
+      border-radius: 999px;
+      border: none;
+      font-size: 0.86rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      background: #e5e7e4;
+      color: #1f5f25;
+      cursor: pointer;
+    }
+    .txn-chip.is-active {
+      background: #145e1e;
+      color: #ffffff;
+    }
+
+    .txn-period-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.42rem;
+    }
+    .txn-period {
+      min-height: 1.95rem;
+      border-radius: 999px;
+      border: none;
+      font-size: 0.86rem;
+      font-weight: 700;
+      background: #e5e7e4;
+      color: #1f2937;
+      cursor: pointer;
+    }
+
+    .txn-list {
+      margin-top: 0.85rem;
+      border-top: 1px solid rgba(17, 24, 39, 0.18);
+      background: #ffffff;
+    }
+    .txn-item {
+      display: grid;
+      grid-template-columns: 36px 1fr auto;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.9rem 0.35rem;
+      border-bottom: 1px solid rgba(17, 24, 39, 0.18);
+    }
+    .txn-item-arrow {
+      width: 26px;
+      height: 26px;
+      color: #1d7a2a;
+    }
+    .txn-item-main {
+      min-width: 0;
+    }
+    .txn-item-to {
+      margin: 0 0 0.1rem;
+      font-size: 0.95rem;
+      line-height: 1.2;
+      color: #111827;
+    }
+    .txn-item-ref {
+      margin: 0;
+      font-size: 0.82rem;
+      line-height: 1.2;
+      color: #374151;
+    }
+    .txn-item-qty {
+      font-size: 1.35rem;
+      font-weight: 800;
+      line-height: 1;
+      color: #111827;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+    }
+    .txn-item {
+      cursor: pointer;
+    }
+    .txn-item:hover {
+      background: #f6faf6;
+    }
+    .txn-item-arrow--accent {
+      color: #2563eb;
+    }
+    .txn-period.is-active {
+      background: #145e1e;
+      color: #ffffff;
+    }
+    .txn-list-empty {
+      margin: 0;
+      padding: 2.25rem 1rem;
+      text-align: center;
+      font-size: 0.92rem;
+      line-height: 1.45;
+      color: #6b7280;
+      background: #ffffff;
+      border-bottom: 1px solid rgba(17, 24, 39, 0.12);
+    }
+    .txn-receipt-view[hidden] {
+      display: none !important;
+    }
+    .txn-receipt-title {
+      margin: 0 0 1rem;
+      font-size: 1.55rem;
+      line-height: 1.15;
+      color: #111827;
+    }
+    .txn-receipt-card {
+      background: #ffffff;
+      border: 1px solid rgba(17, 24, 39, 0.16);
+      border-radius: 10px;
+      padding: 0.9rem;
+      display: grid;
+      gap: 0.5rem;
+    }
+    .txn-receipt-row {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 0.5rem;
+      align-items: baseline;
+      font-size: 0.92rem;
+      color: #111827;
+    }
+    .txn-receipt-key {
+      font-weight: 700;
+      color: #374151;
+    }
+    .txn-receipt-val {
+      text-align: right;
+      word-break: break-word;
+    }
+  </style>
+</head>
+<body class="has-app-bottom-nav txn-history-page">
+  <header>
+    <div class="nav">
+      <button type="button" id="txn-header-back" class="txn-header-back" aria-label="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18 9 12l6-6"/></svg>
+      </button>
+      <p id="txn-header-title" class="txn-header-brand">Transaction History</p>
+    </div>
+  </header>
+
+  <main class="txn-history-shell">
+    <section id="txn-history-list-view">
+      <section class="txn-filters" aria-label="Transaction filters">
+        <div class="txn-chip-row">
+          <button type="button" class="txn-chip is-active" data-variety="all">All</button>
+          <button type="button" class="txn-chip" data-variety="liberica">Liberica</button>
+          <button type="button" class="txn-chip" data-variety="excelsa">Excelsa</button>
+          <button type="button" class="txn-chip" data-variety="robusta">Robusta</button>
+        </div>
+        <div class="txn-period-row">
+          <button type="button" class="txn-period" data-period="month">Month</button>
+          <button type="button" class="txn-period" data-period="year">Year</button>
+        </div>
+      </section>
+
+      <section class="txn-list" aria-label="Transaction list">
+        <p id="txn-list-empty" class="txn-list-empty" hidden></p>
+        <div id="txn-list-root"></div>
+      </section>
+    </section>
+
+    <section id="txn-history-receipt-view" class="txn-receipt-view" hidden>
+      <h2 class="txn-receipt-title">Transaction Receipt</h2>
+      <div class="txn-receipt-card">
+        <div class="txn-receipt-row"><div class="txn-receipt-key">Buyer</div><div id="hist-receipt-buyer" class="txn-receipt-val">-</div></div>
+        <div class="txn-receipt-row"><div class="txn-receipt-key">Product</div><div id="hist-receipt-product" class="txn-receipt-val">-</div></div>
+        <div class="txn-receipt-row"><div class="txn-receipt-key">Quantity</div><div id="hist-receipt-qty" class="txn-receipt-val">-</div></div>
+        <div class="txn-receipt-row"><div class="txn-receipt-key">Amount</div><div id="hist-receipt-amount" class="txn-receipt-val">-</div></div>
+        <div class="txn-receipt-row"><div class="txn-receipt-key">Payment</div><div id="hist-receipt-payment" class="txn-receipt-val">-</div></div>
+        <div class="txn-receipt-row"><div class="txn-receipt-key">Payment Amt</div><div id="hist-receipt-payment-amount" class="txn-receipt-val">-</div></div>
+        <div class="txn-receipt-row"><div class="txn-receipt-key">Total</div><div id="hist-receipt-total" class="txn-receipt-val">-</div></div>
+        <div class="txn-receipt-row"><div class="txn-receipt-key">Change</div><div id="hist-receipt-change" class="txn-receipt-val">-</div></div>
+        <div class="txn-receipt-row"><div class="txn-receipt-key">Ref. No.</div><div id="hist-receipt-ref" class="txn-receipt-val">-</div></div>
+        <div class="txn-receipt-row"><div class="txn-receipt-key">Date</div><div id="hist-receipt-date" class="txn-receipt-val">-</div></div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="app-bottom-nav app-bottom-nav--mint" aria-label="Quick navigation">
+    <div class="app-bottom-nav-inner">
+      <a href="index.php#home" id="nav-home" class="app-bottom-nav-link">
+        <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
+          <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </span>
+        <span class="app-bottom-nav-label">Home</span>
+      </a>
+      <a href="qr.php" id="nav-qr" class="app-bottom-nav-link">
+        <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
+          <svg class="app-bottom-nav-icon app-bottom-nav-icon--transaction" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6 7.25h9v2H6z"/><path fill="currentColor" d="M15 6 19 8.25 15 10.5z"/><path fill="currentColor" d="M9 14.25h9v2H9z"/><path fill="currentColor" d="M9 13.25 5 15.25 9 17.25z"/></svg>
+        </span>
+        <span class="app-bottom-nav-label">Transaction</span>
+      </a>
+      <a href="http://10.0.2.2:5000/register-farm" id="nav-register" data-beanthentic-flask="/register-farm" class="app-bottom-nav-link app-bottom-nav-link--featured">
+        <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
+          <svg class="app-bottom-nav-icon app-bottom-nav-register-svg app-bottom-nav-register-svg--pending" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <svg class="app-bottom-nav-icon app-bottom-nav-register-svg app-bottom-nav-register-svg--complete" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+        </span>
+        <span class="app-bottom-nav-label">Register</span>
+      </a>
+      <a href="transaction-history.html" id="nav-history" class="app-bottom-nav-link app-bottom-nav-link--history">
+        <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
+          <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
+        </span>
+        <span class="app-bottom-nav-label">History</span>
+      </a>
+      <a href="login.php" id="nav-signin" class="app-bottom-nav-link app-bottom-nav-link--signin">
+        <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
+          <svg class="app-bottom-nav-icon app-bottom-nav-icon--account" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.75"/><path d="M5.5 21v-.75a5 5 0 0 1 5-5h3a5 5 0 0 1 5 5v.75"/></svg>
+        </span>
+        <span class="app-bottom-nav-label">Account</span>
+      </a>
+    </div>
+  </nav>
+
+  <script src="js/navigation.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/txn_history_store.js"></script>
+  <script>
+    (function () {
+      var varietyFilter = 'all';
+      var periodFilter = null;
+      var listRoot = document.getElementById('txn-list-root');
+      var emptyEl = document.getElementById('txn-list-empty');
+      var listView = document.getElementById('txn-history-list-view');
+      var receiptView = document.getElementById('txn-history-receipt-view');
+      var headerTitle = document.getElementById('txn-header-title');
+      var receiptBack = null;
+
+      function varietyFromRecord(r) {
+        var v = (r && r.variety ? String(r.variety) : '').toLowerCase();
+        if (v === 'liberica' || v === 'robusta' || v === 'excelsa') return v;
+        var p = (r && r.product ? String(r.product) : '').toLowerCase();
+        if (p.indexOf('liberica') >= 0) return 'liberica';
+        if (p.indexOf('robusta') >= 0) return 'robusta';
+        if (p.indexOf('excelsa') >= 0) return 'excelsa';
+        return '';
+      }
+
+      function passesFilters(r) {
+        if (varietyFilter !== 'all') {
+          if (varietyFromRecord(r) !== varietyFilter) return false;
+        }
+        if (periodFilter === 'month') {
+          var d = new Date(r.at);
+          var n = new Date();
+          if (isNaN(d.getTime()) || d.getFullYear() !== n.getFullYear() || d.getMonth() !== n.getMonth()) return false;
+        }
+        if (periodFilter === 'year') {
+          var d2 = new Date(r.at);
+          if (isNaN(d2.getTime()) || d2.getFullYear() !== new Date().getFullYear()) return false;
+        }
+        return true;
+      }
+
+      function arrowSvg(isAccent) {
+        var ns = 'http://www.w3.org/2000/svg';
+        var svg = document.createElementNS(ns, 'svg');
+        svg.setAttribute('class', 'txn-item-arrow' + (isAccent ? ' txn-item-arrow--accent' : ''));
+        svg.setAttribute('viewBox', '0 0 24 24');
+        svg.setAttribute('fill', 'none');
+        svg.setAttribute('stroke', 'currentColor');
+        svg.setAttribute('stroke-width', '2.1');
+        svg.setAttribute('stroke-linecap', 'round');
+        svg.setAttribute('stroke-linejoin', 'round');
+        svg.setAttribute('aria-hidden', 'true');
+        var p1 = document.createElementNS(ns, 'path');
+        p1.setAttribute('d', 'M4 20 20 4');
+        var p2 = document.createElementNS(ns, 'path');
+        p2.setAttribute('d', 'M8 4h12v12');
+        svg.appendChild(p1);
+        svg.appendChild(p2);
+        return svg;
+      }
+
+      function moneyLike(v) {
+        var n = Number(v);
+        if (!isFinite(n)) return '-';
+        return n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+
+      function firstNumber(obj, keys) {
+        for (var i = 0; i < keys.length; i++) {
+          var v = obj ? obj[keys[i]] : null;
+          var n = Number(v);
+          if (isFinite(n)) return n;
+        }
+        return null;
+      }
+
+      function firstText(obj, keys) {
+        for (var i = 0; i < keys.length; i++) {
+          var v = obj ? obj[keys[i]] : '';
+          if (v != null && String(v).trim() !== '') return String(v).trim();
+        }
+        return '';
+      }
+
+      function showListView() {
+        if (listView) listView.hidden = false;
+        if (receiptView) receiptView.hidden = true;
+        if (headerTitle) headerTitle.textContent = 'Transaction History';
+      }
+
+      function showReceiptView(r) {
+        if (!r || !receiptView || !listView) return;
+        listView.hidden = true;
+        receiptView.hidden = false;
+        if (headerTitle) headerTitle.textContent = 'Receipt History';
+        var amountNum = firstNumber(r, ['amount', 'totalAmount', 'amountValue']);
+        var paymentAmtNum = firstNumber(r, ['paymentAmount', 'paidAmount', 'payment_value']);
+        var totalNum = firstNumber(r, ['total', 'amount', 'totalAmount']);
+        var changeNum = firstNumber(r, ['change', 'changeAmount']);
+        var paymentText = firstText(r, ['payment', 'paymentMethod', 'modeOfPayment']);
+        document.getElementById('hist-receipt-buyer').textContent = r.buyer || '-';
+        document.getElementById('hist-receipt-product').textContent = r.product || '-';
+        document.getElementById('hist-receipt-qty').textContent =
+          (r.qty != null && String(r.qty) !== '' ? String(r.qty) : '-') + (r.unit ? String(r.unit).toUpperCase() : '');
+        document.getElementById('hist-receipt-amount').textContent = amountNum == null ? '0.00' : moneyLike(amountNum);
+        document.getElementById('hist-receipt-payment').textContent = paymentText || 'Cash';
+        document.getElementById('hist-receipt-payment-amount').textContent =
+          paymentAmtNum == null ? '0.00' : moneyLike(paymentAmtNum);
+        document.getElementById('hist-receipt-total').textContent = totalNum == null ? '0.00' : moneyLike(totalNum);
+        document.getElementById('hist-receipt-change').textContent = changeNum == null ? '0.00' : moneyLike(changeNum);
+        document.getElementById('hist-receipt-ref').textContent = r.ref || '-';
+        var d = new Date(r.at);
+        document.getElementById('hist-receipt-date').textContent = isNaN(d.getTime()) ? '-' : d.toLocaleString();
+      }
+
+      function renderList() {
+        if (!listRoot || !emptyEl) return;
+        showListView();
+        var all = window.BeanthenticTxnHistory ? window.BeanthenticTxnHistory.load() : [];
+        var filtered = all.filter(passesFilters);
+        listRoot.innerHTML = '';
+        if (filtered.length === 0) {
+          emptyEl.hidden = false;
+          if (all.length === 0) {
+            emptyEl.textContent =
+              'No transactions yet. Complete a transaction in Transaction (QR) and confirm the receipt to save it here.';
+          } else {
+            emptyEl.textContent = 'No transactions match these filters. Try All or a different time range.';
+          }
+          return;
+        }
+        emptyEl.hidden = true;
+        filtered.forEach(function (r, i) {
+          var art = document.createElement('article');
+          art.className = 'txn-item';
+          art.setAttribute('tabindex', '0');
+          art.setAttribute('role', 'button');
+          art.setAttribute('aria-label', 'Open receipt ' + (r.ref || ''));
+          art.appendChild(arrowSvg(i % 2 === 1));
+          var main = document.createElement('div');
+          main.className = 'txn-item-main';
+          var to = document.createElement('p');
+          to.className = 'txn-item-to';
+          to.textContent = 'To: ' + (r.buyer || '—');
+          var refp = document.createElement('p');
+          refp.className = 'txn-item-ref';
+          refp.textContent = 'Ref. No. ' + (r.ref || '—');
+          main.appendChild(to);
+          main.appendChild(refp);
+          var qty = document.createElement('div');
+          qty.className = 'txn-item-qty';
+          var unit = r.unit ? String(r.unit).toUpperCase() : '';
+          qty.textContent = (r.qty != null && String(r.qty) !== '' ? String(r.qty) : '—') + unit;
+          art.appendChild(main);
+          art.appendChild(qty);
+          art.addEventListener('click', function () { showReceiptView(r); });
+          art.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              showReceiptView(r);
+            }
+          });
+          listRoot.appendChild(art);
+        });
+      }
+
+      document.querySelectorAll('.txn-chip').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          varietyFilter = btn.getAttribute('data-variety') || 'all';
+          document.querySelectorAll('.txn-chip').forEach(function (b) {
+            b.classList.remove('is-active');
+          });
+          btn.classList.add('is-active');
+          renderList();
+        });
+      });
+
+      document.querySelectorAll('.txn-period').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var p = btn.getAttribute('data-period');
+          if (periodFilter === p) {
+            periodFilter = null;
+            btn.classList.remove('is-active');
+          } else {
+            periodFilter = p;
+            document.querySelectorAll('.txn-period').forEach(function (b) {
+              b.classList.remove('is-active');
+            });
+            btn.classList.add('is-active');
+          }
+          renderList();
+        });
+      });
+
+      var headerBackBtn = document.getElementById('txn-header-back');
+      if (headerBackBtn) {
+        headerBackBtn.addEventListener('click', function () {
+          if (receiptView && !receiptView.hidden) {
+            showListView();
+            return;
+          }
+          try {
+            if (window.history.length > 1) {
+              window.history.back();
+              return;
+            }
+          } catch (_e) {}
+          window.location.href = 'qr.php';
+        });
+      }
+
+      window.addEventListener('pageshow', renderList);
+      window.addEventListener('storage', function (e) {
+        if (e.key === (window.BeanthenticTxnHistory && window.BeanthenticTxnHistory.KEY)) renderList();
+      });
+      renderList();
+    })();
+  </script>
+  <script>
+    (function () {
+      function flaskBase() {
+        try {
+          var s = localStorage.getItem('beanthentic_flask_base');
+          if (s && String(s).replace(/\s/g, '')) {
+            s = String(s).replace(/\/$/, '');
+            // If a stale LAN IP was saved, reset to emulator-safe default.
+            if (/^https?:\/\/192\.168\./i.test(s)) {
+              try { localStorage.removeItem('beanthentic_flask_base'); } catch (_e) {}
+            } else {
+              return s;
+            }
+          }
+        } catch (e) {}
+        if (typeof location !== 'undefined' && (location.protocol === 'http:' || location.protocol === 'https:')) {
+          return (location.origin || '').replace(/\/$/, '');
+        }
+        return 'http://10.0.2.2:5000';
+      }
+      var b = flaskBase();
+      document.querySelectorAll('a[data-beanthentic-flask]').forEach(function (a) {
+        var p = a.getAttribute('data-beanthentic-flask');
+        if (p) a.setAttribute('href', b + p);
+      });
+    })();
+  </script>
+</body>
+</html>

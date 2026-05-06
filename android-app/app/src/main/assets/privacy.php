@@ -80,113 +80,124 @@
     </div>
   </header>
 
-  <main class="auth-main">
-    <div class="auth-card" style="max-width: 48rem;">
-      <a href="index.php#home" class="news-portal-back">
+  <main class="auth-main" style="padding-top: 0.35rem; padding-bottom: 1.2rem;">
+    <div class="auth-card" style="max-width: 49rem; background: #f1f3f4; border: none; box-shadow: none; padding: clamp(0.85rem, 2.8vw, 1.35rem) clamp(0.95rem, 3.2vw, 1.45rem) calc(4.95rem + env(safe-area-inset-bottom, 0px));">
+      <a href="about.php" class="news-portal-back" onclick="if(window.history.length > 1){ event.preventDefault(); window.history.back(); }" style="margin-bottom: 1rem;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true">
           <path d="m12 19-7-7 7-7"/>
           <path d="M19 12H5"/>
         </svg>
-        Back to Home
+        Back
       </a>
-      <h1>Privacy Policy</h1>
-      <p class="auth-lead">How Beanthentic Coffee handles information when you use this app.</p>
-      <div style="display:grid; gap:1rem; font-size:0.92rem; color:#6b574b; line-height:1.7;">
-        <section>
-          <h2 style="margin:0 0 0.35rem; font-size:1rem; color:#2c241c;">1. Overview</h2>
-          <p style="margin:0;">
-            Beanthentic is a coffee-focused platform designed to help users explore local coffee information, support farmer visibility,
-            and use tools such as account access, Register Farm registration, profile sharing, maps, and related settings pages. This Privacy Policy
-            explains what information may be collected through the app, how it is used, and how it is protected.
-          </p>
-        </section>
-
-        <section>
-          <h2 style="margin:0 0 0.35rem; font-size:1rem; color:#2c241c;">2. Information We May Collect</h2>
-          <p style="margin:0 0 0.35rem;">
-            Depending on the feature you use, Beanthentic may collect information that you voluntarily provide, including:
-          </p>
-          <ul style="margin:0; padding-left:1.15rem;">
-            <li>Your name and email address when you create or use an account.</li>
-            <li>Farmer or farm registration details submitted through the Register Farm-related forms.</li>
-            <li>Profile-related information shown through QR or profile sharing features.</li>
-            <li>Preference data such as notification settings and saved app options.</li>
+      <h1 style="margin-bottom: 0.25rem;">
+        <span style="color:#256f2a;">Privacy</span>
+        <span style="color:#5a351f;">Notice</span>
+      </h1>
+      <p style="margin: 0 0 0.85rem; font-size: 0.92rem; font-weight: 700; color: #1d1d1d;">Last Updated: May 3, 2026</p>
+      <p style="margin: 0 0 0.38rem; font-size: 0.92rem; color:#353535; line-height:1.34;">
+        Welcome to Beanthentic. We are committed to protecting the privacy and security of information
+        shared by coffee farmers and stakeholders. This Privacy Notice explains how we collect, use, and
+        safeguard data within our Random Forest-driven and QR Code-based Coffee Farmer Profiling System.
+      </p>
+      <div style="display:grid; gap:0.3rem; font-size:0.92rem; color:#1f1f1f; line-height:1.34;">
+        <section style="margin:0;">
+          <h2 style="margin:0 0 0.18rem; font-size:1rem; color:#111; font-weight: 800;">1. Information We Collect</h2>
+          <p style="margin:0 0 0.2rem;">To effectively automate the profiling process and assess eligibility for Geographical Indication (GI) recognition, we collect the following types of information:</p>
+          <ul style="margin:0; padding-left:1.05rem;">
+            <li>Farmer Profile Data: Full name, contact details, and farm location.</li>
+            <li>Agricultural Data: farm size, coffee variety (e.g., Kapeng Barako), elevation, and specific farming practices.</li>
+            <li>System-Generated Data: Unique QR codes assigned to profiles for identification and data retrieval.</li>
           </ul>
         </section>
 
-        <section>
-          <h2 style="margin:0 0 0.35rem; font-size:1rem; color:#2c241c;">3. How We Use Your Information</h2>
-          <p style="margin:0 0 0.35rem;">
-            The information collected through Beanthentic may be used to:
+        <section style="margin:0;">
+          <h2 style="margin:0 0 0.18rem; font-size:1rem; color:#111; font-weight: 800;">2. How We Use Your Information</h2>
+          <p style="margin:0 0 0.2rem;">The data collected via Beanthentic is used strictly for:</p>
+          <ul style="margin:0; padding-left:1.05rem;">
+            <li>Profiling &amp; Eligibility Assessment: Automating the evaluation of whether a farm meets the regional standards for GI readiness.</li>
+            <li>Data Management: Maintaining an organized database of coffee farmers in Lipa City and surrounding areas to support the local coffee industry.</li>
+            <li>System Improvement: Refining our Random Forest algorithms to ensure more accurate profiling and data-driven insights.</li>
+          </ul>
+          <p style="margin:0.28rem 0 0;">
+            Note: Beanthentic is a profiling and support tool. This system does not issue official GI certifications, digital or printed.
+            Its purpose is to automate data gathering to support the GI application process at a regional level.
           </p>
-          <ul style="margin:0; padding-left:1.15rem;">
-            <li>Provide account access and personalize the app experience.</li>
-            <li>Process and display Register Farm registration or profile-related submissions.</li>
-            <li>Generate profile links, QR references, and related account tools.</li>
-            <li>Save your settings and improve usability across sessions.</li>
-            <li>Support platform administration, review workflows, and user assistance.</li>
+        </section>
+
+        <section style="margin:0;">
+          <h2 style="margin:0 0 0.18rem; font-size:1rem; color:#111; font-weight: 800;">3. Data Sharing and Disclosure</h2>
+          <p style="margin:0;">
+            We do not sell or rent personal information to third parties. Data may be shared with authorized local government units or agricultural organizations solely for the purpose of supporting regional coffee industry initiatives and GI recognition readiness.
+          </p>
+        </section>
+
+        <section style="margin:0;">
+          <h2 style="margin:0 0 0.18rem; font-size:1rem; color:#111; font-weight: 800;">4. Data Security</h2>
+          <p style="margin:0;">
+            We implement technical and organizational measures to protect your data against unauthorized access, loss, or alteration.
+            Access to the profiling database is restricted to authorized personnel involved in the Beanthentic project.
+          </p>
+        </section>
+
+        <section style="margin:0;">
+          <h2 style="margin:0 0 0.18rem; font-size:1rem; color:#111; font-weight: 800;">5. Your Rights</h2>
+          <p style="margin:0 0 0.2rem;">As a participant in the Beanthentic profiling system, you have the right to:</p>
+          <ul style="margin:0; padding-left:1.05rem;">
+            <li>Access and review your profiled information.</li>
+            <li>Request corrections to any inaccurate data.</li>
+            <li>Inquire about the logic used in our automated profiling assessments.</li>
           </ul>
         </section>
 
-        <section>
-          <h2 style="margin:0 0 0.35rem; font-size:1rem; color:#2c241c;">4. Local Storage and Device Data</h2>
+        <section style="margin:0;">
+          <h2 style="margin:0 0 0.18rem; font-size:1rem; color:#111; font-weight: 800;">6. Contact Us</h2>
           <p style="margin:0;">
-            Some Beanthentic features use local or session storage on your device to remember your account state, settings, saved profile
-            preferences, and similar app data. This helps the app function smoothly without requiring you to re-enter the same details every time.
-          </p>
-        </section>
-
-        <section>
-          <h2 style="margin:0 0 0.35rem; font-size:1rem; color:#2c241c;">5. Profile Links, QR Features, and Shared Data</h2>
-          <p style="margin:0;">
-            If you use Beanthentic profile or QR features, some information you choose to save or share may be included in generated links
-            or profile pages. Please review the information you submit and only share links or QR codes when you are comfortable doing so.
-          </p>
-        </section>
-
-        <section>
-          <h2 style="margin:0 0 0.35rem; font-size:1rem; color:#2c241c;">6. Data Sharing</h2>
-          <p style="margin:0;">
-            Beanthentic does not sell your personal information. Information may be used within the platform to support its intended services,
-            including farmer visibility, account functions, registration review workflows, and user support. Data may also be displayed where
-            required by the feature you are actively using.
-          </p>
-        </section>
-
-        <section>
-          <h2 style="margin:0 0 0.35rem; font-size:1rem; color:#2c241c;">7. Data Security</h2>
-          <p style="margin:0;">
-            We aim to handle information responsibly and limit collection to what is relevant to the app’s functions. However, no digital
-            system can guarantee absolute security. Users should also protect their own devices, accounts, and shared links.
-          </p>
-        </section>
-
-        <section>
-          <h2 style="margin:0 0 0.35rem; font-size:1rem; color:#2c241c;">8. Your Choices</h2>
-          <p style="margin:0;">
-            You may choose what information to provide in Beanthentic. You may also sign out, adjust settings, and avoid sharing optional
-            profile or registration details when not required by a feature.
-          </p>
-        </section>
-
-        <section>
-          <h2 style="margin:0 0 0.35rem; font-size:1rem; color:#2c241c;">9. Updates to This Policy</h2>
-          <p style="margin:0;">
-            This Privacy Policy may be updated from time to time to reflect changes in the app, its features, or its data practices.
-            Continued use of Beanthentic after updates means you accept the revised policy.
-          </p>
-        </section>
-
-        <section>
-          <h2 style="margin:0 0 0.35rem; font-size:1rem; color:#2c241c;">10. Contact</h2>
-          <p style="margin:0;">
-            If you have questions about this Privacy Policy or how your information is used in Beanthentic, please contact the team through
-            the official channels linked in <strong>Social</strong> within the app menu.
+            If you have questions regarding this Privacy Notice or how your data is handled within the Beanthentic system,
+            please contact the development team at the Polytechnic University of the Philippines - Sto. Tomas Campus.
           </p>
         </section>
       </div>
+      <p style="margin:0.42rem 0 0; font-size:0.82rem; color:#6f6f6f; font-style: italic;">
+        This notice is designed to comply with the Data Privacy Act of 2012 (Republic Act No. 10173) of the Philippines.
+      </p>
     </div>
   </main>
+
+  <nav class="app-bottom-nav app-bottom-nav--mint" aria-label="Quick navigation">
+    <div class="app-bottom-nav-inner">
+      <a href="index.php#home" id="nav-home" class="app-bottom-nav-link">
+        <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
+          <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </span>
+        <span class="app-bottom-nav-label">Home</span>
+      </a>
+      <a href="qr.php" id="nav-qr" class="app-bottom-nav-link">
+        <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
+          <svg class="app-bottom-nav-icon app-bottom-nav-icon--transaction" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6 7.25h9v2H6z"/><path fill="currentColor" d="M15 6 19 8.25 15 10.5z"/><path fill="currentColor" d="M9 14.25h9v2H9z"/><path fill="currentColor" d="M9 13.25 5 15.25 9 17.25z"/></svg>
+        </span>
+        <span class="app-bottom-nav-label">Transaction</span>
+      </a>
+      <a href="/register-farm" id="nav-register" class="app-bottom-nav-link app-bottom-nav-link--featured">
+        <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
+          <svg class="app-bottom-nav-icon app-bottom-nav-register-svg app-bottom-nav-register-svg--pending" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <svg class="app-bottom-nav-icon app-bottom-nav-register-svg app-bottom-nav-register-svg--complete" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+        </span>
+        <span class="app-bottom-nav-label">Register</span>
+      </a>
+      <a href="transaction-history.html" id="nav-history" class="app-bottom-nav-link app-bottom-nav-link--history">
+        <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
+          <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
+        </span>
+        <span class="app-bottom-nav-label">History</span>
+      </a>
+      <a href="account.php" id="nav-signin" class="app-bottom-nav-link app-bottom-nav-link--signin">
+        <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
+          <svg class="app-bottom-nav-icon app-bottom-nav-icon--account" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.75"/><path d="M5.5 21v-.75a5 5 0 0 1 5-5h3a5 5 0 0 1 5 5v.75"/></svg>
+        </span>
+        <span class="app-bottom-nav-label">Account</span>
+      </a>
+    </div>
+  </nav>
 
   <script src="js/navigation.js"></script>
   <script src="js/ui.js"></script>

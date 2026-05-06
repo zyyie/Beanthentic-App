@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#25671E" />
+  <title>Personal Information · Beanthentic Coffee</title>
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <style>
+    body.pi-page { margin: 0; background: #f3f8ff; }
+    .pi-page header {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: linear-gradient(180deg, #1d7a2a 0%, #145e1e 100%);
+      border-radius: 0 0 16px 16px;
+      padding-top: env(safe-area-inset-top);
+    }
+    .pi-page .nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      min-height: 4.4rem;
+      padding: 0.6rem max(1rem, env(safe-area-inset-left, 0px)) 0.7rem max(1rem, env(safe-area-inset-right, 0px));
+    }
+    .pi-header-back {
+      position: absolute;
+      left: max(0.9rem, env(safe-area-inset-left, 0px));
+      top: 50%;
+      transform: translateY(-50%);
+      border: 0;
+      background: transparent;
+      color: #ffffff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      cursor: pointer;
+      line-height: 0;
+    }
+    .pi-header-back svg { width: 24px; height: 24px; }
+    .pi-header-title {
+      margin: 0;
+      color: #ffffff;
+      font-size: 1.55rem;
+      line-height: 1;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .pi-main {
+      width: min(100%, 620px);
+      margin: 0 auto;
+      padding: 1.15rem 1.05rem 6.3rem;
+      box-sizing: border-box;
+    }
+    .pi-card {
+      background: #ffffff;
+      border: 1px solid rgba(17, 24, 39, 0.06);
+      border-radius: 16px;
+      box-shadow: 0 10px 24px rgba(17, 24, 39, 0.06);
+      padding: 0.68rem 1rem;
+      min-height: 430px;
+    }
+    .pi-row { padding: 1.05rem 0.2rem 1rem; border-bottom: 1px solid rgba(17, 24, 39, 0.12); }
+    .pi-row:last-child { border-bottom: none; }
+    .pi-label { margin: 0 0 0.22rem; color: #4b5563; font-size: 0.95rem; line-height: 1.22; }
+    .pi-value { margin: 0; color: #111827; font-size: 1.68rem; line-height: 1.14; font-weight: 800; }
+  </style>
+</head>
+<body class="pi-page">
+  <header>
+    <div class="nav">
+      <button type="button" id="pi-header-back" class="pi-header-back" aria-label="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18 9 12l6-6"/></svg>
+      </button>
+      <p class="pi-header-title">Personal Information</p>
+    </div>
+  </header>
+
+  <main class="pi-main">
+    <section class="pi-card" aria-label="Personal Information Details">
+      <div class="pi-row">
+        <p class="pi-label">Full Name</p>
+        <p class="pi-value" id="pi-full-name">—</p>
+      </div>
+      <div class="pi-row">
+        <p class="pi-label">Phone Number</p>
+        <p class="pi-value" id="pi-phone">—</p>
+      </div>
+      <div class="pi-row">
+        <p class="pi-label">Current Address</p>
+        <p class="pi-value" id="pi-address">—</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/navigation.js"></script>
+  <script src="js/ui.js"></script>
+  <script>
+    (function () {
+      function parseUser(raw) {
+        if (!raw) return null;
+        try { var u = JSON.parse(raw); return (u && u.email) ? u : null; } catch (_e) { return null; }
+      }
+      function getUser() {
+        var u = null;
+        try { u = parseUser(localStorage.getItem('beanthentic_user')); } catch (_e1) {}
+        if (!u) { try { u = parseUser(sessionStorage.getItem('beanthentic_user')); } catch (_e2) {} }
+        return u;
+      }
+      function getKnownUserName(email) {
+        var cleanEmail = String(email || '').trim().toLowerCase();
+        if (!cleanEmail) return '';
+        try {
+          var raw = localStorage.getItem('beanthentic_user_name_map') || sessionStorage.getItem('beanthentic_user_name_map');
+          var map = raw ? JSON.parse(raw) : {};
+          return map && typeof map[cleanEmail] === 'string' ? String(map[cleanEmail]).trim() : '';
+        } catch (_err) { return ''; }
+      }
+      function getFarmerProfile() {
+        try {
+          var raw = localStorage.getItem('beanthentic_farmer_profile') || sessionStorage.getItem('beanthentic_farmer_profile');
+          if (!raw) return null;
+          var p = JSON.parse(raw);
+          return p && typeof p === 'object' ? p : null;
+        } catch (_e) { return null; }
+      }
+      function formatPhone(raw) {
+        var s = String(raw || '').trim();
+        if (!s) return '';
+        s = s.replace(/[\s\-]/g, '');
+        if (s.startsWith('+63')) return s;
+        if (s.startsWith('63') && s.length >= 11) return '+63' + s.slice(2);
+        if (s.startsWith('09') && s.length === 11) return '+63' + s.slice(1);
+        return s;
+      }
+      function render() {
+        var u = getUser() || {};
+        var p = getFarmerProfile() || {};
+        var email = String(u.email || '').trim();
+        var fullFromFarmer = String(p.name || '').trim();
+        if (!fullFromFarmer) {
+          var first = String(p.first_name || '').trim();
+          var last = String(p.last_name || '').trim();
+          fullFromFarmer = (first || last) ? (first + ' ' + last).trim() : '';
+        }
+        var name = fullFromFarmer || getKnownUserName(email) || String(u.name || '').trim();
+        if (!name) name = email.split('@')[0] || 'Member';
+        var phone = formatPhone(p.phone || u.phone || u.mobile || '');
+        if (!phone) {
+          var maybe = email.split('@')[0] || '';
+          if (/^\+?\d{10,14}$/.test(maybe) || /^09\d{9}$/.test(maybe)) phone = formatPhone(maybe);
+        }
+        var address = String(p.address || p.current_address || p.location || p.barangay || u.address || u.current_address || u.location || '').trim() || '—';
+        var elName = document.getElementById('pi-full-name');
+        var elPhone = document.getElementById('pi-phone');
+        var elAddress = document.getElementById('pi-address');
+        if (elName) elName.textContent = name;
+        if (elPhone) elPhone.textContent = phone || '—';
+        if (elAddress) elAddress.textContent = address;
+      }
+      var backBtn = document.getElementById('pi-header-back');
+      if (backBtn) {
+        backBtn.addEventListener('click', function () {
+          try {
+            if (window.history.length > 1) {
+              window.history.back();
+              return;
+            }
+          } catch (_e) {}
+          window.location.href = 'account_settings.html';
+        });
+      }
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', render);
+      else render();
+    })();
+  </script>
+</body>
+</html>

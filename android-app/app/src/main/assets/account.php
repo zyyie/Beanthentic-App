@@ -9,140 +9,280 @@
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/responsive.css">
+  <style>
+    .account-portfolio-page header .nav {
+      display: flex;
+      align-items: center;
+      position: relative;
+      justify-content: center;
+      min-height: 4.2rem;
+      width: 100%;
+    }
+    .account-portfolio-page .account-header-back {
+      position: absolute;
+      left: 0.7rem;
+      top: 50%;
+      transform: translateY(-50%);
+      border: 0;
+      background: transparent;
+      color: #ffffff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      padding: 0;
+      line-height: 0;
+    }
+    .account-portfolio-page .account-header-back svg {
+      width: 24px;
+      height: 24px;
+    }
+    .account-portfolio-page .account-header-title {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      margin: 0;
+      color: #ffffff;
+      font-size: 1.65rem;
+      line-height: 1;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      text-align: center;
+      white-space: nowrap;
+    }
+    body.account-portfolio-page {
+      background: #eef6ff;
+    }
+    .account-simple-main {
+      width: min(100%, 520px);
+      margin: 0 auto;
+      padding: 1rem 0.72rem 6.2rem;
+      box-sizing: border-box;
+    }
+    .account-dash {
+      background: #ffffff;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      border-radius: 18px;
+      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+      padding: 0.5rem 0.5rem 1.05rem;
+    }
+    .account-dash-top {
+      text-align: center;
+      padding: 0.25rem 0.25rem 0.45rem;
+    }
+    .account-simple-avatar {
+      width: 128px;
+      height: 128px;
+      border-radius: 999px;
+      background: #d9d9d9;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 0.68rem;
+    }
+    .account-simple-avatar span {
+      font-weight: 800;
+      font-size: 1.7rem;
+      color: rgba(17, 24, 39, 0.5);
+      letter-spacing: 0.02em;
+    }
+    .account-simple-name {
+      margin: 0;
+      font-size: 2rem;
+      font-weight: 800;
+      color: #111827;
+      line-height: 1.06;
+      letter-spacing: -0.01em;
+    }
+    .account-simple-phone {
+      margin: 0.15rem 0 0;
+      font-size: 0.72rem;
+      color: #1f2937;
+      font-style: italic;
+      line-height: 1.2;
+    }
+    .account-simple-status {
+      margin: 0.12rem 0 0;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #6b7280;
+      line-height: 1.1;
+    }
+    .account-filter-row {
+      margin: 0.65rem 0 0.75rem;
+      display: flex;
+      justify-content: center;
+      gap: 0.48rem;
+      flex-wrap: wrap;
+    }
+    .account-filter-pill {
+      border: 0;
+      border-radius: 999px;
+      min-height: 34px;
+      padding: 0.38rem 1rem;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #4b5563;
+      background: #e5e7eb;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+    .account-filter-count {
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      color: #1f2937;
+      opacity: 0.9;
+    }
+    .account-filter-pill.is-active {
+      color: #ffffff;
+      background: #145e1e;
+    }
+    .account-filter-pill.is-active .account-filter-count {
+      color: rgba(255, 255, 255, 0.95);
+      opacity: 0.95;
+    }
+    .account-stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 145px));
+      gap: 0.35rem;
+      justify-content: center;
+    }
+    .account-stat {
+      border-radius: 12px;
+      padding: 0.4rem 0.4rem 0.42rem;
+      min-height: 92px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+    .account-stat-title {
+      margin: 0;
+      font-size: 0.56rem;
+      font-weight: 700;
+      line-height: 1.2;
+      color: #0f172a;
+    }
+    .account-stat-sub {
+      margin: 0 0 0.28rem;
+      font-size: 0.45rem;
+      font-style: italic;
+      color: #9ca3af;
+      line-height: 1.1;
+    }
+    .account-stat-value {
+      margin: 0;
+      font-size: 1.8rem;
+      line-height: 0.95;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      color: #ffffff;
+      text-transform: uppercase;
+    }
+    .account-stat--total {
+      background: #145e1e;
+    }
+    .account-stat--total .account-stat-title {
+      color: #ffffff;
+    }
+    .account-stat--total .account-stat-sub {
+      color: #d9efe0;
+    }
+    .account-stat--remaining {
+      background: #dfe8e0;
+    }
+    .account-stat--remaining .account-stat-value {
+      color: #145e1e;
+    }
+    .account-qr-wrap {
+      margin-top: 0.95rem;
+      display: flex;
+      justify-content: center;
+      width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
+      background: #ffffff;
+      border: 1px solid rgba(17, 24, 39, 0.12);
+      border-radius: 12px;
+      padding: 0.28rem;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+    }
+    .account-qr-img {
+      width: 170px;
+      height: 170px;
+      display: block;
+      object-fit: contain;
+      background: #ffffff;
+      border-radius: 8px;
+      border: 1px solid rgba(17, 24, 39, 0.05);
+      padding: 0.35rem;
+      box-sizing: border-box;
+    }
+  </style>
 </head>
 <body class="has-app-bottom-nav account-portfolio-page">
   <header>
     <div class="nav">
-      <button
-        type="button"
-        id="header-burger-btn"
-        class="header-burger-btn"
-        aria-label="Open menu"
-        aria-expanded="false"
-        aria-controls="header-nav-drawer"
-      >
-        <span class="header-burger-line" aria-hidden="true"></span>
-        <span class="header-burger-line" aria-hidden="true"></span>
-        <span class="header-burger-line" aria-hidden="true"></span>
+      <button type="button" id="account-header-back" class="account-header-back" aria-label="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18 9 12l6-6"/></svg>
       </button>
-      <div class="nav-logo-wrap">
-        <a href="index.php#home" class="logo" aria-label="Beanthentic home">
-          <img class="logo-mark" src="beanthentic_logo.png" alt="Beanthentic" />
-        </a>
-      </div>
-      <div class="nav-right-cluster">
-        <div id="header-account-snippet" class="header-account-snippet" hidden>
-          <span class="header-account-avatar" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          </span>
-          <span id="header-account-display" class="header-account-name"></span>
-        </div>
-        <button
-          type="button"
-          id="header-notifications-btn"
-          class="header-notifications-btn"
-          aria-label="Notifications"
-          title="Notifications"
-        >
-          <svg class="header-notifications-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
-        </button>
-      </div>
-    </div>
-    <div id="header-nav-drawer" class="header-nav-drawer" hidden>
-      <div class="header-nav-drawer-backdrop" aria-hidden="true"></div>
-      <aside class="header-nav-drawer-panel" role="dialog" aria-modal="true" aria-label="Menu">
-        <div class="header-nav-drawer-inner">
-          <div id="header-drawer-account" class="header-drawer-account"></div>
-          <a href="social.php" class="header-drawer-link header-drawer-link--social">
-            <svg class="header-drawer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            <span>Social</span>
-          </a>
-          <a href="privacy.php" class="header-drawer-link">
-            <svg class="header-drawer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
-            <span>Privacy Policy</span>
-          </a>
-          <a href="news.php" class="header-drawer-link">
-            <svg class="header-drawer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M4 19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12z"/>
-              <path d="M8 9h8"/>
-              <path d="M8 13h8"/>
-              <path d="M8 17h5"/>
-            </svg>
-            <span>Updates</span>
-          </a>
-          <a href="settings.php" class="header-drawer-link">
-            <svg class="header-drawer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-            <span>Settings</span>
-          </a>
-          <button type="button" id="header-sign-out-btn" class="header-drawer-signout" hidden>Sign out</button>
-        </div>
-      </aside>
+      <p class="account-header-title">Farmer Account</p>
     </div>
   </header>
 
-  <main class="account-portfolio-main" id="account-main">
-    <article class="account-portfolio" id="account-portfolio-root" hidden>
-      <header class="account-portfolio-hero">
-        <div class="account-portfolio-avatar" aria-hidden="true">
-          <span class="account-portfolio-avatar-initials" id="account-avatar-initials"></span>
+  <main class="account-simple-main" id="account-main">
+    <section class="account-dash" id="account-simple-root" hidden>
+      <div class="account-dash-top">
+        <div class="account-simple-avatar" aria-hidden="true">
+          <span id="account-simple-initials"></span>
         </div>
-        <p class="account-portfolio-kicker">Beanthentic member</p>
-        <h1 class="account-portfolio-name" id="account-display-name"></h1>
-        <p class="account-portfolio-tagline" id="account-display-email"></p>
-      </header>
-
-      <div class="account-portfolio-body">
-        <section class="account-portfolio-section" aria-labelledby="account-about-heading">
-          <h2 class="account-portfolio-section-title" id="account-about-heading">About you</h2>
-          <p class="account-portfolio-bio" id="account-bio-text"></p>
-        </section>
-
-        <div class="account-portfolio-stats" role="list">
-          <div class="account-portfolio-stat" role="listitem">
-            <span class="account-portfolio-stat-label">Member since</span>
-            <span class="account-portfolio-stat-value" id="account-member-since">—</span>
-          </div>
-          <div class="account-portfolio-stat" role="listitem">
-            <span class="account-portfolio-stat-label">Account</span>
-            <span class="account-portfolio-stat-value account-portfolio-stat-value--accent">Active</span>
-          </div>
-        </div>
-
-        <section class="account-portfolio-section" aria-labelledby="account-contact-heading">
-          <h2 class="account-portfolio-section-title" id="account-contact-heading">Contact</h2>
-          <dl class="account-portfolio-dl">
-            <div>
-              <dt>Email</dt>
-              <dd id="account-detail-email"></dd>
-            </div>
-          </dl>
-        </section>
-
-        <section class="account-portfolio-section" aria-labelledby="account-qr-heading">
-          <h2 class="account-portfolio-section-title" id="account-qr-heading">Profile QR</h2>
-          <div class="profile-qr-card">
-            <a href="#" id="account-profile-qr-link" class="profile-qr-link" data-no-loader="true" target="_blank" rel="noopener">Open profile link</a>
-            <div class="profile-qr-preview">
-              <img id="account-profile-qr-img" class="profile-qr-img" alt="Profile QR code" />
-            </div>
-            <p class="profile-qr-url" id="account-profile-qr-url"></p>
-            <p class="profile-qr-caption">Scan to open your profile.</p>
-            <div class="profile-qr-actions">
-              <button type="button" class="btn-primary profile-qr-btn" id="account-profile-qr-download">Download</button>
-              <button type="button" class="btn-primary profile-qr-btn profile-qr-btn--secondary" id="account-profile-qr-share">Share</button>
-            </div>
-          </div>
-        </section>
-
-        <div class="account-portfolio-actions">
-          <button type="button" id="account-page-sign-out" class="btn-primary account-portfolio-signout">Sign out</button>
-          <a href="index.php#home" class="account-portfolio-back-link">← Back to home</a>
-        </div>
+        <p class="account-simple-name" id="account-simple-name">—</p>
+        <p class="account-simple-phone" id="account-simple-phone">—</p>
       </div>
-    </article>
+
+      <div class="account-filter-row" aria-label="Coffee filters">
+        <button class="account-filter-pill is-active" type="button" data-variety="all">
+          <span class="account-filter-label">All</span>
+          <span class="account-filter-count" id="pill-count-all">0KG</span>
+        </button>
+        <button class="account-filter-pill" type="button" data-variety="liberica">
+          <span class="account-filter-label">Liberica</span>
+          <span class="account-filter-count" id="pill-count-liberica">0KG</span>
+        </button>
+        <button class="account-filter-pill" type="button" data-variety="excelsa">
+          <span class="account-filter-label">Excelsa</span>
+          <span class="account-filter-count" id="pill-count-excelsa">0KG</span>
+        </button>
+        <button class="account-filter-pill" type="button" data-variety="robusta">
+          <span class="account-filter-label">Robusta</span>
+          <span class="account-filter-count" id="pill-count-robusta">0KG</span>
+        </button>
+      </div>
+
+      <section class="account-stats" aria-label="Beans summary">
+        <article class="account-stat account-stat--total">
+          <p class="account-stat-title">Initial Beans</p>
+          <p class="account-stat-sub">(Total beans)</p>
+          <p class="account-stat-value" id="account-total-kg">0KG</p>
+        </article>
+        <article class="account-stat account-stat--remaining">
+          <p class="account-stat-title">Beans Remaining</p>
+          <p class="account-stat-sub">(As of now)</p>
+          <p class="account-stat-value" id="account-remaining-kg">0KG</p>
+        </article>
+      </section>
+
+      <div class="account-qr-wrap">
+        <img id="account-qr-img" class="account-qr-img" alt="Account QR code" />
+      </div>
+    </section>
   </main>
 
-  <nav class="app-bottom-nav" aria-label="Quick navigation">
+  <nav class="app-bottom-nav app-bottom-nav--mint" aria-label="Quick navigation">
     <div class="app-bottom-nav-inner">
       <a href="index.php#home" id="nav-home" class="app-bottom-nav-link">
         <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
@@ -150,27 +290,28 @@
         </span>
         <span class="app-bottom-nav-label">Home</span>
       </a>
-      <a href="about.php" class="app-bottom-nav-link app-bottom-nav-about-btn">
+      <a href="qr.php" id="nav-qr" class="app-bottom-nav-link">
         <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
-          <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><circle cx="12" cy="8" r="1" fill="currentColor" stroke="none"/></svg>
+          <svg class="app-bottom-nav-icon app-bottom-nav-icon--transaction" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6 7.25h9v2H6z"/><path fill="currentColor" d="M15 6 19 8.25 15 10.5z"/><path fill="currentColor" d="M9 14.25h9v2H9z"/><path fill="currentColor" d="M9 13.25 5 15.25 9 17.25z"/></svg>
         </span>
-        <span class="app-bottom-nav-label">About</span>
+        <span class="app-bottom-nav-label">Transaction</span>
       </a>
-      <a href="http://10.0.2.2:5000/register-farm" data-beanthentic-flask="/register-farm" class="app-bottom-nav-link app-bottom-nav-link--featured">
+      <a href="http://10.0.2.2:5000/register-farm" id="nav-register" data-beanthentic-flask="/register-farm" class="app-bottom-nav-link app-bottom-nav-link--featured">
         <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
-          <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+          <svg class="app-bottom-nav-icon app-bottom-nav-register-svg app-bottom-nav-register-svg--pending" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <svg class="app-bottom-nav-icon app-bottom-nav-register-svg app-bottom-nav-register-svg--complete" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
         </span>
         <span class="app-bottom-nav-label">Register</span>
       </a>
-      <a href="http://10.0.2.2:5000/maps" data-beanthentic-flask="/maps" class="app-bottom-nav-link">
+      <a href="transaction-history.html" id="nav-history" class="app-bottom-nav-link app-bottom-nav-link--history">
         <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
-          <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+          <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
         </span>
-        <span class="app-bottom-nav-label">Map</span>
+        <span class="app-bottom-nav-label">History</span>
       </a>
-      <a href="account.php" id="nav-signin" class="app-bottom-nav-link app-bottom-nav-link--signin is-active" aria-current="page">
+      <a href="account.php" id="nav-signin" class="app-bottom-nav-link app-bottom-nav-link--signin">
         <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
-          <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <svg class="app-bottom-nav-icon app-bottom-nav-icon--account" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.75"/><path d="M5.5 21v-.75a5 5 0 0 1 5-5h3a5 5 0 0 1 5 5v.75"/></svg>
         </span>
         <span class="app-bottom-nav-label">Account</span>
       </a>
@@ -179,6 +320,22 @@
 
   <script src="js/navigation.js"></script>
   <script src="js/ui.js"></script>
+  <script src="js/txn_history_store.js"></script>
+  <script>
+    (function () {
+      var back = document.getElementById('account-header-back');
+      if (!back) return;
+      back.addEventListener('click', function () {
+        try {
+          if (window.history.length > 1) {
+            window.history.back();
+            return;
+          }
+        } catch (_e) {}
+        window.location.href = 'index.php#home';
+      });
+    })();
+  </script>
   <script>
     (function () {
       function flaskBase() {
@@ -259,6 +416,16 @@
           return '';
         }
       }
+      function normalizeLoginId(raw) {
+        var s = String(raw || '').trim();
+        if (!s) return '';
+        if (s.indexOf('@') >= 0) return s.toLowerCase();
+        var digits = s.replace(/\D/g, '');
+        if (digits.indexOf('0') === 0) digits = digits.slice(1);
+        if (digits.indexOf('63') === 0) digits = digits.slice(2);
+        if (digits.length === 10 && digits.charAt(0) === '9') return '+63' + digits;
+        return '';
+      }
 
       function getUser() {
         function parseUser(raw) {
@@ -332,135 +499,195 @@
         }
         return rawName;
       }
+      function formatPhoneDisplay(raw) {
+        var s = String(raw || '').trim();
+        if (!s) return '';
+        s = s.replace(/[\s\-]/g, '');
+        if (s.startsWith('+63')) return s;
+        if (s.startsWith('63') && s.length >= 11) return '+63' + s.slice(2);
+        if (s.startsWith('09') && s.length === 11) return '+63' + s.slice(1);
+        // If it looks like digits-only (e.g. 9920...), keep as-is.
+        return s;
+      }
+      function getRegisteredFarmerProfile() {
+        var keys = ['beanthentic_farmer_profile', 'beanthentic_registered_farmer_profile'];
+        for (var i = 0; i < keys.length; i++) {
+          var key = keys[i];
+          var raw = null;
+          try { raw = localStorage.getItem(key) || sessionStorage.getItem(key); } catch (_e1) {}
+          if (!raw) continue;
+          try {
+            var data = JSON.parse(raw);
+            if (data && typeof data === 'object') {
+              return data;
+            }
+          } catch (_e2) {}
+        }
+        return null;
+      }
       function renderProfile() {
         var u = getUser();
-        var root = document.getElementById('account-portfolio-root');
+        var root = document.getElementById('account-simple-root');
         if (!root) return;
         if (!u) {
           root.hidden = true;
           return;
         }
-        var rawName = (u.name && String(u.name).trim()) ? String(u.name).trim() : (String(u.email).split('@')[0] || 'Member');
-        var name = formatDisplayName(u);
-        var first = rawName.split(/\s+/)[0] || rawName;
-        var email = String(u.email || '');
-        var ini = document.getElementById('account-avatar-initials');
-        if (ini) ini.textContent = initialsFromName(rawName);
-        var elName = document.getElementById('account-display-name');
-        if (elName) elName.textContent = name;
-        var elEmail = document.getElementById('account-display-email');
-        if (elEmail) elEmail.textContent = email;
-        var elDetail = document.getElementById('account-detail-email');
-        if (elDetail) elDetail.textContent = email;
-        var elSince = document.getElementById('account-member-since');
-        if (elSince) elSince.textContent = formatMemberSince(u.signedInAt);
-        var elBio = document.getElementById('account-bio-text');
-        if (elBio) {
-          elBio.textContent =
-            'Welcome, ' +
-            first +
-            ". You're part of the Beanthentic community—we connect you with traceable coffee, verified grower stories, and tools like Register Farm and origin map.";
+        var email = String(u.email || '').trim();
+        var farmerProfile = getRegisteredFarmerProfile();
+        var normalized = normalizeLoginId(email);
+        var knownName = getKnownUserName(email) || (normalized ? getKnownUserName(normalized) : '');
+        var farmerName = '';
+        if (farmerProfile) {
+          var fpName = String(farmerProfile.name || '').trim();
+          var fpFirst = String(farmerProfile.first_name || '').trim();
+          var fpLast = String(farmerProfile.last_name || '').trim();
+          if (fpLast || fpFirst) {
+            farmerName = (fpLast + ', ' + fpFirst).replace(/^,\s*/, '').replace(/\s+,/g, ',').trim();
+          } else {
+            farmerName = fpName;
+          }
+        }
+        var rawName = knownName || farmerName || ((u.name && String(u.name).trim()) ? String(u.name).trim() : '');
+        var displayName = rawName || (email.split('@')[0] || 'Member');
+        // If the "name" is actually a phone/number, don't show it as name.
+        if (/^\+?\d{8,}$/.test(displayName.replace(/\s/g, ''))) {
+          displayName = knownName || farmerName || 'Member';
         }
 
-        // Profile QR (points to dedicated /profile.php page)
-        (function renderRegisterFarmQr() {
-          var img = document.getElementById('account-profile-qr-img');
-          var linkEl = document.getElementById('account-profile-qr-link');
-          if (!img) return;
-
-          // IMPORTANT:
-          // - api.qrserver.com only generates the QR image.
-          // - What your phone opens when scanning is the QR "data=" content.
-          // So we must put a PUBLICLY REACHABLE profile base URL here (not 127.x / 10.0.2.2).
-          var base = '';
-          if (location.protocol === 'http:' || location.protocol === 'https:') {
-            base = (location.origin || '').replace(/\/$/, '');
-          } else {
-            // file:// (Android assets) → use user-configured public base URL
-            try {
-              var pub = localStorage.getItem('beanthentic_public_base');
-              if (pub && String(pub).replace(/\s/g, '')) base = String(pub).trim().replace(/\/$/, '');
-            } catch (e) {}
-            if (!base) {
-              try {
-                base = String(prompt('Enter PUBLIC base URL for profile links (example: https://yourdomain.com)', '') || '').trim().replace(/\/$/, '');
-                if (base) localStorage.setItem('beanthentic_public_base', base);
-              } catch (e2) {}
-            }
-          }
-          if (!base) base = 'http://10.0.2.2:5000';
-
-          var profileUrl;
-          var farmerId = '';
+        // Prefer explicit phone fields; fall back to login identifier if it looks like a phone number.
+        var phoneRaw = String((farmerProfile && (farmerProfile.phone || farmerProfile.mobile)) || u.phone || u.mobile || '').trim();
+        if (!phoneRaw) {
+          var maybePhone = email.split('@')[0];
+          if (/^\+?\d{10,14}$/.test(maybePhone) || /^09\d{9}$/.test(maybePhone)) phoneRaw = maybePhone;
+        }
+        var phone = formatPhoneDisplay(phoneRaw);
+        var ini = document.getElementById('account-simple-initials');
+        if (ini) ini.textContent = initialsFromName(displayName);
+        var elName = document.getElementById('account-simple-name');
+        if (elName) elName.textContent = displayName;
+        var elPhone = document.getElementById('account-simple-phone');
+        if (elPhone) elPhone.textContent = phone || '—';
+        var qr = document.getElementById('account-qr-img');
+        if (qr) {
+          var qrData = '';
           try {
-            farmerId = String(localStorage.getItem('beanthentic_farmer_id') || '').trim();
-          } catch (_e) {}
-          try {
-            profileUrl = new URL('profile.php', base.replace(/\/?$/, '/')).href;
-          } catch (e2) {
-            profileUrl = base.replace(/\/$/, '') + '/profile.php';
+            qrData = new URL('profile.php?name=' + encodeURIComponent(displayName) + '&email=' + encodeURIComponent(email), location.href).href;
+          } catch (_e) {
+            qrData = 'profile.php?name=' + encodeURIComponent(displayName) + '&email=' + encodeURIComponent(email);
           }
-
-          var fullGiUrl = profileUrl
-            + '?farmer_id=' + encodeURIComponent(farmerId)
-            + '&name=' + encodeURIComponent(name)
-            + '&email=' + encodeURIComponent(email);
-          // Use the exact QRServer template: ...?size=150x150&data=<PROFILE_URL>
-          var qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + encodeURIComponent(fullGiUrl);
-
-          img.setAttribute('src', qrUrl);
-          if (linkEl) linkEl.setAttribute('href', fullGiUrl);
-          var urlTextEl = document.getElementById('account-profile-qr-url');
-          if (urlTextEl) urlTextEl.textContent = fullGiUrl;
-
-          var downloadBtn = document.getElementById('account-profile-qr-download');
-          if (downloadBtn && !downloadBtn.dataset.bound) {
-            downloadBtn.dataset.bound = 'true';
-            downloadBtn.addEventListener('click', function () {
-              try {
-                fetch(qrUrl)
-                  .then(function (r) { return r.blob(); })
-                  .then(function (blob) {
-                    var a = document.createElement('a');
-                    a.href = URL.createObjectURL(blob);
-                    a.download = 'beanthentic-profile-qr.png';
-                    document.body.appendChild(a);
-                    a.click();
-                    a.remove();
-                    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1500);
-                  });
-              } catch (err) {
-                if (window.uiController && typeof window.uiController.showNotification === 'function') {
-                  window.uiController.showNotification('Download not supported on this device.', 'info');
-                }
-              }
-            });
-          }
-
-          var shareBtn = document.getElementById('account-profile-qr-share');
-          if (shareBtn && !shareBtn.dataset.bound) {
-            shareBtn.dataset.bound = 'true';
-            shareBtn.addEventListener('click', function () {
-              var shareData = { title: 'Beanthentic Register Farm Info', text: 'My Beanthentic Register Farm info', url: fullGiUrl };
-              if (navigator.share) {
-                navigator.share(shareData).catch(function () { /* ignore */ });
-                return;
-              }
-              try {
-                navigator.clipboard.writeText(fullGiUrl).then(function () {
-                  if (window.uiController && typeof window.uiController.showNotification === 'function') {
-                    window.uiController.showNotification('Profile link copied.', 'info');
-                  }
-                });
-              } catch (e3) {
-                if (window.uiController && typeof window.uiController.showNotification === 'function') {
-                  window.uiController.showNotification(fullGiUrl, 'info');
-                }
-              }
-            });
-          }
-        })();
+          qr.src = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=' + encodeURIComponent(qrData);
+        }
         root.hidden = false;
+      }
+
+      function toKg(qty, unit) {
+        var q = Number(String(qty || '').trim());
+        if (!Number.isFinite(q)) return 0;
+        var u = String(unit || '').trim().toUpperCase();
+        if (u === 'KG') return q;
+        if (u === 'G') return q / 1000;
+        if (u === 'LB') return q * 0.45359237;
+        // default assume KG if unit missing
+        return q;
+      }
+
+      function formatKg(value) {
+        var n = Number(value);
+        if (!Number.isFinite(n)) n = 0;
+        // show 1 decimal only if needed
+        var rounded = Math.round(n * 10) / 10;
+        var isInt = Math.abs(rounded - Math.round(rounded)) < 1e-9;
+        return (isInt ? String(Math.round(rounded)) : String(rounded.toFixed(1))) + 'KG';
+      }
+
+      function emptyVarietyTotals() {
+        return { all: 0, liberica: 0, excelsa: 0, robusta: 0 };
+      }
+
+      function computeSoldTotalsByVariety() {
+        var out = { all: 0, liberica: 0, excelsa: 0, robusta: 0 };
+        var list = [];
+        try {
+          list = window.BeanthenticTxnHistory && typeof window.BeanthenticTxnHistory.load === 'function'
+            ? window.BeanthenticTxnHistory.load()
+            : [];
+        } catch (_e) {
+          list = [];
+        }
+        if (!Array.isArray(list)) list = [];
+        for (var i = 0; i < list.length; i++) {
+          var r = list[i] || {};
+          var v = String(r.variety || r.product || '').trim().toLowerCase();
+          var kg = toKg(r.qty, r.unit);
+          if (!kg) continue;
+          out.all += kg;
+          if (v === 'liberica' || v === 'excelsa' || v === 'robusta') {
+            out[v] += kg;
+          }
+        }
+        return out;
+      }
+
+      function computeInitialTotalsByVariety() {
+        var out = emptyVarietyTotals();
+        var p = getRegisteredFarmerProfile() || {};
+        var production = (p && p.production && typeof p.production === 'object') ? p.production : {};
+        var keys = ['liberica', 'excelsa', 'robusta'];
+        for (var i = 0; i < keys.length; i++) {
+          var k = keys[i];
+          var item = production[k] || {};
+          var kg = toKg(item.qty, item.unit || 'kg');
+          if (!kg || !isFinite(kg)) kg = 0;
+          out[k] = kg;
+          out.all += kg;
+        }
+        return out;
+      }
+
+      function renderBeanTotals(selectedVariety) {
+        var totals = computeInitialTotalsByVariety();
+        var sold = computeSoldTotalsByVariety();
+        var sel = selectedVariety || 'all';
+        if (!totals.hasOwnProperty(sel)) sel = 'all';
+
+        var pillAll = document.getElementById('pill-count-all');
+        var pillLib = document.getElementById('pill-count-liberica');
+        var pillExc = document.getElementById('pill-count-excelsa');
+        var pillRob = document.getElementById('pill-count-robusta');
+        if (pillAll) pillAll.textContent = formatKg(totals.all);
+        if (pillLib) pillLib.textContent = formatKg(totals.liberica);
+        if (pillExc) pillExc.textContent = formatKg(totals.excelsa);
+        if (pillRob) pillRob.textContent = formatKg(totals.robusta);
+
+        var totalEl = document.getElementById('account-total-kg');
+        var remainingEl = document.getElementById('account-remaining-kg');
+        var totalVal = totals[sel];
+        var remainingVal = Math.max(0, Number(totalVal || 0) - Number(sold[sel] || 0));
+        if (totalEl) totalEl.textContent = formatKg(totalVal);
+        if (remainingEl) remainingEl.textContent = formatKg(remainingVal);
+      }
+
+      function bindVarietyFilters() {
+        var pills = Array.from(document.querySelectorAll('.account-filter-pill[data-variety]'));
+        if (pills.length === 0) return;
+
+        var setActive = (key) => {
+          pills.forEach((b) => b.classList.toggle('is-active', b.dataset.variety === key));
+          renderBeanTotals(key);
+        };
+
+        pills.forEach((btn) => {
+          if (btn.dataset.bound === '1') return;
+          btn.dataset.bound = '1';
+          btn.addEventListener('click', function () {
+            var key = btn.dataset.variety || 'all';
+            setActive(key);
+          });
+        });
+
+        // default
+        setActive('all');
       }
       function init() {
         if (!getUser()) {
@@ -468,16 +695,20 @@
           return;
         }
         renderProfile();
+        bindVarietyFilters();
       }
       if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
       else init();
       window.addEventListener('beanthentic-auth-changed', function () {
         if (!/account\.php/i.test(location.pathname || '')) return;
         if (!getUser()) redirectGuest();
-        else renderProfile();
+        else {
+          renderProfile();
+          bindVarietyFilters();
+        }
       });
       document.addEventListener('DOMContentLoaded', function () {
-        var btn = document.getElementById('account-page-sign-out');
+        var btn = document.getElementById('account-simple-logout');
         if (!btn) return;
         btn.addEventListener('click', function () {
           try {

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#25671E" />
+  <title>Account Settings · Beanthentic Coffee</title>
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <style>
+    body.account-settings-page {
+      margin: 0;
+      background: #e9edf3;
+      font-family: "Poppins", "Segoe UI", Arial, sans-serif;
+      color: #111827;
+    }
+    .account-settings-main {
+      width: min(100%, 420px);
+      margin: 0 auto;
+      padding: 1.05rem 0.55rem 2.25rem;
+      box-sizing: border-box;
+    }
+    .account-settings-profile {
+      text-align: center;
+      margin: 0.55rem 0 1rem;
+    }
+    .account-settings-avatar {
+      width: 124px;
+      height: 124px;
+      border-radius: 999px;
+      margin: 0 auto 0.68rem;
+      background: #d4d4d4;
+      display: grid;
+      place-items: center;
+    }
+    .account-settings-avatar-initials {
+      font-size: 2.05rem;
+      font-weight: 800;
+      color: rgba(17, 24, 39, 0.48);
+      letter-spacing: 0.03em;
+    }
+    .account-settings-name {
+      margin: 0;
+      font-size: 2rem;
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -0.01em;
+      color: #0f172a;
+    }
+    .account-settings-phone {
+      margin: 0.24rem 0 0;
+      font-size: 0.74rem;
+      font-weight: 600;
+      font-style: italic;
+      color: #1f2937;
+      line-height: 1.2;
+    }
+    .account-settings-card {
+      background: #f7f7f7;
+      border-radius: 16px;
+      padding: 0.9rem 0.82rem 1.05rem;
+      box-shadow: inset 0 0 0 1px rgba(17, 24, 39, 0.06);
+    }
+    .account-settings-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 0.12rem;
+    }
+    .account-settings-item-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      text-decoration: none;
+      color: #111827;
+      border-radius: 12px;
+      padding: 0.54rem 0.42rem;
+    }
+    .account-settings-item-link:active {
+      background: rgba(20, 94, 30, 0.08);
+    }
+    .account-settings-item-left {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.7rem;
+      min-width: 0;
+    }
+    .account-settings-icon {
+      width: 22px;
+      height: 22px;
+      color: #1f6a22;
+      flex: 0 0 auto;
+    }
+    .account-settings-label {
+      font-size: 0.86rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .account-settings-arrow {
+      width: 18px;
+      height: 18px;
+      color: #1f6a22;
+      flex: 0 0 auto;
+    }
+    .account-settings-logout {
+      margin: 0.82rem auto 0;
+      width: min(100%, 240px);
+      height: 42px;
+      border: 0;
+      border-radius: 11px;
+      background: #b32638;
+      color: #ffffff;
+      font-size: 0.93rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      display: block;
+    }
+  </style>
+</head>
+<body class="account-settings-page">
+  <main class="account-settings-main">
+    <section class="account-settings-profile" aria-label="Profile summary">
+      <div class="account-settings-avatar" aria-hidden="true">
+        <span id="account-settings-initials" class="account-settings-avatar-initials">BA</span>
+      </div>
+      <h1 id="account-settings-name" class="account-settings-name">Nyco Jimmy Joe Doe</h1>
+      <p id="account-settings-phone" class="account-settings-phone">(+63) XXXX XXX XX</p>
+    </section>
+
+    <section class="account-settings-card" aria-label="Account setting links">
+      <ul class="account-settings-list">
+        <li>
+          <a class="account-settings-item-link" href="personal_information.html">
+            <span class="account-settings-item-left">
+              <svg class="account-settings-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="7.5" r="3.2"/><rect x="5.2" y="12.2" width="13.6" height="7" rx="3.5"/></svg>
+              <span class="account-settings-label">Personal Information</span>
+            </span>
+            <svg class="account-settings-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+          </a>
+        </li>
+        <li>
+          <a class="account-settings-item-link" href="faq.html">
+            <span class="account-settings-item-left">
+              <svg class="account-settings-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="2.5" y="4.2" width="19" height="15.6" rx="2.2"/><path d="M8 10h2.7a1.9 1.9 0 1 0 0-3.8H8v1.6h2.4a.35.35 0 1 1 0 .7H8V10zm0 5.2h1.6V11.5H8v3.7zm4.1 0h1.6v-1.5h2.2v-1.5h-2.2v-.8h2.4V10h-4v5.2z"/></svg>
+              <span class="account-settings-label">Frequently Asked Questions</span>
+            </span>
+            <svg class="account-settings-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+          </a>
+        </li>
+        <li>
+          <a class="account-settings-item-link" href="about.php">
+            <span class="account-settings-item-left">
+              <svg class="account-settings-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="9"/><rect x="11" y="10.2" width="2" height="6.2" rx="1"/><circle cx="12" cy="7.3" r="1.1"/></svg>
+              <span class="account-settings-label">About Us</span>
+            </span>
+            <svg class="account-settings-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+          </a>
+        </li>
+        <li>
+          <a class="account-settings-item-link" href="privacy.php">
+            <span class="account-settings-item-left">
+              <svg class="account-settings-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.5 3.5h7.7a2 2 0 0 1 2 2v3.2a2 2 0 0 1-2 2H6.5a2 2 0 0 1-2-2V5.5a2 2 0 0 1 2-2z"/><path d="M8.1 11.8h9.4a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H8.1a2 2 0 0 1-2-2v-4.2a2 2 0 0 1 2-2z"/></svg>
+              <span class="account-settings-label">Privacy Notice</span>
+            </span>
+            <svg class="account-settings-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+          </a>
+        </li>
+        <li>
+          <a class="account-settings-item-link" href="contact_us.html">
+            <span class="account-settings-item-left">
+              <svg class="account-settings-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7.5 3.2h3.1a1 1 0 0 1 1 .8l.8 3.8a1 1 0 0 1-.6 1.1l-1.9.8a13.5 13.5 0 0 0 4.4 4.4l.8-1.9a1 1 0 0 1 1.1-.6l3.8.8a1 1 0 0 1 .8 1v3.1a1.2 1.2 0 0 1-1.1 1.2C11.5 18.3 5.7 12.5 6.3 4.3A1.2 1.2 0 0 1 7.5 3.2z"/></svg>
+              <span class="account-settings-label">Contact Us</span>
+            </span>
+            <svg class="account-settings-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+          </a>
+        </li>
+        <li>
+          <a class="account-settings-item-link" href="settings.php">
+            <span class="account-settings-item-left">
+              <svg class="account-settings-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M10.2 2.7h3.6l.6 2.2a7.6 7.6 0 0 1 1.6.9l2.1-1.1 2.5 2.5-1.1 2.1c.36.52.66 1.06.9 1.64l2.2.58v3.6l-2.2.58a7.6 7.6 0 0 1-.9 1.64l1.1 2.1-2.5 2.5-2.1-1.1a7.6 7.6 0 0 1-1.64.9l-.58 2.2h-3.6l-.58-2.2a7.6 7.6 0 0 1-1.64-.9l-2.1 1.1-2.5-2.5 1.1-2.1a7.6 7.6 0 0 1-.9-1.64L1.6 14v-3.6l2.2-.58c.23-.58.53-1.12.9-1.64L3.7 6.1l2.5-2.5 2.1 1.1c.52-.36 1.06-.66 1.64-.9l.58-2.2zm1.8 6a3.3 3.3 0 1 0 0 6.6 3.3 3.3 0 0 0 0-6.6z"/></svg>
+              <span class="account-settings-label">Settings</span>
+            </span>
+            <svg class="account-settings-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+          </a>
+        </li>
+        <li>
+          <a class="account-settings-item-link" href="help.html">
+            <span class="account-settings-item-left">
+              <svg class="account-settings-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.7 9.2a2.5 2.5 0 1 1 4.2 2c-.8.6-1.4 1.1-1.4 2.1v.2h-1.4V13c0-1.5.9-2.2 1.6-2.8a1.1 1.1 0 1 0-1.8-.9H9.7z"/><circle cx="12" cy="16.9" r="1"/></svg>
+              <span class="account-settings-label">Help</span>
+            </span>
+            <svg class="account-settings-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+          </a>
+        </li>
+      </ul>
+      <button type="button" id="account-settings-logout" class="account-settings-logout">LOG OUT</button>
+    </section>
+  </main>
+  <script>
+    (function () {
+      function parseUser(raw) {
+        if (!raw) return null;
+        try {
+          var u = JSON.parse(raw);
+          return u && typeof u === 'object' ? u : null;
+        } catch (_e) {
+          return null;
+        }
+      }
+      function getUser() {
+        var local = null;
+        var session = null;
+        try { local = parseUser(localStorage.getItem('beanthentic_user')); } catch (_e1) {}
+        try { session = parseUser(sessionStorage.getItem('beanthentic_user')); } catch (_e2) {}
+        return local || session || null;
+      }
+      function getFarmerProfile() {
+        var raw = null;
+        try { raw = localStorage.getItem('beanthentic_farmer_profile') || sessionStorage.getItem('beanthentic_farmer_profile'); } catch (_e1) {}
+        if (!raw) return null;
+        try {
+          var p = JSON.parse(raw);
+          return p && typeof p === 'object' ? p : null;
+        } catch (_e2) {
+          return null;
+        }
+      }
+      function initials(name) {
+        var parts = String(name || '').trim().split(/\s+/).filter(Boolean);
+        if (parts.length >= 2) return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+        if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+        return 'BA';
+      }
+      function formatPhone(raw) {
+        var s = String(raw || '').replace(/[\s-]/g, '').trim();
+        if (!s) return '(+63) XXXX XXX XX';
+        if (s.indexOf('+63') === 0) return s.replace(/^\+63(\d{3})(\d{3})(\d+)$/, '(+63) $1 $2 $3');
+        if (s.indexOf('09') === 0 && s.length === 11) return '(+63) ' + s.slice(1, 4) + ' ' + s.slice(4, 7) + ' ' + s.slice(7);
+        return s;
+      }
+      var u = getUser() || {};
+      var p = getFarmerProfile() || {};
+      var name = String((p.name || '') || [p.first_name, p.last_name].filter(Boolean).join(' ') || u.name || '').trim();
+      if (!name) {
+        var email = String(u.email || '').trim();
+        name = email ? email.split('@')[0] : 'Member';
+      }
+      var phone = String((p.phone || '') || (u.phone || '') || (u.mobile || '')).trim();
+      var nameEl = document.getElementById('account-settings-name');
+      var phoneEl = document.getElementById('account-settings-phone');
+      var iniEl = document.getElementById('account-settings-initials');
+      if (nameEl) nameEl.textContent = name;
+      if (phoneEl) phoneEl.textContent = formatPhone(phone);
+      if (iniEl) iniEl.textContent = initials(name);
+
+      var logoutBtn = document.getElementById('account-settings-logout');
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', function () {
+          try {
+            localStorage.removeItem('beanthentic_user');
+            sessionStorage.removeItem('beanthentic_user');
+          } catch (_e) {}
+          try {
+            window.location.assign('index.php#home');
+          } catch (_e2) {
+            window.location.href = 'index.php#home';
+          }
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

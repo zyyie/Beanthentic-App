@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#25671E" />
+  <meta name="theme-color" content="#143d22" />
   <script>
     // Guest-only page guard: if already signed in, never stay on signup page.
     (function () {
@@ -19,12 +19,26 @@
         var localUser = parseUser(localStorage.getItem('beanthentic_user'));
         var sessionUser = parseUser(sessionStorage.getItem('beanthentic_user'));
         var user = localUser || sessionUser;
-        if (!user) return;
+        if (user) {
+          try {
+            localStorage.setItem('beanthentic_user', JSON.stringify(user));
+            sessionStorage.setItem('beanthentic_user', JSON.stringify(user));
+          } catch (_syncErr) {}
+          window.location.replace('account.php');
+          return;
+        }
+        var hasLang = false;
         try {
-          localStorage.setItem('beanthentic_user', JSON.stringify(user));
-          sessionStorage.setItem('beanthentic_user', JSON.stringify(user));
-        } catch (_syncErr) {}
-        window.location.replace('account.php');
+          hasLang = !!(
+            localStorage.getItem('beanthentic_app_lang') ||
+            sessionStorage.getItem('beanthentic_app_lang')
+          );
+        } catch (_langRead) {
+          hasLang = true;
+        }
+        if (!hasLang) {
+          window.location.replace('choose_language.html?next=signup.php');
+        }
       } catch (_e) {
         /* stay on page if storage is unavailable */
       }
@@ -36,8 +50,8 @@
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/responsive.css">
 </head>
-<body class="has-app-bottom-nav">
-  <header>
+<body class="signup-page">
+  <header class="signup-page-header">
     <div class="nav">
       <button
         type="button"
@@ -106,177 +120,223 @@
     </div>
   </header>
 
-  <main class="auth-main">
-    <div class="auth-card">
-      <h1>Create account</h1>
-      <p class="auth-lead">Join Beanthentic to connect with local coffee farmers.</p>
-      <form class="auth-form" method="post" action="#" autocomplete="on">
-        <label for="signup-name">Full name</label>
-        <input id="signup-name" name="name" type="text" required autocomplete="name" placeholder="Your name" />
-
-        <label for="signup-email">Email</label>
-        <input id="signup-email" name="email" type="email" required autocomplete="email" placeholder="you@example.com" />
+  <main class="auth-main login-main">
+    <div class="auth-card login-card">
+      <div class="login-brand">
+        <img
+          class="login-brand-full-img"
+          src="beanthentic_logo.png"
+          alt="Beanthentic"
+          width="320"
+          height="320"
+          decoding="async"
+        />
+      </div>
+      <h1 class="login-greeting">Mabuhay, Lipeño!</h1>
+      <p class="auth-lead login-lead">Join us! Create your own account.</p>
+      <form class="auth-form login-form signup-form" method="post" action="#" autocomplete="on">
+        <label for="signup-phone-local">Phone Number</label>
+        <div class="login-phone-row">
+          <span class="login-phone-cc" aria-hidden="true">+63</span>
+          <input
+            id="signup-phone-local"
+            name="phone_local"
+            type="text"
+            required
+            inputmode="numeric"
+            autocomplete="tel-national"
+            class="login-phone-input"
+            placeholder="9XXXXXXXXX"
+            maxlength="10"
+            pattern="[0-9]{10}"
+            title="10-digit Philippine mobile (starts with 9)"
+          />
+        </div>
 
         <label for="signup-password">Password</label>
-        <input id="signup-password" name="password" type="password" required autocomplete="new-password" placeholder="••••••••" minlength="8" />
+        <div class="signup-password-field">
+          <input
+            id="signup-password"
+            name="password"
+            type="password"
+            required
+            autocomplete="new-password"
+            placeholder="••••••••"
+            minlength="8"
+            class="signup-password-input"
+          />
+          <button type="button" class="signup-password-toggle" aria-label="Show password" aria-pressed="false" data-target="signup-password">
+            <svg class="signup-password-toggle-icon signup-password-toggle-icon--hide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+              <line x1="1" y1="1" x2="23" y2="23"/>
+            </svg>
+            <svg class="signup-password-toggle-icon signup-password-toggle-icon--show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" hidden>
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
 
-        <label for="signup-password2">Confirm password</label>
-        <input id="signup-password2" name="password_confirm" type="password" required autocomplete="new-password" placeholder="••••••••" minlength="8" />
+        <label for="signup-password2">Confirm Password</label>
+        <div class="signup-password-field">
+          <input
+            id="signup-password2"
+            name="password_confirm"
+            type="password"
+            required
+            autocomplete="new-password"
+            placeholder="••••••••"
+            minlength="8"
+            class="signup-password-input"
+          />
+          <button type="button" class="signup-password-toggle" aria-label="Show password" aria-pressed="false" data-target="signup-password2">
+            <svg class="signup-password-toggle-icon signup-password-toggle-icon--hide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+              <line x1="1" y1="1" x2="23" y2="23"/>
+            </svg>
+            <svg class="signup-password-toggle-icon signup-password-toggle-icon--show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" hidden>
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
 
-        <button type="submit" class="btn-primary">Create account</button>
+        <button type="submit" class="btn-primary login-submit-btn">SIGNUP</button>
       </form>
-      <p class="auth-switch">Already have an account? <a href="login.php">Sign in</a></p>
+      <p class="auth-switch login-switch">Already have an account? <a href="login.php">Log in here!</a></p>
     </div>
   </main>
 
-  <nav class="app-bottom-nav" aria-label="Quick navigation">
-    <div class="app-bottom-nav-inner">
-      <a href="index.php#home" id="nav-home" class="app-bottom-nav-link">
-        <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
-          <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        </span>
-        <span class="app-bottom-nav-label">Home</span>
-      </a>
-      <div class="app-bottom-nav-about">
-        <button
-          type="button"
-          class="app-bottom-nav-link app-bottom-nav-about-btn"
-          id="bottom-nav-about-toggle"
-          aria-expanded="false"
-          aria-haspopup="true"
-          aria-controls="bottom-nav-about-menu"
-        >
-          <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
-            <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><circle cx="12" cy="8" r="1" fill="currentColor" stroke="none"/></svg>
-          </span>
-          <span class="app-bottom-nav-label">About</span>
-        </button>
-        <div id="bottom-nav-about-menu" class="app-bottom-nav-about-menu" role="menu" hidden aria-label="About sections">
-          <div class="app-bottom-nav-about-group" role="none">
-            <a href="about.php#about-history" class="app-bottom-nav-about-item" role="menuitem" data-no-loader="true">History</a>
-          </div>
-          <a href="about.php#about-vision" class="app-bottom-nav-about-item" role="menuitem" data-no-loader="true">Vision</a>
-          <a href="about.php#about-mission" class="app-bottom-nav-about-item" role="menuitem" data-no-loader="true">Mission</a>
-        </div>
-      </div>
-      <a href="http://10.0.2.2:5000/register-farm" data-beanthentic-flask="/register-farm" class="app-bottom-nav-link app-bottom-nav-link--featured">
-        <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
-          <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
-        </span>
-        <span class="app-bottom-nav-label">Register Farm</span>
-      </a>
-      <a href="http://10.0.2.2:5000/maps" data-beanthentic-flask="/maps" class="app-bottom-nav-link">
-        <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
-          <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
-        </span>
-        <span class="app-bottom-nav-label">Map</span>
-      </a>
-      <a href="login.php" id="nav-signin" class="app-bottom-nav-link app-bottom-nav-link--signin">
-        <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
-          <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        </span>
-        <span class="app-bottom-nav-label">Account</span>
-      </a>
-    </div>
-  </nav>
-
   <script src="js/navigation.js"></script>
   <script src="js/ui.js"></script>
+  <script src="js/auth_lang.js"></script>
   <script>
     (function () {
-      function flaskBase() {
-        try {
-          var s = localStorage.getItem('beanthentic_flask_base');
-          if (s && String(s).replace(/\s/g, '')) return String(s).replace(/\/$/, '');
-        } catch (e) {}
-        if (typeof location !== 'undefined' && (location.protocol === 'http:' || location.protocol === 'https:')) {
-          return (location.origin || '').replace(/\/$/, '');
-        }
-        return 'http://10.0.2.2:5000';
+      function applySignupStrings() {
+        if (window.BeanthenticAuthLang) window.BeanthenticAuthLang.applySignupAuthLang();
       }
-      function fixHomeAboutFromLogin() {
-        if (typeof location === 'undefined') return;
-        if (location.protocol !== 'http:' && location.protocol !== 'https:') return;
-        var o = (location.origin || '').replace(/\/$/, '');
-        var home = document.getElementById('nav-home');
-        if (home) home.setAttribute('href', o + '/#home');
-        var menu = document.getElementById('bottom-nav-about-menu');
-        if (menu) {
-          menu.querySelectorAll('a[href*="#about-"]').forEach(function (a) {
-            var href = a.getAttribute('href') || '';
-            var m = href.match(/#(about-[a-z0-9-]+)$/i);
-            if (m) a.setAttribute('href', o + '/#' + m[1]);
-          });
-        }
-        var logo = document.querySelector('header a.logo');
-        if (logo) logo.setAttribute('href', o + '/#home');
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', applySignupStrings);
+      } else {
+        applySignupStrings();
       }
-      function applyFlaskNav() {
-        var b = flaskBase();
-        document.querySelectorAll('a[data-beanthentic-flask]').forEach(function (a) {
-          var p = a.getAttribute('data-beanthentic-flask');
-          if (p) a.setAttribute('href', b + p);
-        });
-      }
-      function runNavFixes() {
-        fixHomeAboutFromLogin();
-        applyFlaskNav();
-      }
-      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', runNavFixes);
-      else runNavFixes();
     })();
   </script>
   <script>
     (function () {
-      var USER_NAME_MAP_KEY = 'beanthentic_user_name_map';
+      function fixHeaderLogoHome() {
+        if (typeof location === 'undefined') return;
+        if (location.protocol !== 'http:' && location.protocol !== 'https:') return;
+        var o = (location.origin || '').replace(/\/$/, '');
+        var logo = document.querySelector('header a.logo');
+        if (logo) logo.setAttribute('href', o + '/#home');
+      }
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fixHeaderLogoHome);
+      else fixHeaderLogoHome();
+    })();
+  </script>
+  <script>
+    (function () {
+      function bindPasswordToggles(root) {
+        root.querySelectorAll('.signup-password-toggle').forEach(function (btn) {
+          if (btn.dataset.bound === '1') return;
+          btn.dataset.bound = '1';
+          var id = btn.getAttribute('data-target');
+          var input = id ? document.getElementById(id) : null;
+          if (!input) return;
+          var hideIc = btn.querySelector('.signup-password-toggle-icon--hide');
+          var showIc = btn.querySelector('.signup-password-toggle-icon--show');
+          btn.addEventListener('click', function () {
+            var showing = input.type === 'text';
+            input.type = showing ? 'password' : 'text';
+            btn.setAttribute('aria-pressed', showing ? 'false' : 'true');
+            btn.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
+            if (hideIc) hideIc.hidden = !showing;
+            if (showIc) showIc.hidden = showing;
+          });
+        });
+      }
 
-      function saveKnownUserName(email, name) {
-        var cleanEmail = String(email || '').trim().toLowerCase();
-        var cleanName = String(name || '').trim();
-        if (!cleanEmail || !cleanName) return;
+      function normalizeLoginId(raw) {
+        var s = String(raw || '').trim();
+        if (!s) return '';
+        var digits = s.replace(/\D/g, '');
+        if (digits.indexOf('0') === 0) digits = digits.slice(1);
+        if (digits.indexOf('63') === 0) digits = digits.slice(2);
+        if (digits.length === 10 && digits.charAt(0) === '9') return '+63' + digits;
+        return '';
+      }
+
+      var REGISTERED_ACCOUNTS_KEY = 'beanthentic_registered_accounts';
+      var NEW_SIGNUP_LOGIN_ID_KEY = 'beanthentic_new_signup_login_id';
+
+      function getRegisteredAccounts() {
         try {
-          var raw = localStorage.getItem(USER_NAME_MAP_KEY) || sessionStorage.getItem(USER_NAME_MAP_KEY);
-          var map = raw ? JSON.parse(raw) : {};
-          map[cleanEmail] = cleanName;
-          localStorage.setItem(USER_NAME_MAP_KEY, JSON.stringify(map));
-          sessionStorage.setItem(USER_NAME_MAP_KEY, JSON.stringify(map));
+          var raw = localStorage.getItem(REGISTERED_ACCOUNTS_KEY);
+          var o = raw ? JSON.parse(raw) : {};
+          return o && typeof o === 'object' ? o : {};
         } catch (_err) {
-          /* ignore */
+          return {};
         }
       }
 
+      function isAccountRegistered(loginId) {
+        return !!getRegisteredAccounts()[loginId];
+      }
+
+      function registerAccount(loginId, password) {
+        var map = getRegisteredAccounts();
+        map[loginId] = { password: String(password || ''), signedUpAt: Date.now() };
+        localStorage.setItem(REGISTERED_ACCOUNTS_KEY, JSON.stringify(map));
+        try {
+          localStorage.setItem(NEW_SIGNUP_LOGIN_ID_KEY, loginId);
+          sessionStorage.setItem(NEW_SIGNUP_LOGIN_ID_KEY, loginId);
+        } catch (_k) {}
+      }
+
       document.addEventListener('DOMContentLoaded', function () {
-        var form = document.querySelector('.auth-form');
+        var form = document.querySelector('.signup-form');
         if (!form) return;
+        bindPasswordToggles(form);
+
+        var phoneEl = document.getElementById('signup-phone-local');
+        var pw = document.getElementById('signup-password');
+        var pw2 = document.getElementById('signup-password2');
+
         form.addEventListener('submit', function (e) {
           e.preventDefault();
-          var nameEl = document.getElementById('signup-name');
-          var emailEl = document.getElementById('signup-email');
-          var pw = document.getElementById('signup-password');
-          var pw2 = document.getElementById('signup-password2');
-          var name = nameEl ? String(nameEl.value || '').trim() : '';
-          var email = emailEl ? String(emailEl.value || '').trim() : '';
-          if (!name || !email) return;
-          if (pw && pw2 && pw.value !== pw2.value) {
-            alert('Passwords do not match.');
+          var localVal = phoneEl ? String(phoneEl.value || '').trim() : '';
+          var loginId = normalizeLoginId(localVal);
+          if (!loginId) {
+            try {
+              window.alert('Please enter a valid Philippine mobile number (9XXXXXXXXX).');
+            } catch (_a) {}
             return;
           }
+          if (pw && pw2 && pw.value !== pw2.value) {
+            try {
+              window.alert('Passwords do not match.');
+            } catch (_b) {}
+            return;
+          }
+          if (isAccountRegistered(loginId)) {
+            try {
+              window.alert('Naka-register na ang numerong ito. Mag-log in na lang o gumamit ng ibang numero.');
+            } catch (_c) {}
+            return;
+          }
+          registerAccount(loginId, pw ? pw.value : '');
+          /* Hindi auto-login: mag-log in muna sa login.php gamit ang numero at password. */
           try {
-            var user = {
-              email: email,
-              name: name,
-              signedInAt: Date.now()
-            };
-            saveKnownUserName(email, name);
-            localStorage.setItem('beanthentic_user', JSON.stringify(user));
-            sessionStorage.setItem('beanthentic_user', JSON.stringify(user));
-          } catch (err) {
+            localStorage.removeItem('beanthentic_user');
+            sessionStorage.removeItem('beanthentic_user');
+          } catch (_clearErr) {
             /* ignore */
           }
           try {
-            window.location.assign(new URL('index.php#home', location.href).href);
-          } catch (e2) {
-            window.location.assign('index.php#home');
+            window.location.assign(new URL('login.php', location.href).href);
+          } catch (_e2) {
+            window.location.assign('login.php');
           }
         });
       });
@@ -284,4 +344,3 @@
   </script>
 </body>
 </html>
-

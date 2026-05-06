@@ -14,6 +14,18 @@ LEGACY_REGISTER_DB_COMPAT_PATH = os.path.join(BASE_DIR, "g" + "i_database.db")
 
 app = Flask(__name__, static_folder=ASSETS_DIR, static_url_path="")
 
+
+def _iter_dev_watch_files():
+    """Collect asset files that should trigger Flask reload in dev."""
+    watch_exts = {".py", ".php", ".css", ".js", ".html"}
+    files = []
+    for root, _, names in os.walk(ASSETS_DIR):
+        for name in names:
+            _, ext = os.path.splitext(name.lower())
+            if ext in watch_exts:
+                files.append(os.path.join(root, name))
+    return files
+
 def _load_register_farm_module_class():
     """Load Register Farm module from assets directory."""
     assets_module = os.path.join(ASSETS_DIR, "register_farm_module.py")
@@ -98,6 +110,17 @@ def signup_page():
     return _serve_php_asset("signup.php")
 
 
+@app.route("/tutorial.php")
+def tutorial_page():
+    """Post-login onboarding; must be explicit like other .php assets."""
+    return _serve_php_asset("tutorial.php")
+
+
+@app.route("/qr.php")
+def qr_page():
+    return _serve_php_asset("qr.php")
+
+
 @app.route("/news.php")
 def news_page():
     return _serve_php_asset("news.php")
@@ -113,6 +136,12 @@ def social_page():
     return _serve_php_asset("social.php")
 
 
+@app.route("/messages")
+@app.route("/messages.php")
+def messages_page():
+    return _serve_php_asset("messages.php")
+
+
 @app.route("/settings.php")
 def settings_page():
     return _serve_php_asset("settings.php")
@@ -126,6 +155,31 @@ def about_page():
 @app.route("/mission-vision.php")
 def mission_vision_page():
     return _serve_php_asset("mission-vision.php")
+
+
+@app.route("/history")
+@app.route("/history.php")
+def history_page():
+    return _serve_php_asset("history.php")
+
+
+@app.route("/history-liberica")
+@app.route("/history-liberica.php")
+def history_liberica_page():
+    return _serve_php_asset("history-liberica.php")
+
+
+@app.route("/history-excelsa")
+@app.route("/history-excelsa.php")
+def history_excelsa_page():
+    return _serve_php_asset("history-excelsa.php")
+
+
+@app.route("/history-robusta")
+@app.route("/history-robusta.php")
+def history_robusta_page():
+    return _serve_php_asset("history-robusta.php")
+
 
 @app.route("/how-to-get-there")
 @app.route("/how-to-get-there.php")
@@ -412,7 +466,25 @@ def profile_page():
     return Response(body, mimetype="text/html; charset=utf-8")
 
 
+@app.after_request
+def add_dev_no_cache_headers(response):
+    """Reduce stale UI during local development refreshes."""
+    if app.debug:
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+    return response
+
+
 if __name__ == "__main__":
     # Run on LAN so phones on same Wi‑Fi can reach it:
     # http://192.168.0.104:8000 (example)
-    app.run(debug=True, host="0.0.0.0", port=8080)
+    app.config["TEMPLATES_AUTO_RELOAD"] = True
+    app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
+    app.run(
+        debug=True,
+        host="0.0.0.0",
+        port=8080,
+        use_reloader=True,
+        extra_files=_iter_dev_watch_files(),
+    )

@@ -120,6 +120,42 @@
     </div>
   </main>
 
+  <nav class="app-bottom-nav app-bottom-nav--mint" aria-label="Quick navigation">
+    <div class="app-bottom-nav-inner">
+      <a href="index.php#home" id="nav-home" class="app-bottom-nav-link">
+        <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
+          <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </span>
+        <span class="app-bottom-nav-label">Home</span>
+      </a>
+      <a href="qr.php" id="nav-qr" class="app-bottom-nav-link">
+        <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
+          <svg class="app-bottom-nav-icon app-bottom-nav-icon--transaction" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6 7.25h9v2H6z"/><path fill="currentColor" d="M15 6 19 8.25 15 10.5z"/><path fill="currentColor" d="M9 14.25h9v2H9z"/><path fill="currentColor" d="M9 13.25 5 15.25 9 17.25z"/></svg>
+        </span>
+        <span class="app-bottom-nav-label">Transaction</span>
+      </a>
+      <a href="/register-farm" id="nav-register" class="app-bottom-nav-link app-bottom-nav-link--featured">
+        <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
+          <svg class="app-bottom-nav-icon app-bottom-nav-register-svg app-bottom-nav-register-svg--pending" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <svg class="app-bottom-nav-icon app-bottom-nav-register-svg app-bottom-nav-register-svg--complete" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+        </span>
+        <span class="app-bottom-nav-label">Register</span>
+      </a>
+      <a href="transaction-history.html" id="nav-history" class="app-bottom-nav-link app-bottom-nav-link--history">
+        <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
+          <svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
+        </span>
+        <span class="app-bottom-nav-label">History</span>
+      </a>
+      <a href="account.php" id="nav-signin" class="app-bottom-nav-link app-bottom-nav-link--signin">
+        <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
+          <svg class="app-bottom-nav-icon app-bottom-nav-icon--account" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.75"/><path d="M5.5 21v-.75a5 5 0 0 1 5-5h3a5 5 0 0 1 5 5v.75"/></svg>
+        </span>
+        <span class="app-bottom-nav-label">Account</span>
+      </a>
+    </div>
+  </nav>
+
   <script src="js/navigation.js"></script>
   <script src="js/ui.js"></script>
   <script>

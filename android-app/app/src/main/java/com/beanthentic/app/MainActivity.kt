@@ -24,11 +24,15 @@ import android.widget.TextView
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.os.Message
 import android.webkit.WebChromeClient
+import android.webkit.PermissionRequest
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import android.content.pm.PackageManager
 import androidx.activity.OnBackPressedCallback
 import android.net.Uri
 import androidx.appcompat.app.AlertDialog
@@ -37,6 +41,9 @@ import androidx.appcompat.app.AppCompatActivity
 class MainActivity : AppCompatActivity() {
     private lateinit var webView: WebView
     private var exitDialog: AlertDialog? = null
+    private var pendingWebPermissionRequest: PermissionRequest? = null
+
+    private val WEBRTC_PERMISSION_REQ_CODE = 2201
 
     /** Same default as assets/index.php; use PC LAN IP for physical device + Flask on host. */
     private val flaskDefaultBase: String = "http://10.0.2.2:5000"
@@ -190,6 +197,7 @@ class MainActivity : AppCompatActivity() {
             allowContentAccess = true
             mixedContentMode = WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE
             cacheMode = WebSettings.LOAD_DEFAULT
+            mediaPlaybackRequiresUserGesture = false
             // Let fetch() load component files from assets (needed for file:// pages)
             allowFileAccessFromFileURLs = true
             allowUniversalAccessFromFileURLs = true
@@ -197,11 +205,11 @@ class MainActivity : AppCompatActivity() {
 
         var loadStartTimeMs = 0L
         var hideScheduled = false
-        // Keep it short so the app feels snappy.
-        var minVisibleMs = 140L
+        // Minimum time the native loading overlay stays visible (aligned with web loaders).
+        var minVisibleMs = 2000L
         var progressReached100 = false
         // Safety fallback if progress events never hit 100 (common with file://).
-        val maxFallbackMs = 800L
+        val maxFallbackMs = 2000L
         var hideRunnable: Runnable? = null
         var flaskBaseLoadedFromJs = false
         var flaskBase = flaskDefaultBase
@@ -327,6 +335,39 @@ class MainActivity : AppCompatActivity() {
                 transport.webView = temp
                 resultMsg.sendToTarget()
                 return true
+            }
+
+            override fun onPermissionRequest(request: PermissionRequest?) {
+                if (request == null) return
+
+                val wantsVideo = request.resources.contains(PermissionRequest.RESOURCE_VIDEO_CAPTURE)
+                val wantsAudio = request.resources.contains(PermissionRequest.RESOURCE_AUDIO_CAPTURE)
+
+                if (!wantsVideo && !wantsAudio) {
+                    request.deny()
+                    return
+                }
+
+                val needPerms = mutableListOf<String>()
+                if (wantsVideo) needPerms.add(android.Manifest.permission.CAMERA)
+                if (wantsAudio) needPerms.add(android.Manifest.permission.RECORD_AUDIO)
+
+                val allGranted = needPerms.all { perm ->
+                    ContextCompat.checkSelfPermission(this@MainActivity, perm) == PackageManager.PERMISSION_GRANTED
+                }
+
+                if (allGranted) {
+                    request.grant(request.resources)
+                    return
+                }
+
+                pendingWebPermissionRequest?.deny()
+                pendingWebPermissionRequest = request
+                ActivityCompat.requestPermissions(
+                    this@MainActivity,
+                    needPerms.toTypedArray(),
+                    WEBRTC_PERMISSION_REQ_CODE
+                )
             }
         }
 
@@ -566,6 +607,22 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
+
+    @Deprecated("Deprecated in Java")
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode != WEBRTC_PERMISSION_REQ_CODE) return
+
+        val req = pendingWebPermissionRequest ?: return
+        pendingWebPermissionRequest = null
+
+        val granted = grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }
+        if (granted) req.grant(req.resources) else req.deny()
+    }
 }
 
 

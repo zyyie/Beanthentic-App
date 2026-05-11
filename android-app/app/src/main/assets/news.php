@@ -49,36 +49,6 @@
       letter-spacing: 0.01em;
       color: #ffffff;
     }
-    .updates-topbar-right {
-      position: absolute;
-      right: 0.35rem;
-      top: 50%;
-      transform: translateY(-50%);
-      display: flex;
-      align-items: center;
-      gap: 0.45rem;
-    }
-    .updates-topbar-icon-btn,
-    .updates-topbar-account-btn {
-      width: 40px;
-      height: 40px;
-      border-radius: 999px;
-      border: none;
-      background: rgba(255, 255, 255, 0.95);
-      color: #166534;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      text-decoration: none;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .updates-topbar-icon-btn svg,
-    .updates-topbar-account-btn svg {
-      width: 20px;
-      height: 20px;
-    }
 
     .updates-main {
       width: 100%;
@@ -167,7 +137,7 @@
     .updates-upload-shell {
       background: #dce8dd;
       border-radius: 12px;
-      padding: 1.2rem 0.9rem 1.1rem;
+      padding: 0.7rem 0.35rem 0.75rem;
       margin-top: 0.4rem;
       border: 1px solid #d3dfd5;
     }
@@ -279,6 +249,159 @@
       font-size: 0.72rem;
       line-height: 1.18;
     }
+
+    /* ---------------------------------------------------------------------- */
+    /* GI contribution upload (gmail-style card)                               */
+    /* ---------------------------------------------------------------------- */
+    .gi-mail-card {
+      background: #f6f7f9;
+      border-radius: 18px;
+      padding: 1.05rem 1.05rem 1.1rem;
+      box-shadow: 0 14px 38px rgba(17, 24, 39, 0.12);
+      border: 1px solid rgba(17, 24, 39, 0.06);
+    }
+    .gi-mail-outer-title {
+      margin: 0 0 0.55rem;
+      padding: 0 0.25rem;
+      font-size: 1.05rem;
+      line-height: 1.15;
+      font-weight: 900;
+      color: #0f172a;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .gi-mail-head {
+      position: relative;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.8rem;
+      margin-bottom: 0.8rem;
+    }
+    .gi-mail-title {
+      margin: 0;
+      font-size: 1.05rem;
+      line-height: 1.15;
+      font-weight: 900;
+      color: #111827;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+    }
+    .gi-mail-close {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      border: 0;
+      background: #ffffff;
+      color: #374151;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 10px 26px rgba(17, 24, 39, 0.12);
+      flex: 0 0 auto;
+    }
+    .gi-mail-close svg { width: 18px; height: 18px; }
+    .gi-mail-from {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 0.65rem 0;
+      border-top: 1px solid rgba(17, 24, 39, 0.08);
+      border-bottom: 1px solid rgba(17, 24, 39, 0.08);
+      margin: 0.25rem 0 0.8rem;
+    }
+    .gi-mail-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 999px;
+      background: #9b6343;
+      color: #ffffff;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+    }
+    .gi-mail-from-main { min-width: 0; }
+    .gi-mail-from-name { margin: 0; font-weight: 900; font-size: 0.86rem; color: #111827; line-height: 1.1; }
+    .gi-mail-from-sub { margin: 0.08rem 0 0; font-size: 0.74rem; color: #6b7280; }
+    .gi-mail-time { margin-left: auto; font-size: 0.72rem; color: #9ca3af; white-space: nowrap; }
+    .gi-mail-body {
+      margin: 0 0 0.95rem;
+      font-size: 0.82rem;
+      line-height: 1.45;
+      color: #4b5563;
+    }
+    .gi-attachments-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.65rem;
+      margin: 0 0 0.7rem;
+      color: #4b5563;
+      font-size: 0.78rem;
+      font-weight: 800;
+    }
+    .gi-attachments-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+    .gi-attach-btn {
+      border: 0;
+      border-radius: 10px;
+      padding: 0.46rem 0.7rem;
+      background: #1d7a2a;
+      color: #ffffff;
+      font-weight: 900;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .gi-attach-btn:active { transform: translateY(1px); }
+    .gi-attach-btn svg { width: 16px; height: 16px; margin-right: 0.35rem; vertical-align: -2px; }
+    .gi-attachments-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.75rem;
+    }
+    .gi-attachment {
+      background: #ffffff;
+      border-radius: 14px;
+      border: 1px solid rgba(17, 24, 39, 0.08);
+      overflow: hidden;
+      min-height: 118px;
+      display: flex;
+      flex-direction: column;
+    }
+    .gi-attachment-thumb {
+      flex: 1 1 auto;
+      background: linear-gradient(180deg, #f3f4f6 0%, #e5e7eb 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #6b7280;
+      font-weight: 900;
+      font-size: 0.78rem;
+      padding: 0.6rem;
+      text-align: center;
+    }
+    .gi-attachment-name {
+      padding: 0.55rem 0.65rem;
+      font-size: 0.74rem;
+      font-weight: 800;
+      color: #374151;
+      border-top: 1px solid rgba(17, 24, 39, 0.08);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .gi-hidden-input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; clip-path: inset(50%); }
+
+    @media (max-width: 420px) {
+      .gi-mail-card { padding: 0.95rem 0.9rem 1rem; }
+      .gi-attachments-grid { grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+    }
   </style>
 
   <header>
@@ -288,20 +411,6 @@
           <polyline points="15 18 9 12 15 6"/>
         </svg>
         <p class="updates-topbar-title">Beanthentic GI Updates</p>
-        <span class="updates-topbar-right" aria-label="Updates actions">
-          <button type="button" class="updates-topbar-icon-btn" aria-label="Notifications" title="Notifications">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
-              <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
-            </svg>
-      </button>
-          <a href="account.php" class="updates-topbar-account-btn" aria-label="Account" title="Account">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <circle cx="12" cy="8" r="3.75"/>
-              <path d="M5.5 21v-.75a5 5 0 0 1 5-5h3a5 5 0 0 1 5 5v.75"/>
-            </svg>
-          </a>
-        </span>
           </a>
     </div>
   </header>
@@ -325,39 +434,62 @@
     </section>
 
     <section class="updates-upload-shell" aria-label="GI document support upload">
-      <h2 class="updates-upload-title">Do you have documents that<br>can help support Kapeng<br>Barako GI?</h2>
-      <p class="updates-upload-sub">Send it here to help Lipa!</p>
-      <p id="updates-upload-status" class="updates-upload-status" hidden></p>
-      <form id="gi-support-upload-form" method="post" enctype="multipart/form-data" action="">
-        <label id="gi-support-dropzone" class="updates-upload-dropzone" for="gi-support-file" aria-label="Click to upload supporting documents">
+      <p class="gi-mail-outer-title">
+        GI Certification Application - <span id="gi-mail-farm-id-outside">Farm ID #—</span>
+      </p>
+      <div class="gi-mail-card" role="group" aria-label="GI Certification Application">
+        <div class="gi-mail-head">
+          <p class="gi-mail-title" aria-hidden="true"></p>
+          <button type="button" class="gi-mail-close" id="gi-mail-close" aria-label="Close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M18 6L6 18"></path>
+              <path d="M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+
+        <div class="gi-mail-from" aria-label="Sender">
+          <div class="gi-mail-avatar" aria-hidden="true">J</div>
+          <div class="gi-mail-from-main">
+            <p class="gi-mail-from-name" id="gi-mail-sender-name">Juan Dela Cruz</p>
+            <p class="gi-mail-from-sub">to me</p>
+          </div>
+          <div class="gi-mail-time" id="gi-mail-time">—</div>
+        </div>
+
+        <p class="gi-mail-body">
+          Submitted complete documentation for geographical indication certification including farm ownership papers and coffee variety verification...
+        </p>
+
+        <form id="gi-support-upload-form" method="post" enctype="multipart/form-data" action="">
           <input
-            class="updates-upload-input"
+            class="gi-hidden-input"
             id="gi-support-file"
             name="gi_support_file"
             type="file"
             accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-            required
+            multiple
           />
-          <div>
-            <svg class="updates-upload-icon" viewBox="0 0 64 64" fill="none" aria-hidden="true">
-              <path d="M18 46h28c6.6 0 12-5.4 12-12 0-6.2-4.7-11.4-10.8-11.9C45.8 15.2 39.6 10 32 10c-8.4 0-15.2 6.3-16 14.5C10.8 25.2 6 30 6 36c0 5.5 4.5 10 10 10h2z" fill="currentColor"/>
-              <path d="M32 20v22M24 28l8-8 8 8" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <p class="updates-upload-click">Click to upload</p>
-            <p class="updates-upload-help">PDF, DOC, JPG, PNG supported</p>
-            <p id="updates-upload-filename" class="updates-upload-filename"></p>
-        </div>
-        </label>
-      </form>
-      <section class="updates-docs-box" aria-label="Accepted documents">
-        <h3 class="updates-docs-title">WHAT DOCUMENTS ARE ACCEPTED?</h3>
-        <ul class="updates-docs-list">
-          <li>Historical documents on origin</li>
-          <li>Photos &amp; technical reports</li>
-          <li>Qualifying Product Documents</li>
-          <li>Production Practices Report</li>
-        </ul>
-      </section>
+
+          <div class="gi-attachments-row">
+            <span><span id="gi-attachments-count">0</span> Attachments · Scanned by Beanthentic</span>
+            <span class="gi-attachments-actions">
+              <label class="gi-attach-btn" id="gi-attach-btn" for="gi-support-file" role="button" tabindex="0" aria-label="Attach files">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M12 5v14"></path>
+                  <path d="M5 12h14"></path>
+                </svg>
+                Attach
+              </label>
+            </span>
+          </div>
+
+          <div class="gi-attachments-grid" id="gi-attachments-grid" aria-label="Attachments preview">
+            <!-- tiles injected by JS -->
+          </div>
+          <p id="updates-upload-status" class="updates-upload-status" hidden></p>
+        </form>
+      </div>
     </section>
   </main>
 
@@ -365,44 +497,159 @@
     (function () {
       var fileInput = document.getElementById('gi-support-file');
       var uploadForm = document.getElementById('gi-support-upload-form');
-      var dropzone = document.getElementById('gi-support-dropzone');
-      var fileName = document.getElementById('updates-upload-filename');
+      var attachBtn = document.getElementById('gi-attach-btn');
+      var grid = document.getElementById('gi-attachments-grid');
+      var countEl = document.getElementById('gi-attachments-count');
       var status = document.getElementById('updates-upload-status');
-      if (!fileInput || !fileName || !uploadForm || !dropzone || !status) return;
+      var closeBtn = document.getElementById('gi-mail-close');
+      var timeEl = document.getElementById('gi-mail-time');
+      var farmIdEl = document.getElementById('gi-mail-farm-id');
+      var farmIdOuterEl = document.getElementById('gi-mail-farm-id-outside');
+      var senderEl = document.getElementById('gi-mail-sender-name');
 
-      function openPicker() {
-        fileInput.click();
+      if (timeEl) {
+        try {
+          var now = new Date();
+          timeEl.textContent = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        } catch (_t) {
+          timeEl.textContent = '—';
+        }
       }
 
-      dropzone.addEventListener('click', function (event) {
-        if (event.target === fileInput) return;
-        event.preventDefault();
-        openPicker();
-      });
-
-      dropzone.addEventListener('keydown', function (event) {
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault();
-          openPicker();
+      // Best-effort values (replace later when DB integration exists)
+      try {
+        var raw = localStorage.getItem('beanthentic_user') || sessionStorage.getItem('beanthentic_user');
+        var u = raw ? JSON.parse(raw) : null;
+        var email = (u && u.email) ? String(u.email).trim().toLowerCase() : '';
+        var nameGuess = '';
+        // Prefer per-account farmer profile map (first_name/last_name) if available.
+        try {
+          var rawProfileMap = localStorage.getItem('beanthentic_farmer_profile_map') || sessionStorage.getItem('beanthentic_farmer_profile_map');
+          var profileMap = rawProfileMap ? JSON.parse(rawProfileMap) : null;
+          var p = profileMap && email && profileMap[email] ? profileMap[email] : null;
+          if (p && typeof p === 'object') {
+            var full = String(p.name || '').trim();
+            var first = String(p.first_name || '').trim();
+            var last = String(p.last_name || '').trim();
+            nameGuess = full || ((first || last) ? (first + ' ' + last).trim() : '');
+          }
+        } catch (_p1) {}
+        // Fallback to latest farmer profile blob.
+        if (!nameGuess) {
+          try {
+            var rawProfile = localStorage.getItem('beanthentic_farmer_profile') || sessionStorage.getItem('beanthentic_farmer_profile');
+            var lp = rawProfile ? JSON.parse(rawProfile) : null;
+            if (lp && typeof lp === 'object') {
+              var full2 = String(lp.name || '').trim();
+              var first2 = String(lp.first_name || '').trim();
+              var last2 = String(lp.last_name || '').trim();
+              nameGuess = full2 || ((first2 || last2) ? (first2 + ' ' + last2).trim() : '');
+            }
+          } catch (_p2) {}
         }
-      });
+        if (!nameGuess) {
+          nameGuess = (u && u.name && String(u.name).trim()) ? String(u.name).trim() : '';
+        }
+        if (senderEl) senderEl.textContent = nameGuess || 'Farmer';
+        var avatarEl = document.querySelector('.gi-mail-avatar');
+        if (avatarEl) {
+          var initial = (nameGuess || 'F').trim().charAt(0).toUpperCase() || 'F';
+          avatarEl.textContent = initial;
+        }
+      } catch (_u) {}
+      try {
+        var rawMap = localStorage.getItem('beanthentic_farmer_id_map') || sessionStorage.getItem('beanthentic_farmer_id_map');
+        var map = rawMap ? JSON.parse(rawMap) : null;
+        var rawU = localStorage.getItem('beanthentic_user') || sessionStorage.getItem('beanthentic_user');
+        var u2 = rawU ? JSON.parse(rawU) : null;
+        var email2 = (u2 && u2.email) ? String(u2.email).trim().toLowerCase() : '';
+        var fid = map && email2 && map[email2] ? String(map[email2]) : '';
+        if (farmIdEl) farmIdEl.textContent = 'Farm ID #' + (fid || '—');
+        if (farmIdOuterEl) farmIdOuterEl.textContent = 'Farm ID #' + (fid || '—');
+      } catch (_f) {}
+
+      if (!fileInput || !uploadForm || !grid || !status || !countEl) return;
+
+      function openPicker() {
+        try { fileInput.value = ''; } catch (_rv) {}
+        try {
+          if (typeof fileInput.showPicker === 'function') {
+            fileInput.showPicker();
+            return;
+          }
+        } catch (_sp) {}
+        try { fileInput.click(); } catch (_e) {}
+      }
+
+      if (attachBtn) {
+        attachBtn.addEventListener('click', function () {
+          openPicker();
+        });
+        attachBtn.addEventListener('keydown', function (event) {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            openPicker();
+          }
+        });
+      }
+
+      if (closeBtn) {
+        closeBtn.addEventListener('click', function () {
+          // Close returns to home updates header target; if history exists, use it.
+          try {
+            if (window.history.length > 1) {
+              window.history.back();
+              return;
+            }
+          } catch (_e) {}
+          try { window.location.assign('index.php#home'); } catch (_e2) { window.location.href = 'index.php#home'; }
+        });
+      }
 
       uploadForm.addEventListener('submit', function (event) {
         event.preventDefault();
       });
 
+      function renderTiles(files) {
+        while (grid.firstChild) grid.removeChild(grid.firstChild);
+        var list = files || [];
+        if (!list.length) return;
+        list.slice(0, 6).forEach(function (file) {
+          var tile = document.createElement('div');
+          tile.className = 'gi-attachment';
+          var thumb = document.createElement('div');
+          thumb.className = 'gi-attachment-thumb';
+          var ext = '';
+          try {
+            var name = String(file.name || '');
+            var idx = name.lastIndexOf('.');
+            ext = idx > -1 ? name.slice(idx + 1).toUpperCase() : '';
+          } catch (_e) { ext = ''; }
+          thumb.textContent = ext ? (ext + ' FILE') : 'FILE';
+          var n = document.createElement('div');
+          n.className = 'gi-attachment-name';
+          n.textContent = String(file.name || 'Attachment');
+          tile.appendChild(thumb);
+          tile.appendChild(n);
+          grid.appendChild(tile);
+        });
+      }
+
       fileInput.addEventListener('change', function () {
-        var file = fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
-        if (!file) {
-          fileName.textContent = '';
+        var files = [];
+        try { files = Array.prototype.slice.call(fileInput.files || []); } catch (_e) { files = []; }
+        countEl.textContent = String(files.length || 0);
+        renderTiles(files);
+
+        if (!files.length) {
           status.hidden = true;
           status.className = 'updates-upload-status';
+          status.textContent = '';
           return;
         }
-        fileName.textContent = 'Selected: ' + file.name;
         status.hidden = false;
         status.className = 'updates-upload-status is-success';
-        status.textContent = 'File attached. Ready for upload integration.';
+        status.textContent = 'Files attached. Ready for upload integration.';
       });
     })();
   </script>
@@ -531,7 +778,7 @@
         </span>
         <span class="app-bottom-nav-label">Transaction</span>
       </a>
-      <a href="/register-farm" id="nav-register" class="app-bottom-nav-link app-bottom-nav-link--featured">
+      <a href="register_summary.php" id="nav-register" class="app-bottom-nav-link app-bottom-nav-link--featured">
         <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
           <svg class="app-bottom-nav-icon app-bottom-nav-register-svg app-bottom-nav-register-svg--pending" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
           <svg class="app-bottom-nav-icon app-bottom-nav-register-svg app-bottom-nav-register-svg--complete" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>

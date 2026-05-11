@@ -80,7 +80,21 @@ def _serve_php_asset(filename: str) -> Response:
         title_text = title_decl.group(1)
         body = body.replace(title_decl.group(0), "", 1)
         body = body.replace("<?php echo $title; ?>", title_text)
-    return Response(body, mimetype="text/html; charset=utf-8")
+    resp = Response(body, mimetype="text/html; charset=utf-8")
+    # Prevent stale assets on LAN testing (192.x) from hiding recent fixes.
+    resp.headers["Cache-Control"] = "no-store, max-age=0"
+    resp.headers["Pragma"] = "no-cache"
+    return resp
+
+
+def _serve_html_asset(filename: str) -> Response:
+    path = os.path.join(ASSETS_DIR, filename)
+    with open(path, encoding="utf-8") as f:
+        body = f.read()
+    resp = Response(body, mimetype="text/html; charset=utf-8")
+    resp.headers["Cache-Control"] = "no-store, max-age=0"
+    resp.headers["Pragma"] = "no-cache"
+    return resp
 
 
 @app.route("/")
@@ -145,6 +159,24 @@ def messages_page():
 @app.route("/settings.php")
 def settings_page():
     return _serve_php_asset("settings.php")
+
+@app.route("/register-summary")
+@app.route("/register_summary.php")
+def register_summary_page():
+    return _serve_php_asset("register_summary.php")
+
+
+@app.route("/contact_us.html")
+def contact_us_page():
+    """Account Settings links here; explicit route avoids 404 when static resolution fails."""
+    return _serve_html_asset("contact_us.html")
+
+
+@app.route("/help.html")
+def help_page():
+    """Account Settings Help link."""
+    return _serve_html_asset("help.html")
+
 
 @app.route("/about")
 @app.route("/about.php")

@@ -23,46 +23,32 @@
     .hist-hero-row {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: center;
       gap: 0.75rem;
+      position: relative;
+      min-height: 42px;
     }
-    .hist-brand {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      min-width: 0;
-    }
-    .hist-logo {
-      width: 36px;
-      height: 36px;
-      border-radius: 999px;
-      object-fit: contain;
-      background: #fff;
-      padding: 4px;
-    }
-    .hist-brand-name {
-      font-size: 1.05rem;
-      font-weight: 700;
-      line-height: 1.1;
-    }
-    .hist-actions {
-      display: flex;
-      align-items: center;
-      gap: 0.35rem;
-    }
-    .hist-icon-btn {
-      width: 30px;
-      height: 30px;
-      border-radius: 999px;
-      border: none;
-      background: rgba(255, 255, 255, 0.95);
-      color: #1c6f20;
+    .hist-nav-back {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #ffffff;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
+      padding: 8px;
+      text-decoration: none;
+      -webkit-tap-highlight-color: transparent;
     }
-    .hist-icon-btn svg { width: 16px; height: 16px; }
+    .hist-nav-back svg { width: 18px; height: 18px; }
+    .hist-nav-title {
+      margin: 0;
+      font-size: clamp(1.35rem, 4.4vw, 1.7rem);
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: 0.02em;
+    }
     .hist-main {
       max-width: 920px;
       margin: 0 auto;
@@ -91,34 +77,60 @@
       box-shadow: 0 6px 18px rgba(13, 77, 43, 0.06);
       border: 1px solid rgba(37, 103, 30, 0.12);
     }
+    .hist-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: #4a3728;
+      color: #fff;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      padding: 0.38rem 0.95rem 0.38rem 0.65rem;
+      border-radius: 999px;
+      margin: 0.15rem 0 0.7rem;
+    }
+    .hist-badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #fff;
+      opacity: 0.95;
+    }
+    .hist-variety-topic .types-liberica-wrap--side-by-side .types-liberica-photo {
+      width: min(58%, 480px);
+      max-width: 480px;
+      min-height: 260px;
+      object-fit: cover;
+      border-radius: 14px;
+    }
+    @media (max-width: 720px) {
+      .hist-variety-topic .types-liberica-wrap--side-by-side .types-liberica-photo {
+        width: 100%;
+        max-width: 460px;
+        min-height: 230px;
+      }
+    }
   </style>
 </head>
 <body class="has-app-bottom-nav">
   <header class="hist-hero">
     <div class="hist-hero-row">
-      <div class="hist-brand">
-        <img class="hist-logo" src="beanthentic_logo.png" alt="Beanthentic" />
-        <div class="hist-brand-name">Beanthentic</div>
-      </div>
-      <div class="hist-actions">
-        <button type="button" class="hist-icon-btn" aria-label="Notifications">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 17h5l-1.4-1.4a2 2 0 0 1-.6-1.4V11a6 6 0 1 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5"/><path d="M9 17a3 3 0 0 0 6 0"/></svg>
-        </button>
-        <a href="account.php" class="hist-icon-btn" aria-label="Account">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg>
-        </a>
-      </div>
+      <a class="hist-nav-back" href="history.php" aria-label="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </a>
+      <h1 class="hist-nav-title">Robusta Beans</h1>
     </div>
   </header>
 
   <main class="hist-main">
-    <a class="hist-back" href="history.php" aria-label="Back to History">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-      Back
-    </a>
     <div class="about-card hist-variety-single">
                 <section id="history-robusta" class="about-topic hist-variety-topic" aria-label="Robusta">
-                  <h4>ROBUSTA</h4>
+                  <div>
+                    <span class="hist-badge"><span class="hist-badge-dot" aria-hidden="true"></span> Robusta</span>
+                  </div>
                   <p>Robusta coffee variety, as a significant cash crop, plays a pivotal role in Indonesia's agricultural landscape. According to Index Mundi, Indonesia ranks as the world's third-largest producer of Robusta, trailing only behind Brazil and Vietnam. The extensive expanses of suitable land for coffee cultivation and diverse microclimates render it particularly advantageous for producing Robusta coffee. Mia Lakhsmi Handayani, a Q Grader specializing in Robusta in Indonesia, asserts that &quot;These conditions [in Indonesia] also mean robusta flavors can range from more soft, subtle coffees with notes of chocolate and fruit grown in Central Java, to more intense flavors of vanilla and chocolate, like robusta grown in Sumatra&quot; (Perfect Daily Grind, 2022).</p>
                   <div class="types-liberica-wrap types-liberica-wrap--side-by-side">
                     <p>The majority of farmers in Indonesia are smallholders who are cultivating coffee on approximately one or two hectares of land. Because many of these smallholder farmers grow coffee primarily for subsistence, they frequently find themselves with insufficient funds to reinvest in their agricultural practices, this results in quality control becoming a significant concern. However, despite the abundance of coffee production in Indonesia, there is a need to enhance both quality and yields. For this reason, coffee farmers have initiated the development of this new breed of coffee.</p>
@@ -149,7 +161,7 @@
         </span>
         <span class="app-bottom-nav-label">Transaction</span>
       </a>
-      <a href="/register-farm" id="nav-register" class="app-bottom-nav-link app-bottom-nav-link--featured">
+      <a href="register_summary.php" id="nav-register" class="app-bottom-nav-link app-bottom-nav-link--featured">
         <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
           <svg class="app-bottom-nav-icon app-bottom-nav-register-svg app-bottom-nav-register-svg--pending" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
           <svg class="app-bottom-nav-icon app-bottom-nav-register-svg app-bottom-nav-register-svg--complete" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>

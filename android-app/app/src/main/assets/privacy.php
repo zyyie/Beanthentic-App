@@ -9,90 +9,75 @@
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/responsive.css">
+  <style>
+    .privacy-page header {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: linear-gradient(180deg, #1d7a2a 0%, #145e1e 100%);
+      border-bottom: none;
+      border-radius: 0 0 16px 16px;
+      padding-top: env(safe-area-inset-top);
+    }
+    .privacy-page header .nav {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 4.6rem;
+      padding: 0.72rem 1.05rem 0.78rem max(0.8rem, env(safe-area-inset-left, 0px));
+      box-sizing: border-box;
+    }
+    .privacy-nav-back {
+      position: absolute;
+      left: 0.55rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #ffffff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      padding: 8px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .privacy-nav-back svg { width: 20px; height: 20px; }
+    .privacy-nav-title {
+      margin: 0;
+      font-size: clamp(1.25rem, 4.6vw, 1.7rem);
+      font-weight: 800;
+      line-height: 1.08;
+      letter-spacing: 0.01em;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .privacy-nav-title .privacy-part { color: #c8f5c9; }
+    .privacy-nav-title .notice-part { color: #f5e6d8; }
+  </style>
 </head>
-<body class="has-app-bottom-nav">
+<body class="has-app-bottom-nav privacy-page">
   <header>
-    <div class="nav">
-      <button
-        type="button"
-        id="header-burger-btn"
-        class="header-burger-btn"
-        aria-label="Open menu"
-        aria-expanded="false"
-        aria-controls="header-nav-drawer"
+    <div class="nav" role="presentation">
+      <a
+        id="privacy-nav-back"
+        href="about.php"
+        class="privacy-nav-back"
+        aria-label="Back"
+        onclick="if(window.history.length > 1){ event.preventDefault(); window.history.back(); }"
       >
-        <span class="header-burger-line" aria-hidden="true"></span>
-        <span class="header-burger-line" aria-hidden="true"></span>
-        <span class="header-burger-line" aria-hidden="true"></span>
-      </button>
-      <div class="nav-logo-wrap">
-        <a href="index.php#home" class="logo" aria-label="Beanthentic home">
-          <img class="logo-mark" src="beanthentic_logo.png" alt="Beanthentic" />
-        </a>
-      </div>
-      <div class="nav-right-cluster">
-        <div id="header-account-snippet" class="header-account-snippet" hidden>
-          <span class="header-account-avatar" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          </span>
-          <span id="header-account-display" class="header-account-name"></span>
-        </div>
-        <button
-          type="button"
-          id="header-notifications-btn"
-          class="header-notifications-btn"
-          aria-label="Notifications"
-          title="Notifications"
-        >
-          <svg class="header-notifications-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
-        </button>
-      </div>
-    </div>
-    <div id="header-nav-drawer" class="header-nav-drawer" hidden>
-      <div class="header-nav-drawer-backdrop" aria-hidden="true"></div>
-      <aside class="header-nav-drawer-panel" role="dialog" aria-modal="true" aria-label="Menu">
-        <div class="header-nav-drawer-inner">
-          <div id="header-drawer-account" class="header-drawer-account"></div>
-          <a href="social.php" class="header-drawer-link header-drawer-link--social">
-            <svg class="header-drawer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            <span>Social</span>
-          </a>
-          <a href="privacy.php" class="header-drawer-link" aria-current="page">
-            <svg class="header-drawer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
-            <span>Privacy Policy</span>
-          </a>
-          <a href="news.php" class="header-drawer-link">
-            <svg class="header-drawer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M4 19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12z"/>
-              <path d="M8 9h8"/>
-              <path d="M8 13h8"/>
-              <path d="M8 17h5"/>
-            </svg>
-            <span>Updates</span>
-          </a>
-          <a href="settings.php" class="header-drawer-link">
-            <svg class="header-drawer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-            <span>Settings</span>
-          </a>
-          <button type="button" id="header-sign-out-btn" class="header-drawer-signout" hidden>Sign out</button>
-        </div>
-      </aside>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </a>
+      <h1 class="privacy-nav-title" id="privacy-page-heading">
+        <span class="privacy-part">Privacy</span>
+        <span class="notice-part">Notice</span>
+      </h1>
     </div>
   </header>
 
   <main class="auth-main" style="padding-top: 0.35rem; padding-bottom: 1.2rem;">
     <div class="auth-card" style="max-width: 49rem; background: #f1f3f4; border: none; box-shadow: none; padding: clamp(0.85rem, 2.8vw, 1.35rem) clamp(0.95rem, 3.2vw, 1.45rem) calc(4.95rem + env(safe-area-inset-bottom, 0px));">
-      <a href="about.php" class="news-portal-back" onclick="if(window.history.length > 1){ event.preventDefault(); window.history.back(); }" style="margin-bottom: 1rem;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true">
-          <path d="m12 19-7-7 7-7"/>
-          <path d="M19 12H5"/>
-        </svg>
-        Back
-      </a>
-      <h1 style="margin-bottom: 0.25rem;">
-        <span style="color:#256f2a;">Privacy</span>
-        <span style="color:#5a351f;">Notice</span>
-      </h1>
       <p style="margin: 0 0 0.85rem; font-size: 0.92rem; font-weight: 700; color: #1d1d1d;">Last Updated: May 3, 2026</p>
       <p style="margin: 0 0 0.38rem; font-size: 0.92rem; color:#353535; line-height:1.34;">
         Welcome to Beanthentic. We are committed to protecting the privacy and security of information
@@ -177,7 +162,7 @@
         </span>
         <span class="app-bottom-nav-label">Transaction</span>
       </a>
-      <a href="/register-farm" id="nav-register" class="app-bottom-nav-link app-bottom-nav-link--featured">
+      <a href="register_summary.php" id="nav-register" class="app-bottom-nav-link app-bottom-nav-link--featured">
         <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
           <svg class="app-bottom-nav-icon app-bottom-nav-register-svg app-bottom-nav-register-svg--pending" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
           <svg class="app-bottom-nav-icon app-bottom-nav-register-svg app-bottom-nav-register-svg--complete" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
@@ -201,5 +186,17 @@
 
   <script src="js/navigation.js"></script>
   <script src="js/ui.js"></script>
+  <script>
+    (function () {
+      var back = document.getElementById('privacy-nav-back');
+      if (!back) return;
+      try {
+        var params = new URLSearchParams(window.location.search || '');
+        if (params.get('from') === 'account_settings') {
+          back.setAttribute('href', 'account_settings.html');
+        }
+      } catch (_e) {}
+    })();
+  </script>
 </body>
 </html>

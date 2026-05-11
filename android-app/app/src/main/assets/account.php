@@ -296,7 +296,7 @@
         </span>
         <span class="app-bottom-nav-label">Transaction</span>
       </a>
-      <a href="http://10.0.2.2:5000/register-farm" id="nav-register" data-beanthentic-flask="/register-farm" class="app-bottom-nav-link app-bottom-nav-link--featured">
+      <a href="register_summary.php" id="nav-register" class="app-bottom-nav-link app-bottom-nav-link--featured">
         <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
           <svg class="app-bottom-nav-icon app-bottom-nav-register-svg app-bottom-nav-register-svg--pending" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
           <svg class="app-bottom-nav-icon app-bottom-nav-register-svg app-bottom-nav-register-svg--complete" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
@@ -489,6 +489,7 @@
       }
       function formatDisplayName(u) {
         if (!u) return 'Member';
+        if (u.needs_registration) return 'Member';
         var rawName = (u.name && String(u.name).trim()) ? String(u.name).trim() : '';
         if (!rawName) return (String(u.email).split('@')[0] || 'Member');
         var parts = rawName.split(/\s+/).filter(Boolean);
@@ -509,7 +510,17 @@
         // If it looks like digits-only (e.g. 9920...), keep as-is.
         return s;
       }
-      function getRegisteredFarmerProfile() {
+      function getRegisteredFarmerProfile(email) {
+        var cleanEmail = String(email || '').trim().toLowerCase();
+        // Per-account profile (preferred).
+        if (cleanEmail) {
+          try {
+            var mapRaw = localStorage.getItem('beanthentic_farmer_profile_map') || sessionStorage.getItem('beanthentic_farmer_profile_map');
+            var map = mapRaw ? JSON.parse(mapRaw) : null;
+            var prof = map && typeof map === 'object' ? map[cleanEmail] : null;
+            if (prof && typeof prof === 'object') return prof;
+          } catch (_em) {}
+        }
         var keys = ['beanthentic_farmer_profile', 'beanthentic_registered_farmer_profile'];
         for (var i = 0; i < keys.length; i++) {
           var key = keys[i];
@@ -534,7 +545,8 @@
           return;
         }
         var email = String(u.email || '').trim();
-        var farmerProfile = getRegisteredFarmerProfile();
+        var farmerProfile = getRegisteredFarmerProfile(email);
+        if (u.needs_registration) farmerProfile = null;
         var normalized = normalizeLoginId(email);
         var knownName = getKnownUserName(email) || (normalized ? getKnownUserName(normalized) : '');
         var farmerName = '';
@@ -550,6 +562,7 @@
         }
         var rawName = knownName || farmerName || ((u.name && String(u.name).trim()) ? String(u.name).trim() : '');
         var displayName = rawName || (email.split('@')[0] || 'Member');
+        if (u.needs_registration) displayName = 'Member';
         // If the "name" is actually a phone/number, don't show it as name.
         if (/^\+?\d{8,}$/.test(displayName.replace(/\s/g, ''))) {
           displayName = knownName || farmerName || 'Member';
@@ -631,7 +644,8 @@
 
       function computeInitialTotalsByVariety() {
         var out = emptyVarietyTotals();
-        var p = getRegisteredFarmerProfile() || {};
+        var u = getUser();
+        var p = getRegisteredFarmerProfile(u && u.email ? u.email : '') || {};
         var production = (p && p.production && typeof p.production === 'object') ? p.production : {};
         var keys = ['liberica', 'excelsa', 'robusta'];
         for (var i = 0; i < keys.length; i++) {

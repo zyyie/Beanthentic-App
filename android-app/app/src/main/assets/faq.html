@@ -12,19 +12,43 @@
   <style>
     body { margin: 0; background: #eef6ff; }
     .faq-page header { position: sticky; top: 0; z-index: 30; background: linear-gradient(180deg, #1d7a2a 0%, #145e1e 100%); border-bottom: none; border-radius: 0 0 16px 16px; padding-top: env(safe-area-inset-top); }
-    .faq-page .nav { display: flex; align-items: center; justify-content: space-between; min-height: 4.6rem; padding: 0.72rem 1.05rem 0.78rem max(0.8rem, env(safe-area-inset-left, 0px)); }
-    .faq-page .logo { display: inline-flex; align-items: center; gap: 0.45rem; text-decoration: none; color: #fff; }
-    .faq-page .logo-mark { width: 58px; height: 58px; transform: none !important; animation: none; object-fit: contain; }
-    .faq-brand { color: #fff; font-size: 2rem; font-weight: 800; line-height: 1; }
-    .faq-page .nav-right-cluster { display: flex; align-items: center; gap: 0.34rem; }
-    .faq-page .header-notifications-btn, .faq-account-btn { width: 40px; height: 40px; border-radius: 999px; border: 1px solid rgba(255,255,255,.45); background: #fff; color: #1d7a2a; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
-    .faq-page .header-notifications-icon, .faq-account-btn svg { width: 19px; height: 19px; }
-    .faq-shell { width: min(100%, 760px); margin: 0 auto; padding: 1.05rem 1.15rem 6.5rem; box-sizing: border-box; }
+    .faq-page .nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      min-height: 4.6rem;
+      padding: 0.72rem 1.05rem 0.78rem max(0.8rem, env(safe-area-inset-left, 0px));
+    }
+    .faq-nav-back {
+      position: absolute;
+      left: 0.55rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #ffffff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      padding: 8px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .faq-nav-back svg { width: 18px; height: 18px; }
+    .faq-nav-title {
+      margin: 0;
+      color: #fff;
+      font-size: clamp(1.25rem, 4.6vw, 1.7rem);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: 0.01em;
+      text-align: center;
+    }
+    .faq-shell { width: min(100%, 760px); margin: 0 auto; padding: 1.55rem 1.15rem 6.5rem; box-sizing: border-box; }
     .faq-back { display: inline-flex; align-items: center; gap: 0.3rem; color: #2f7a24; text-decoration: none; font-size: 0.88rem; margin-bottom: 0.7rem; }
     .faq-back svg { width: 16px; height: 16px; }
     .faq-title { margin: 0 0 0.85rem; font-size: 2.03rem; line-height: 1.08; font-weight: 800; color: #111827; letter-spacing: -0.01em; }
     .faq-title span { color: #1d7a2a; }
-    .faq-search { width: 100%; min-height: 2.45rem; border: 1px solid #2f7a24; border-radius: 10px; background: #dff0df; font-size: 0.94rem; color: #111827; padding: 0.55rem 0.82rem; box-sizing: border-box; margin-bottom: 1rem; }
+    .faq-search { width: 100%; min-height: 2.45rem; border: 1px solid #2f7a24; border-radius: 10px; background: #dff0df; font-size: 0.94rem; color: #111827; padding: 0.55rem 0.82rem; box-sizing: border-box; margin-bottom: 0.45rem; }
     .faq-search::placeholder { color: #3f5d45; opacity: 0.8; }
     .faq-list { background: transparent; }
     .faq-item { border-bottom: 1px solid rgba(17,24,39,0.12); }
@@ -39,31 +63,16 @@
 <body class="has-app-bottom-nav faq-page">
   <header>
     <div class="nav">
-      <div class="nav-logo-wrap">
-        <a href="index.php#home" class="logo" aria-label="Beanthentic home">
-          <img class="logo-mark" src="beanthentic_logo.png" alt="Beanthentic" />
-          <span class="faq-brand">Beanthentic</span>
-        </a>
-      </div>
-      <div class="nav-right-cluster">
-        <button type="button" id="header-notifications-btn" class="header-notifications-btn" aria-label="Notifications" title="Notifications">
-          <svg class="header-notifications-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
-        </button>
-        <a href="account.php" class="faq-account-btn" aria-label="Account">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.75"/><path d="M5.5 21v-.75a5 5 0 0 1 5-5h3a5 5 0 0 1 5 5v.75"/></svg>
-        </a>
-      </div>
+      <a class="faq-nav-back" href="account.php" aria-label="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </a>
+      <h1 class="faq-nav-title">Frequently sked Questions</h1>
     </div>
   </header>
 
   <main class="faq-shell">
-    <a href="account.php" class="faq-back" aria-label="Back to account">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-      Back
-    </a>
-
-    <h1 class="faq-title">Frequently <span>Asked</span> Questions</h1>
-
     <input id="faq-search" class="faq-search" type="search" placeholder="Search" aria-label="Search FAQs">
 
     <section class="faq-list" aria-label="Frequently asked questions list">
@@ -102,7 +111,7 @@
     <div class="app-bottom-nav-inner">
       <a href="index.php#home" id="nav-home" class="app-bottom-nav-link"><span class="app-bottom-nav-icon-wrap" aria-hidden="true"><svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="app-bottom-nav-label">Home</span></a>
       <a href="qr.php" id="nav-qr" class="app-bottom-nav-link"><span class="app-bottom-nav-icon-wrap" aria-hidden="true"><svg class="app-bottom-nav-icon app-bottom-nav-icon--transaction" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6 7.25h9v2H6z"/><path fill="currentColor" d="M15 6 19 8.25 15 10.5z"/><path fill="currentColor" d="M9 14.25h9v2H9z"/><path fill="currentColor" d="M9 13.25 5 15.25 9 17.25z"/></svg></span><span class="app-bottom-nav-label">Transaction</span></a>
-      <a href="/register-farm" id="nav-register" class="app-bottom-nav-link app-bottom-nav-link--featured"><span class="app-bottom-nav-icon-wrap" aria-hidden="true"><svg class="app-bottom-nav-icon app-bottom-nav-register-svg app-bottom-nav-register-svg--pending" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><svg class="app-bottom-nav-icon app-bottom-nav-register-svg app-bottom-nav-register-svg--complete" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></span><span class="app-bottom-nav-label">Register</span></a>
+      <a href="register_summary.php" id="nav-register" class="app-bottom-nav-link app-bottom-nav-link--featured"><span class="app-bottom-nav-icon-wrap" aria-hidden="true"><svg class="app-bottom-nav-icon app-bottom-nav-register-svg app-bottom-nav-register-svg--pending" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><svg class="app-bottom-nav-icon app-bottom-nav-register-svg app-bottom-nav-register-svg--complete" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></span><span class="app-bottom-nav-label">Register</span></a>
       <a href="transaction-history.html" id="nav-history" class="app-bottom-nav-link app-bottom-nav-link--history"><span class="app-bottom-nav-icon-wrap" aria-hidden="true"><svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg></span><span class="app-bottom-nav-label">History</span></a>
       <a href="account.php" id="nav-signin" class="app-bottom-nav-link app-bottom-nav-link--signin"><span class="app-bottom-nav-icon-wrap" aria-hidden="true"><svg class="app-bottom-nav-icon app-bottom-nav-icon--account" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.75"/><path d="M5.5 21v-.75a5 5 0 0 1 5-5h3a5 5 0 0 1 5 5v.75"/></svg></span><span class="app-bottom-nav-label">Account</span></a>
     </div>
@@ -112,6 +121,26 @@
   <script src="js/ui.js"></script>
   <script>
     (function () {
+      var backLink = document.querySelector('.faq-nav-back');
+      if (backLink) {
+        try {
+          var params = new URLSearchParams(window.location.search || '');
+          if (params.get('from') === 'account_settings') {
+            backLink.setAttribute('href', 'account_settings.html');
+          }
+        } catch (_e) {}
+        backLink.addEventListener('click', function (event) {
+          event.preventDefault();
+          try {
+            if (window.history && window.history.length > 1) {
+              window.history.back();
+              return;
+            }
+          } catch (_err) {}
+          window.location.href = backLink.getAttribute('href') || 'account.php';
+        });
+      }
+
       var all = Array.prototype.slice.call(document.querySelectorAll('.faq-q'));
       all.forEach(function (btn) {
         btn.addEventListener('click', function () {

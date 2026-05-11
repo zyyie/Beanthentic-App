@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#25671E" />
+  <title>Help · Beanthentic Coffee</title>
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <style>
+    body.help-page { margin: 0; background: #e9edf3; }
+    .help-page header {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: linear-gradient(180deg, #1d7a2a 0%, #145e1e 100%);
+      border-radius: 0 0 16px 16px;
+      padding-top: env(safe-area-inset-top);
+    }
+    .help-page .nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      min-height: 4.4rem;
+      padding: 0.6rem max(1rem, env(safe-area-inset-left, 0px)) 0.7rem max(1rem, env(safe-area-inset-right, 0px));
+    }
+    .help-header-back {
+      position: absolute;
+      left: max(0.9rem, env(safe-area-inset-left, 0px));
+      top: 50%;
+      transform: translateY(-50%);
+      border: 0;
+      background: transparent;
+      color: #ffffff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      cursor: pointer;
+      line-height: 0;
+    }
+    .help-header-back svg { width: 24px; height: 24px; }
+    .help-header-title {
+      margin: 0;
+      color: #ffffff;
+      font-size: 1.45rem;
+      line-height: 1;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      text-align: center;
+    }
+    .help-main {
+      width: min(100%, 620px);
+      margin: 0 auto;
+      padding: 1.15rem 1.05rem 2.5rem;
+      box-sizing: border-box;
+    }
+    .help-card {
+      background: #ffffff;
+      border: 1px solid rgba(17, 24, 39, 0.06);
+      border-radius: 16px;
+      box-shadow: 0 10px 24px rgba(17, 24, 39, 0.06);
+      padding: 1.1rem 1.05rem 1.2rem;
+    }
+    .help-card h2 {
+      margin: 0 0 0.65rem;
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #111827;
+    }
+    .help-card p {
+      margin: 0 0 0.85rem;
+      font-size: 0.92rem;
+      line-height: 1.45;
+      color: #374151;
+    }
+    .help-links {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 0;
+    }
+    .help-links li { border-bottom: 1px solid rgba(17, 24, 39, 0.08); }
+    .help-links li:last-child { border-bottom: none; }
+    .help-links a {
+      display: block;
+      padding: 0.68rem 0.15rem;
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: #145e1e;
+      text-decoration: none;
+    }
+    .help-links a:active { opacity: 0.85; }
+    .help-muted {
+      margin: 0.85rem 0 0;
+      font-size: 0.86rem !important;
+      color: #6b7280 !important;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body class="help-page">
+  <header>
+    <div class="nav">
+      <button type="button" id="help-header-back" class="help-header-back" aria-label="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18 9 12l6-6"/></svg>
+      </button>
+      <h1 class="help-header-title">Help</h1>
+    </div>
+  </header>
+
+  <main class="help-main">
+    <section class="help-card" aria-label="Help resources">
+      <h2>Get started</h2>
+      <p>
+        Answers to common questions and quick links around the Beanthentic app are below.
+      </p>
+      <ul class="help-links">
+        <li><a href="faq.html?from=account_settings">Frequently Asked Questions</a></li>
+        <li><a href="tutorial.php">Tutorial walkthrough</a></li>
+        <li><a href="register_summary.php">Farm registration summary</a></li>
+        <li><a href="settings.php">Account Security &amp; settings</a></li>
+        <li><a href="privacy.php?from=account_settings">Privacy Notice</a></li>
+      </ul>
+      <p class="help-muted">
+        If something still fails, try refreshing the page or signing out and back in.
+      </p>
+    </section>
+  </main>
+
+  <script src="js/navigation.js"></script>
+  <script src="js/ui.js"></script>
+  <script>
+    (function () {
+      var backBtn = document.getElementById('help-header-back');
+      if (!backBtn) return;
+      backBtn.addEventListener('click', function () {
+        try {
+          var params = new URLSearchParams(window.location.search || '');
+          if (params.get('from') === 'account_settings') {
+            window.location.href = 'account_settings.html';
+            return;
+          }
+        } catch (_e) {}
+        try {
+          if (window.history.length > 1) {
+            window.history.back();
+            return;
+          }
+        } catch (_e2) {}
+        window.location.href = 'account_settings.html';
+      });
+    })();
+  </script>
+</body>
+</html>

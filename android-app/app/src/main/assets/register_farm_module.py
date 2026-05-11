@@ -229,12 +229,17 @@ def validate_farmer_payload(data):
     elif barangay not in _LIPA_BARANGAYS:
         errors["barangay"] = "Barangay must be within Lipa City."
 
-    federation = (data.get("federation") or "").strip()
-    association = (data.get("association") or "").strip()
-    if len(federation) < 2:
-        errors["federation"] = "Select or enter federation / association grouping."
-    if len(association) < 2:
-        errors["association"] = "Select or enter growers association."
+    affiliation_role = (data.get("affiliation_role") or "").strip()
+    if affiliation_role not in ("Cluster Head", "Officer", "Member"):
+        errors["affiliation_role"] = "Select your role (Cluster Head, Officer, or Member)."
+
+    ncfrs = (data.get("ncfrs") or "").strip().lower()
+    if ncfrs not in ("yes", "no"):
+        errors["ncfrs"] = "Select NCFRS (Yes or No)."
+
+    # Keep legacy columns populated for existing DB schema expectations.
+    federation = affiliation_role
+    association = ""
 
     rsbsa_registered = (data.get("rsbsa_registered") or "").strip().lower()
     if rsbsa_registered not in ("yes", "no", "pending"):
@@ -247,7 +252,7 @@ def validate_farmer_payload(data):
         errors["rsbsa_number"] = "RSBSA number is too long."
 
     ownership_status = (data.get("ownership_status") or "").strip().lower()
-    allowed_own = frozenset({"owned", "tenant", "lessee", "usufruct", "other"})
+    allowed_own = frozenset({"landowner", "cloa_holder", "list_holder", "sessional_farm_worker", "others"})
     if ownership_status not in allowed_own:
         errors["ownership_status"] = "Select status of ownership."
 
@@ -743,6 +748,100 @@ class RegisterFarmModule:
                 })
             except Exception as e:
                 return jsonify({'success': False, 'error': str(e)}), 500
+
+        @self.app.route('/api/register-farm/farmer-profile', methods=['GET'])
+        def get_farmer_profile_by_login():
+            """Fetch saved farmer registration profile by account login id (email/phone)."""
+            try:
+                raw_login = (request.args.get('login_id') or '').strip().lower()
+                if not raw_login:
+                    return jsonify({'success': False, 'error': 'Missing login_id'}), 400
+
+                def phone_variants(v: str):
+                    s = re.sub(r'\D+', '', v or '')
+                    out = set()
+                    if not s:
+                        return out
+                    if s.startswith('63') and len(s) >= 12:
+                        out.add('0' + s[2:])
+                    if s.startswith('0') and len(s) >= 11:
+                        out.add('+63' + s[1:])
+                    if len(s) == 10 and s.startswith('9'):
+                        out.add('0' + s)
+                        out.add('+63' + s)
+                    out.add(v.strip())
+                    out.add(s)
+                    return {x.lower() for x in out if x}
+
+                variants = phone_variants(raw_login)
+                conn = sqlite3.connect(REGISTER_DB_PATH)
+                conn.row_factory = sqlite3.Row
+                cursor = conn.cursor()
+
+                row = None
+                if '@' in raw_login:
+                    cursor.execute(
+                        "SELECT * FROM farmers WHERE lower(email) = ? ORDER BY id DESC LIMIT 1",
+                        (raw_login,),
+                    )
+                    row = cursor.fetchone()
+                else:
+                    # Try phone matches first.
+                    for ph in variants:
+                        cursor.execute(
+                            "SELECT * FROM farmers WHERE lower(phone) = ? ORDER BY id DESC LIMIT 1",
+                            (ph,),
+                        )
+                        row = cursor.fetchone()
+                        if row:
+                            break
+                    # Fallback: sometimes login id may still be in email column.
+                    if not row:
+                        cursor.execute(
+                            "SELECT * FROM farmers WHERE lower(email) = ? ORDER BY id DESC LIMIT 1",
+                            (raw_login,),
+                        )
+                        row = cursor.fetchone()
+
+                conn.close()
+                if not row:
+                    return jsonify({'success': True, 'found': False, 'profile': None})
+
+                def _safe_json(raw, default):
+                    try:
+                        return json.loads(raw) if raw else default
+                    except Exception:
+                        return default
+
+                trees = _safe_json(row['trees_json'], {})
+                production = _safe_json(row['production_json'], {})
+                profile = {
+                    'id': row['id'],
+                    'name': row['name'] or '',
+                    'first_name': row['first_name'] or '',
+                    'last_name': row['last_name'] or '',
+                    'email': row['email'] or '',
+                    'phone': row['phone'] or '',
+                    'province': row['province'] or '',
+                    'municipality': row['municipality'] or '',
+                    'barangay': row['barangay'] or '',
+                    'federation': row['federation'] or '',
+                    'association': row['association'] or '',
+                    'ncfrs': 'yes' if (str(row['association'] or '').strip().lower() == 'yes') else (
+                        'no' if str(row['association'] or '').strip().lower() == 'no' else ''
+                    ),
+                    'rsbsa_registered': row['rsbsa_registered'] or '',
+                    'rsbsa_number': row['rsbsa_number'] or '',
+                    'ownership_status': row['ownership_status'] or '',
+                    'plant_area_value': row['plant_area_value'],
+                    'plant_area_unit': row['plant_area_unit'] or '',
+                    'tree_counts': trees if isinstance(trees, dict) else {},
+                    'production': production if isinstance(production, dict) else {},
+                    'production_year': '2026',
+                }
+                return jsonify({'success': True, 'found': True, 'profile': profile})
+            except Exception as e:
+                return jsonify({'success': False, 'error': str(e)}), 500
         
         @self.app.route('/register-farm')
         def register_farm_portal():
@@ -789,31 +888,27 @@ class RegisterFarmModule:
             height: 100%;
         }
         body.register-farm-flow {
-            height: 100%;
-            max-height: 100dvh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
+            min-height: 100%;
+            display: block;
+            overflow-y: auto;
+            overflow-x: hidden;
             /* Flush green header to top of viewport (safe area handled inside .fr-reg-hero) */
             padding-top: 0 !important;
         }
         body.register-farm-flow.has-app-bottom-nav {
             padding-bottom: 0 !important;
         }
+        body.register-farm-flow .app-bottom-nav {
+            display: none !important;
+        }
         body.register-farm-flow .main-content.register-farm-main {
-            flex: 1 1 auto;
-            min-height: 0;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
+            display: block;
+            overflow: visible;
             padding: 0;
         }
         body.register-farm-flow .main-content.register-farm-main > .container {
-            flex: 1 1 auto;
-            min-height: 0;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
+            display: block;
+            overflow: visible;
             max-width: none;
             width: 100%;
             margin: 0;
@@ -821,11 +916,8 @@ class RegisterFarmModule:
             padding-right: 0;
         }
         .fr-reg-shell {
-            flex: 1 1 auto;
-            min-height: 0;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
+            display: block;
+            overflow: visible;
             width: 100%;
             max-width: none;
             margin-left: 0;
@@ -904,10 +996,9 @@ class RegisterFarmModule:
             margin-top: -0.75rem;
             position: relative;
             z-index: 2;
-            flex: 1 1 auto;
-            min-height: 0;
+            min-height: 60vh;
             overflow-x: hidden;
-            overflow-y: auto;
+            overflow-y: visible;
             -webkit-overflow-scrolling: touch;
             overscroll-behavior: contain;
             width: 100%;
@@ -1970,6 +2061,28 @@ class RegisterFarmModule:
             background-size: 160% 160%;
             animation: fr-success-bg 1.8s ease-out forwards;
         }
+        .fr-success-actions {
+            display: flex;
+            justify-content: center;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+            margin-top: 0.25rem;
+        }
+        .fr-success-btn {
+            border: 0;
+            border-radius: 999px;
+            padding: 0.72rem 1.25rem;
+            font-weight: 900;
+            cursor: pointer;
+            font-family: inherit;
+            background: rgba(255,255,255,0.14);
+            color: #ffffff;
+            box-shadow: 0 14px 34px rgba(0,0,0,0.22);
+        }
+        .fr-success-btn.primary {
+            background: #ffffff;
+            color: #145218;
+        }
         .fr-submit-overlay.block {
             background: radial-gradient(circle at top, rgba(16,185,129,0.18), rgba(15, 23, 42, 0.92));
             color: #fff;
@@ -2204,27 +2317,25 @@ class RegisterFarmModule:
                         
                         <p class="fr-section-title">Affiliation</p>
                         <div class="fr-fed-block">
-                            <p id="frFedAssocGroupLbl" class="fr-block-label">Federation Association <span class="required">*</span></p>
-                            <div class="fr-fed-row" role="group" aria-labelledby="frFedAssocGroupLbl">
+                            <div class="fr-fed-row" role="group" aria-label="Affiliation">
                                 <div class="fr-field">
-                                    <select id="frFederation" name="federation" aria-label="Federation association, first list">
-                                        <option value="">Select federation</option>
-                                        <option value="Batangas Coffee Federation">Batangas Coffee Federation</option>
-                                        <option value="CALABARZON Coffee Growers Cooperative">CALABARZON Coffee Growers Cooperative</option>
-                                        <option value="Lipa City Farmers Federation">Lipa City Farmers Federation</option>
-                                        <option value="Independent / Not listed">Independent / Not listed</option>
+                                    <label for="frAffiliationRole">Affiliation Role <span class="required">*</span></label>
+                                    <select id="frAffiliationRole" name="affiliation_role" aria-label="Affiliation role">
+                                        <option value="">Select role</option>
+                                        <option value="Cluster Head">Cluster Head</option>
+                                        <option value="Officer">Officer</option>
+                                        <option value="Member">Member</option>
                                     </select>
-                                    <span class="field-error" data-error-for="federation" role="alert"></span>
+                                    <span class="field-error" data-error-for="affiliation_role" role="alert"></span>
                                 </div>
                                 <div class="fr-field">
-                                    <select id="frAssociation" name="association" aria-label="Federation association, second list">
-                                        <option value="">Select growers group</option>
-                                        <option value="Organic Coffee Growers Association — Lipa">Organic Coffee Growers Association — Lipa</option>
-                                        <option value="Barako Farmers Guild">Barako Farmers Guild</option>
-                                        <option value="Sitio Cooperative Cluster">Sitio Cooperative Cluster</option>
-                                        <option value="Other / Independent">Other / Independent</option>
+                                    <label for="frNcfrs">NCFRS <span class="required">*</span></label>
+                                    <select id="frNcfrs" name="ncfrs" aria-label="NCFRS">
+                                        <option value="">Select</option>
+                                        <option value="yes">Yes</option>
+                                        <option value="no">No</option>
                                     </select>
-                                    <span class="field-error" data-error-for="association" role="alert"></span>
+                                    <span class="field-error" data-error-for="ncfrs" role="alert"></span>
                                 </div>
                             </div>
                         </div>
@@ -2253,11 +2364,11 @@ class RegisterFarmModule:
                             <label for="frOwnership">Status of Ownership <span class="required">*</span></label>
                             <select id="frOwnership" name="ownership_status">
                                 <option value="">Select</option>
-                                <option value="owned">Owned</option>
-                                <option value="tenant">Tenant</option>
-                                <option value="lessee">Lessee</option>
-                                <option value="usufruct">Usufruct / usufructuary</option>
-                                <option value="other">Other arrangement</option>
+                                <option value="landowner">Landowner</option>
+                                <option value="cloa_holder">CLOA Holder</option>
+                                <option value="list_holder">List Holder</option>
+                                <option value="sessional_farm_worker">Sessional Farm Worker</option>
+                                <option value="others">Others</option>
                             </select>
                             <span class="field-error" data-error-for="ownership_status" role="alert"></span>
                             </div>
@@ -2454,7 +2565,11 @@ class RegisterFarmModule:
                     <div class="fr-success-mark"><i data-lucide="check"></i></div>
                     <p class="fr-success-title">Success!</p>
                     <p class="fr-success-subtitle">Registration Completed</p>
+                    <div class="fr-success-actions">
+                        <button type="button" class="fr-success-btn primary" id="frSuccessViewSummary">View Summary</button>
+                        <button type="button" class="fr-success-btn" id="frSuccessGoHome">Go Home</button>
                     </div>
+                </div>
                 <div class="fr-submit-overlay block" id="frAlreadyOverlay" aria-hidden="true">
                     <div class="fr-block-card">
                         <p class="fr-block-title">Already Registered</p>
@@ -2514,7 +2629,7 @@ class RegisterFarmModule:
         function moveWizardToStepForErrors(errors) {
             if (!errors) return;
             const keys = Object.keys(errors);
-            const stepKeys1 = ['last_name','first_name','barangay','federation','association','rsbsa_registered','rsbsa_number'];
+            const stepKeys1 = ['last_name','first_name','barangay','affiliation_role','ncfrs','rsbsa_registered','rsbsa_number'];
             const stepKeys2 = [
                 'ownership_status','plant_area_value','plant_area_unit',
                 'liberica_bearing','liberica_non_bearing','robusta_bearing','robusta_non_bearing','excelsa_bearing','excelsa_non_bearing',
@@ -2566,12 +2681,12 @@ class RegisterFarmModule:
 
         function validateStepAffiliationErrors(d) {
             const err = {};
-            const federation = (d.federation || '').trim();
-            const association = (d.association || '').trim();
+            const role = (d.affiliation_role || '').trim();
+            const ncfrs = (d.ncfrs || '').trim().toLowerCase();
             const rsb = (d.rsbsa_registered || '').trim().toLowerCase();
             const rsbNum = (d.rsbsa_number || '').trim();
-            if (federation.length < 2) err.federation = 'Select federation.';
-            if (association.length < 2) err.association = 'Select growers group.';
+            if (!role) err.affiliation_role = 'Select your role.';
+            if (!['yes','no'].includes(ncfrs)) err.ncfrs = 'Select NCFRS (Yes or No).';
             if (!['yes','no','pending'].includes(rsb)) err.rsbsa_registered = 'Select RSBSA registration status.';
             if (rsb === 'yes' && rsbNum.length < 4) err.rsbsa_number = 'Enter your RSBSA number.';
             return err;
@@ -2590,7 +2705,7 @@ class RegisterFarmModule:
         function validateStep2Errors(d) {
             const err = {};
             const own = (d.ownership_status || '').trim().toLowerCase();
-            const okOwn = new Set(['owned','tenant','lessee','usufruct','other']);
+            const okOwn = new Set(['landowner','cloa_holder','list_holder','sessional_farm_worker','others']);
             if (!okOwn.has(own)) err.ownership_status = 'Select status of ownership.';
             const unit = (d.plant_area_unit || '').trim().toLowerCase();
             if (!['ha','sqm','ac'].includes(unit)) err.plant_area_unit = 'Select a unit.';
@@ -2725,10 +2840,23 @@ class RegisterFarmModule:
 
         function hasCompletedRegistration() {
             try {
-                var id = localStorage.getItem('beanthentic_farmer_id');
-                if (id && String(id).trim()) return true;
+                function parseUser(raw) {
+                    if (!raw) return null;
+                    try {
+                        var u = JSON.parse(raw);
+                        return (u && u.email) ? u : null;
+                    } catch (_e) {
+                        return null;
+                    }
+                }
+                var u = parseUser(localStorage.getItem('beanthentic_user')) || parseUser(sessionStorage.getItem('beanthentic_user'));
+                var email = u && u.email ? String(u.email).trim().toLowerCase() : '';
+                if (!email) return false;
+                var rawMap = localStorage.getItem('beanthentic_farmer_id_map') || sessionStorage.getItem('beanthentic_farmer_id_map');
+                var map = rawMap ? JSON.parse(rawMap) : null;
+                if (map && typeof map === 'object' && typeof map[email] === 'string' && map[email].trim()) return true;
             } catch (_e) {}
-            return sessionStorage.getItem(REGISTER_FARM_REG_OK) === '1';
+            return false;
         }
 
         function showAlreadyRegisteredScreen() {
@@ -2820,19 +2948,38 @@ class RegisterFarmModule:
         const frSuccessOverlay = document.getElementById('frSuccessOverlay');
         const frAlreadyOverlay = document.getElementById('frAlreadyOverlay');
         const frAlreadyGoHome = document.getElementById('frAlreadyGoHome');
+        const frSuccessViewSummary = document.getElementById('frSuccessViewSummary');
+        const frSuccessGoHome = document.getElementById('frSuccessGoHome');
         let frCameraStream = null;
         let frPhotoToastTimer = null;
+
+        function goRegisterSummary() {
+            try {
+                // Prefer relative page so this works on localhost/192/file WebView contexts.
+                window.location.assign('register_summary.php');
+            } catch (_e) {
+                try { window.location.assign('/register_summary.php'); } catch (_e2) {}
+            }
+        }
 
         if (frAlreadyGoHome) {
             frAlreadyGoHome.addEventListener('click', function () {
                 window.location.assign('/#home');
             });
         }
-
-        // Gate: only new accounts/devices can register.
-        if (hasCompletedRegistration()) {
-            showAlreadyRegisteredScreen();
+        if (frSuccessViewSummary) {
+            frSuccessViewSummary.addEventListener('click', function () {
+                goRegisterSummary();
+            });
         }
+        if (frSuccessGoHome) {
+            frSuccessGoHome.addEventListener('click', function () {
+                window.location.assign('/#home');
+            });
+        }
+
+        // Keep registration form visible. Home flow already controls who should register.
+        // (Avoid hiding the whole form due stale/shared localStorage state.)
 
         function showPhotoToast(message, type) {
             const toast = document.getElementById('frPhotoToast');
@@ -2866,13 +3013,53 @@ class RegisterFarmModule:
             }
         }
 
+        function openTakePictureInputFallback() {
+            if (!frTakePictureInput) return false;
+            try { frTakePictureInput.value = ''; } catch (_e0) {}
+            try {
+                if (typeof frTakePictureInput.showPicker === 'function') {
+                    frTakePictureInput.showPicker();
+                    return true;
+                }
+            } catch (_e1) {}
+            try {
+                frTakePictureInput.click();
+                return true;
+            } catch (_e2) {
+                return false;
+            }
+        }
+
         async function openDeviceCamera() {
             if (!frCameraModal || !frCameraVideo) {
                 showPhotoToast('Camera UI is not available. Please use Upload Picture.', 'error');
+                openTakePictureInputFallback();
                 return;
             }
+            // Laptop browsers require a secure context for getUserMedia.
+            // If user opened the app on a LAN IP (http://192.x.x.x), auto-switch to localhost.
+            try {
+                const ua = String((navigator && navigator.userAgent) || '').toLowerCase();
+                const isAndroid = ua.indexOf('android') >= 0;
+                if (!isAndroid && typeof window !== 'undefined' && window.isSecureContext === false) {
+                    const h = String((location && location.hostname) || '').toLowerCase();
+                    if (h && h !== 'localhost' && h !== '127.0.0.1') {
+                        const port = (location && location.port) ? (':' + location.port) : '';
+                        const next = 'http://localhost' + port + (location.pathname || '') + (location.search || '') + (location.hash || '');
+                        showPhotoToast('Switching to localhost so the laptop camera can open…', 'success');
+                        setTimeout(function () {
+                            try { location.replace(next); } catch (_r) { location.href = next; }
+                        }, 350);
+                        return;
+                    }
+                }
+            } catch (_redir) {}
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                showPhotoToast('This browser cannot open the laptop camera directly. Please use Upload Picture.', 'error');
+                if (openTakePictureInputFallback()) {
+                    showPhotoToast('Direct camera preview is unavailable here. Opened camera/gallery picker instead.', 'success');
+                } else {
+                    showPhotoToast('This browser cannot open the laptop camera directly. Please use Upload Picture.', 'error');
+                }
                 return;
             }
             try {
@@ -2901,9 +3088,17 @@ class RegisterFarmModule:
                 } else if (msg.indexOf('notfound') >= 0 || msg.indexOf('overconstrained') >= 0) {
                     showPhotoToast('No camera found. Connect a camera or use Upload Picture.', 'error');
                 } else if (msg.indexOf('security') >= 0 || msg.indexOf('secure') >= 0) {
-                    showPhotoToast('Camera is blocked on non-secure HTTP. Open via localhost or HTTPS, or use Upload Picture.', 'error');
+                    if (openTakePictureInputFallback()) {
+                        showPhotoToast('Camera preview is blocked on non-secure HTTP. Opened camera/gallery picker instead.', 'success');
+                    } else {
+                        showPhotoToast('Camera is blocked on non-secure HTTP. Open via localhost or HTTPS, or use Upload Picture.', 'error');
+                    }
                 } else {
-                    showPhotoToast('Cannot open laptop camera. Allow permission and try again, or use Upload Picture.', 'error');
+                    if (openTakePictureInputFallback()) {
+                        showPhotoToast('Cannot open live camera preview. Opened camera/gallery picker instead.', 'success');
+                    } else {
+                        showPhotoToast('Cannot open laptop camera. Allow permission and try again, or use Upload Picture.', 'error');
+                    }
                 }
             }
         }
@@ -3024,8 +3219,11 @@ class RegisterFarmModule:
                 email: EMAIL_RE.test(rawEmail) ? rawEmail : contactFallback.email,
                 phone: /^09\\d{9}$/.test(rawPhone) ? rawPhone : contactFallback.phone,
                 barangay: data.barangay,
-                federation: (data.federation || '').trim(),
-                association: (data.association || '').trim(),
+                affiliation_role: (data.affiliation_role || '').trim(),
+                ncfrs: (data.ncfrs || '').trim().toLowerCase(),
+                // Backward-compatible keys for existing server/client code + summary page.
+                federation: (data.affiliation_role || '').trim(),
+                association: '',
                 rsbsa_registered: (data.rsbsa_registered || '').trim(),
                 rsbsa_number: (data.rsbsa_number || '').trim(),
                 ownership_status: (data.ownership_status || '').trim(),
@@ -3095,7 +3293,7 @@ class RegisterFarmModule:
             if (Object.keys(ve).length) {
                 Object.keys(ve).forEach(k => setFieldError(k, ve[k]));
                     const stepKeysPersonal = ['last_name','first_name','barangay'];
-                    const stepKeysAffil = ['federation','association','rsbsa_registered','rsbsa_number'];
+                    const stepKeysAffil = ['affiliation_role','ncfrs','rsbsa_registered','rsbsa_number'];
                     const hasStep1 = Object.keys(ve).some(k => stepKeysPersonal.indexOf(k) >= 0 || stepKeysAffil.indexOf(k) >= 0);
                     const stepKeysFarm = ['ownership_status','plant_area_value','plant_area_unit','liberica_bearing','liberica_non_bearing','robusta_bearing','robusta_non_bearing','excelsa_bearing','excelsa_non_bearing'];
                     const hasFarm = Object.keys(ve).some(k => stepKeysFarm.indexOf(k) >= 0 || k.indexOf('bearing') >= 0);
@@ -3177,61 +3375,153 @@ class RegisterFarmModule:
                     sessionStorage.setItem(REGISTER_FARM_REG_OK, '1');
                     sessionStorage.setItem(REGISTER_FARM_FARMER_ID, String(farmerId));
                     try { localStorage.setItem('beanthentic_farmer_id', String(farmerId)); } catch (_e) {}
+                    // Per-account registration state (so new accounts can register too).
                     try {
+                        var uRaw = localStorage.getItem('beanthentic_user') || sessionStorage.getItem('beanthentic_user');
+                        var email = '';
+                        if (uRaw) {
+                            try {
+                                var u = JSON.parse(uRaw);
+                                if (u && u.email) email = String(u.email).trim().toLowerCase();
+                            } catch (_pe) {}
+                        }
+                        if (email) {
+                            var rawMap = localStorage.getItem('beanthentic_farmer_id_map') || sessionStorage.getItem('beanthentic_farmer_id_map');
+                            var map = rawMap ? JSON.parse(rawMap) : {};
+                            if (!map || typeof map !== 'object') map = {};
+                            map[email] = String(farmerId);
+                            localStorage.setItem('beanthentic_farmer_id_map', JSON.stringify(map));
+                            sessionStorage.setItem('beanthentic_farmer_id_map', JSON.stringify(map));
+                        }
+                    } catch (_eMap) {}
+                    try {
+                        // Persist the exact registration inputs so Registration Summary can render them.
                         var farmerProfile = {
                             id: farmerId,
-                            name: String(payload.name || '').trim(),
                             first_name: String(payload.first_name || '').trim(),
                             last_name: String(payload.last_name || '').trim(),
+                            email: String(payload.email || '').trim(),
                             phone: String(payload.phone || '').trim(),
+                            province: 'Batangas',
+                            municipality: 'Lipa City',
+                            barangay: String(payload.barangay || '').trim(),
+                            federation: String(payload.federation || '').trim(),
+                            association: String(payload.association || '').trim(),
+                            ncfrs: String(payload.ncfrs || '').trim().toLowerCase(),
+                            rsbsa_registered: String(payload.rsbsa_registered || '').trim(),
+                            rsbsa_number: String(payload.rsbsa_number || '').trim(),
+                            ownership_status: String(payload.ownership_status || '').trim(),
+                            plant_area_value: payload.plant_area_value,
+                            plant_area_unit: String(payload.plant_area_unit || '').trim(),
+                            tree_counts: {
+                                liberica: {
+                                    bearing: payload.liberica_bearing,
+                                    non_bearing: payload.liberica_non_bearing
+                                },
+                                robusta: {
+                                    bearing: payload.robusta_bearing,
+                                    non_bearing: payload.robusta_non_bearing
+                                },
+                                excelsa: {
+                                    bearing: payload.excelsa_bearing,
+                                    non_bearing: payload.excelsa_non_bearing
+                                }
+                            },
+                            production_year: String(payload.production_year || '2026').trim(),
                             production: {
                                 liberica: {
                                     qty: Number(payload.liberica_prod_qty || 0) || 0,
                                     unit: String(payload.liberica_prod_unit || 'kg').trim().toLowerCase()
                                 },
-                                excelsa: {
-                                    qty: Number(payload.excelsa_prod_qty || 0) || 0,
-                                    unit: String(payload.excelsa_prod_unit || 'kg').trim().toLowerCase()
-                                },
                                 robusta: {
                                     qty: Number(payload.robusta_prod_qty || 0) || 0,
                                     unit: String(payload.robusta_prod_unit || 'kg').trim().toLowerCase()
+                                },
+                                excelsa: {
+                                    qty: Number(payload.excelsa_prod_qty || 0) || 0,
+                                    unit: String(payload.excelsa_prod_unit || 'kg').trim().toLowerCase()
                                 }
                             }
                         };
                         localStorage.setItem('beanthentic_farmer_profile', JSON.stringify(farmerProfile));
                         sessionStorage.setItem('beanthentic_farmer_profile', JSON.stringify(farmerProfile));
+                        var profileEmail = String(payload.email || '').trim().toLowerCase();
+                        var profileMapRaw = localStorage.getItem('beanthentic_farmer_profile_map') || sessionStorage.getItem('beanthentic_farmer_profile_map');
+                        var profileMap = profileMapRaw ? JSON.parse(profileMapRaw) : {};
+                        if (!profileMap || typeof profileMap !== 'object') profileMap = {};
+                        var keySet = {};
+                        function addKey(v) {
+                            var k = String(v || '').trim().toLowerCase();
+                            if (!k) return;
+                            keySet[k] = true;
+                            var d = k.replace(/\D/g, '');
+                            if (!d) return;
+                            if (d.indexOf('63') === 0 && d.length >= 12) keySet['0' + d.slice(2)] = true;
+                            if (d.indexOf('0') === 0 && d.length >= 11) keySet['+63' + d.slice(1)] = true;
+                            if (d.length === 10 && d.charAt(0) === '9') {
+                                keySet['0' + d] = true;
+                                keySet['+63' + d] = true;
+                            }
+                        }
+                        addKey(profileEmail);
+                        addKey(payload.phone);
+                        try {
+                            var uRaw2 = localStorage.getItem('beanthentic_user') || sessionStorage.getItem('beanthentic_user');
+                            var u2 = uRaw2 ? JSON.parse(uRaw2) : null;
+                            if (u2 && u2.email) addKey(u2.email);
+                        } catch (_uMap) {}
+                        Object.keys(keySet).forEach(function (k) {
+                            profileMap[k] = farmerProfile;
+                        });
+                        localStorage.setItem('beanthentic_farmer_profile_map', JSON.stringify(profileMap));
+                        sessionStorage.setItem('beanthentic_farmer_profile_map', JSON.stringify(profileMap));
                     } catch (_eProfile) {}
+                    // Update account display name from the registration inputs (new users won't have a name yet).
+                    try {
+                        var emailKey = String(payload.email || '').trim().toLowerCase();
+                        var fullName = (String(payload.last_name || '').trim() + ', ' + String(payload.first_name || '').trim())
+                            .replace(/^,\s*/, '')
+                            .trim();
+                        if (emailKey && fullName) {
+                            var mapRaw = localStorage.getItem('beanthentic_user_name_map') || sessionStorage.getItem('beanthentic_user_name_map');
+                            var map = mapRaw ? JSON.parse(mapRaw) : {};
+                            if (!map || typeof map !== 'object') map = {};
+                            map[emailKey] = fullName;
+                            localStorage.setItem('beanthentic_user_name_map', JSON.stringify(map));
+                            sessionStorage.setItem('beanthentic_user_name_map', JSON.stringify(map));
+                        }
+                    } catch (_eNameMap) {}
+                    try {
+                        var uRaw = localStorage.getItem('beanthentic_user') || sessionStorage.getItem('beanthentic_user');
+                        var u = uRaw ? JSON.parse(uRaw) : null;
+                        if (u && u.email) {
+                            u.needs_registration = false;
+                            // Set name to the formatted full name if available.
+                            var nm = (String(payload.last_name || '').trim() + ', ' + String(payload.first_name || '').trim())
+                                .replace(/^,\s*/, '')
+                                .trim();
+                            if (nm) u.name = nm;
+                            var up = JSON.stringify(u);
+                            sessionStorage.setItem('beanthentic_user', up);
+                            try { localStorage.setItem('beanthentic_user', up); } catch (_eStore) {}
+                        }
+                    } catch (_eUserUpdate) {}
                     try {
                         localStorage.removeItem('beanthentic_new_signup_login_id');
                         sessionStorage.removeItem('beanthentic_new_signup_login_id');
                     } catch (_e0) {}
                         try { syncRegisterNavIconFromStorage(); } catch (_e2) {}
-                    // Keep the success state clean: show only the success overlay (no header/nav/etc.).
-                    try {
-                            const foot = document.getElementById('frWizardFoot');
-                            if (foot) foot.style.display = 'none';
-                        const box = document.getElementById('registerFarmSuccess');
-                        if (box) box.style.display = 'none';
-                        const hero = document.querySelector('.fr-reg-hero');
-                        if (hero) hero.style.display = 'none';
-                        const sheet = document.querySelector('.register-farm-sheet');
-                        if (sheet) sheet.style.display = 'none';
-                        const mainWrap = document.querySelector('.main-content.register-farm-main');
-                        if (mainWrap) mainWrap.style.paddingTop = '0';
-                        const bottomNav = document.querySelector('.app-bottom-nav');
-                        if (bottomNav) bottomNav.style.display = 'none';
-                        } catch (_e3) {}
                     lockRegistrationFields();
                     clearErrors(this);
                         const elapsed = Date.now() - submitStartedAt;
-                        const waitMs = Math.max(0, 2000 - elapsed);
+                        const waitMs = Math.max(0, 250 - elapsed);
                         setTimeout(function () {
                             toggleSubmitOverlay('loading', false);
                             toggleSubmitOverlay('success', true);
+                            // Auto-open summary so user immediately sees submitted data.
                             setTimeout(function () {
-                                window.location.assign('/#home');
-                            }, 1400);
+                                goRegisterSummary();
+                            }, 900);
                         }, waitMs);
                 } else {
                         if (body.errors) {
@@ -3316,7 +3606,7 @@ class RegisterFarmModule:
                 </span>
                 <span class="app-bottom-nav-label">Transaction</span>
             </a>
-            <a href="/register-farm" id="nav-register" class="app-bottom-nav-link app-bottom-nav-link--featured">
+            <a href="/register_summary.php" id="nav-register" class="app-bottom-nav-link app-bottom-nav-link--featured">
                 <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
                     <svg class="app-bottom-nav-icon app-bottom-nav-register-svg app-bottom-nav-register-svg--pending" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                     <svg class="app-bottom-nav-icon app-bottom-nav-register-svg app-bottom-nav-register-svg--complete" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>

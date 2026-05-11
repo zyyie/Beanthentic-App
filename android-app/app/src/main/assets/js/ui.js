@@ -58,6 +58,7 @@ function getBeanthenticUser() {
 
 function formatBeanthenticDisplayName(user) {
   if (!user) return 'Member';
+  if (user.needs_registration) return 'Member';
   const rawName = user.name && String(user.name).trim()
     ? String(user.name).trim()
     : '';
@@ -195,12 +196,29 @@ function syncAppBottomNavActive() {
 }
 
 const BEANTHENTIC_FARMER_ID_KEY = 'beanthentic_farmer_id';
+const BEANTHENTIC_PROMPT_REGISTER_AFTER_TUTORIAL_KEY = 'beanthentic_prompt_register_after_tutorial';
+const BEANTHENTIC_NEW_SIGNUP_LOGIN_ID_KEY = 'beanthentic_new_signup_login_id';
 
 function hasRegisteredFarmPersisted() {
+  function getSignedInKey() {
+    try {
+      const raw = localStorage.getItem('beanthentic_user') || sessionStorage.getItem('beanthentic_user');
+      const u = raw ? JSON.parse(raw) : null;
+      const key = u && u.email ? String(u.email).trim().toLowerCase() : '';
+      return key;
+    } catch (_e) {
+      return '';
+    }
+  }
   try {
-    const id = localStorage.getItem(BEANTHENTIC_FARMER_ID_KEY);
-    if (id != null && String(id).trim() !== '') return true;
-  } catch (_e) {
+    const key = getSignedInKey();
+    const rawMap = localStorage.getItem('beanthentic_farmer_id_map') || sessionStorage.getItem('beanthentic_farmer_id_map');
+    const map = rawMap ? JSON.parse(rawMap) : null;
+    if (key && map && typeof map === 'object') {
+      const id = map[key];
+      if (id != null && String(id).trim() !== '') return true;
+    }
+  } catch (_eMap) {
     /* ignore */
   }
   return false;
@@ -213,6 +231,81 @@ function syncRegisterNavIconState() {
 }
 
 window.beanthenticSyncRegisterNavIcon = syncRegisterNavIconState;
+
+function shouldRequireAuthForPath(path) {
+  const p = String(path || '').toLowerCase();
+  // Public pages (guests can view).
+  if (/(^|\/)(index\.php)?$/.test(p) || p === '/' || p.endsWith('/index.php')) return false;
+  if (p.endsWith('/about.php') || p.endsWith('/history.php') || p.endsWith('/news.php') || p.endsWith('/privacy.php')) return false;
+  if (p.endsWith('/faq.html')) return false;
+  // Registration summary must remain reachable after successful submit.
+  if (p.endsWith('/register_summary.php')) return false;
+  // Auth pages.
+  if (p.endsWith('/login.php') || p.endsWith('/signup.php') || p.endsWith('/tutorial.php')) return false;
+  // Everything else: require user.
+  return true;
+}
+
+function enforceAuthGuard() {
+  const user = getBeanthenticUser();
+  const path = (location.pathname || '').toLowerCase();
+  if (!shouldRequireAuthForPath(path)) return;
+  if (user && user.email) return;
+  try {
+    window.location.replace(new URL('login.php', window.location.href).href);
+  } catch (_e) {
+    window.location.replace('login.php');
+  }
+}
+
+function showRegisterRequiredPromptIfNeeded() {
+  // Only on Home page.
+  const path = (location.pathname || '').toLowerCase();
+  const isIndex = /(^|\/)(index\.php)?$/.test(path) || path === '/' || path.endsWith('/index.php');
+  if (!isIndex) return;
+
+  const user = getBeanthenticUser();
+  if (!user || !user.email) return;
+  if (hasRegisteredFarmPersisted()) return;
+
+  let shouldPrompt = false;
+  try {
+    const flag =
+      sessionStorage.getItem(BEANTHENTIC_PROMPT_REGISTER_AFTER_TUTORIAL_KEY) ||
+      localStorage.getItem(BEANTHENTIC_PROMPT_REGISTER_AFTER_TUTORIAL_KEY);
+    // Show when tutorial explicitly requested it.
+    shouldPrompt = flag === '1';
+  } catch (_e) {}
+  if (!shouldPrompt) return;
+
+  // Don't show twice in the same session.
+  try {
+    sessionStorage.removeItem(BEANTHENTIC_PROMPT_REGISTER_AFTER_TUTORIAL_KEY);
+    localStorage.removeItem(BEANTHENTIC_PROMPT_REGISTER_AFTER_TUTORIAL_KEY);
+  } catch (_c) {}
+
+  // Use the existing UI already present in `index.php` (matches your screenshot).
+  const gate = document.getElementById('home-register-gate');
+  const proceed = document.getElementById('home-register-gate-proceed');
+  if (!gate || !proceed) return;
+
+  gate.hidden = false;
+  gate.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('home-register-gate-open');
+
+  if (proceed.dataset.bound === '1') return;
+  proceed.dataset.bound = '1';
+  proceed.addEventListener('click', () => {
+    const cur = String(window.location.href || '');
+    const isHttp = /^https?:/i.test(cur);
+    const dest = isHttp ? '/register-farm' : 'file:///register-farm';
+    try {
+      window.location.assign(new URL(dest, cur).href);
+    } catch (_e2) {
+      window.location.assign(dest);
+    }
+  });
+}
 
 /** Short "press flash" for bottom nav (no persistent selected highlight). */
 function bindBottomNavPressFlash() {
@@ -267,7 +360,49 @@ class UIController {
   }
 
   init() {
+    enforceAuthGuard();
     syncAuthNavigationLinks();
+    // Bottom-nav Register behavior:
+    // - registered user -> open Registration Summary
+    // - not registered yet -> return to Home and show Proceed Register prompt
+    document.addEventListener(
+      'click',
+      (e) => {
+        const link = e.target && e.target.closest ? e.target.closest('#nav-register') : null;
+        if (!link) return;
+
+        const rawHref = (link.getAttribute('href') || '').trim();
+        if (!rawHref) return;
+
+        // Only override when pointing to our summary page.
+        if (!/register_summary\.php(\b|#|\?)/i.test(rawHref)) return;
+
+        e.preventDefault();
+        const hasReg = hasRegisteredFarmPersisted();
+        try {
+          const cur = String(window.location.href || '');
+          const isAsset = cur.startsWith('file:///android_asset/');
+          const isHttp = /^https?:/i.test(cur);
+          if (!hasReg) {
+            try {
+              sessionStorage.setItem(BEANTHENTIC_PROMPT_REGISTER_AFTER_TUTORIAL_KEY, '1');
+              localStorage.setItem(BEANTHENTIC_PROMPT_REGISTER_AFTER_TUTORIAL_KEY, '1');
+            } catch (_flagErr) {}
+          }
+          const dest = hasReg
+            ? (isAsset
+              ? new URL('register_summary.php', cur).href
+              : (isHttp ? new URL('/register_summary.php', cur).href : 'register_summary.php'))
+            : (isAsset
+              ? new URL('index.php#home', cur).href
+              : (isHttp ? new URL('/index.php#home', cur).href : 'index.php#home'));
+          window.location.assign(dest);
+        } catch (_err) {
+          window.location.assign(hasReg ? 'register_summary.php' : 'index.php#home');
+        }
+      },
+      true
+    );
     document.addEventListener(
       'click',
       (e) => {
@@ -302,6 +437,7 @@ class UIController {
     this.loadYear();
     syncAppBottomNavActive();
     syncRegisterNavIconState();
+    showRegisterRequiredPromptIfNeeded();
     bindBottomNavPressFlash();
     window.addEventListener('hashchange', syncAppBottomNavActive);
     window.addEventListener('popstate', syncAppBottomNavActive);
@@ -375,7 +511,8 @@ class UIController {
     }
 
     let startedAt = Date.now();
-    const minVisibleMs = 2000;
+    // Keep loader very short; long delays feel laggy in-app.
+    const minVisibleMs = 250;
     let hideTimer = null;
 
     const hideLoader = () => {

@@ -205,8 +205,9 @@ class MainActivity : AppCompatActivity() {
 
         var loadStartTimeMs = 0L
         var hideScheduled = false
-        // Minimum time the native loading overlay stays visible (aligned with web loaders).
-        var minVisibleMs = 2000L
+        // Minimum time the native loading overlay stays visible.
+        // Keep it short so navigation (e.g., Registration Summary) feels instant.
+        var minVisibleMs = 250L
         var progressReached100 = false
         // Safety fallback if progress events never hit 100 (common with file://).
         val maxFallbackMs = 2000L
@@ -385,6 +386,16 @@ class MainActivity : AppCompatActivity() {
                     if (uri != null) {
                         val full = uri.toString()
                         if (tryHandleIntentOrMapsUrl(full)) return true
+                    }
+                    // Ensure we can always jump back to packaged pages from Flask http(s) screens.
+                    // Some WebViews won't follow http(s) → file:// navigation unless we explicitly loadUrl().
+                    if (uri != null && (uri.scheme?.lowercase() ?: "") == "file") {
+                        val full = uri.toString()
+                        if (full.startsWith("file:///android_asset/", ignoreCase = true) && request?.isForMainFrame != false) {
+                            showLoading()
+                            view?.loadUrl(full)
+                            return true
+                        }
                     }
                     // file:// → http(s):// often needs explicit loadUrl; Flask serves Register Farm/Map from Python modules.
                     if (uri != null) {

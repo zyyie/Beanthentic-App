@@ -10,6 +10,40 @@
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/responsive.css">
   <style>
+    .mv-hero {
+      background: linear-gradient(160deg, #1c6f20 0%, #0f4a15 100%);
+      border-radius: 0 0 16px 16px;
+      padding: 1.75rem 1rem 1.6rem;
+      color: #fff;
+    }
+    .mv-hero-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      min-height: 42px;
+    }
+    .mv-nav-back {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #ffffff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+      text-decoration: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .mv-nav-back svg { width: 18px; height: 18px; }
+    .mv-nav-title {
+      margin: 0;
+      font-size: clamp(1.35rem, 4.4vw, 1.7rem);
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: 0.02em;
+    }
     .section-main {
       min-height: calc(100vh - 180px);
       padding: 1rem 0 6.25rem;
@@ -93,13 +127,19 @@
   </style>
 </head>
 <body class="has-app-bottom-nav">
+  <header class="mv-hero">
+    <div class="mv-hero-row">
+      <a class="mv-nav-back" href="about.php" aria-label="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </a>
+      <h1 class="mv-nav-title">Mission and Vision</h1>
+    </div>
+  </header>
   <main class="section-main">
     <div class="section-wrap">
-      <div class="section-actions">
-        <a class="back-link" href="about.php">← Back to About</a>
-      </div>
       <article class="section-card">
-        <h1 class="section-title">Mission and Vision</h1>
         <p class="section-copy">
           Beanthentic's mission and vision guide how we support local coffee farmers through authentic,
           traceable, and technology-driven coffee systems.
@@ -140,7 +180,7 @@
         </span>
         <span class="app-bottom-nav-label">Transaction</span>
       </a>
-      <a href="http://10.0.2.2:5000/register-farm" id="nav-register" data-beanthentic-flask="/register-farm" class="app-bottom-nav-link app-bottom-nav-link--featured">
+      <a href="register_summary.php" id="nav-register" class="app-bottom-nav-link app-bottom-nav-link--featured">
         <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
           <svg class="app-bottom-nav-icon app-bottom-nav-register-svg app-bottom-nav-register-svg--pending" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
           <svg class="app-bottom-nav-icon app-bottom-nav-register-svg app-bottom-nav-register-svg--complete" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>

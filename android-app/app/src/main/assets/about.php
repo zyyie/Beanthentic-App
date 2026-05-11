@@ -23,27 +23,30 @@
     .about-hero-row {
       display: flex;
       align-items: center;
-      justify-content: flex-start;
-      gap: 0.75rem;
+      justify-content: center;
+      position: relative;
+      min-height: 42px;
     }
-    .about-brand {
-      display: flex;
+    .about-nav-back {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #ffffff;
+      display: inline-flex;
       align-items: center;
-      gap: 0.6rem;
-      min-width: 0;
+      justify-content: center;
+      padding: 8px;
+      text-decoration: none;
+      -webkit-tap-highlight-color: transparent;
     }
-    .about-logo {
-      width: 36px;
-      height: 36px;
-      border-radius: 999px;
-      object-fit: contain;
-      background: #fff;
-      padding: 4px;
-    }
-    .about-brand-name {
-      font-size: 1.05rem;
-      font-weight: 700;
-      line-height: 1.1;
+    .about-nav-back svg { width: 18px; height: 18px; }
+    .about-nav-title {
+      margin: 0;
+      font-size: clamp(1.35rem, 4.4vw, 1.7rem);
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: 0.02em;
     }
     .about-main {
       max-width: min(100%, 680px);
@@ -243,25 +246,19 @@
 <body class="has-app-bottom-nav">
   <header class="about-hero">
     <div class="about-hero-row">
-      <div class="about-brand">
-        <img class="about-logo" src="beanthentic_logo.png" alt="Beanthentic" />
-        <div class="about-brand-name">Beanthentic</div>
-      </div>
+      <a class="about-nav-back" href="account.php" aria-label="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </a>
+      <h1 class="about-nav-title">About</h1>
     </div>
   </header>
 
   <main class="about-main">
-    <a class="about-back" href="index.php#home" aria-label="Back to home">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-      Back
-    </a>
-
     <h1 class="about-title">About <span class="about-title-accent">Beanthentic</span></h1>
     <p class="about-desc">
-      Beanthentic Coffee is a platform that highlights the hard work of local famers and
-      the authenticity of coffee beans. It showcases different coffee varieties such as Liberica,
-      Robusta, and Excelsa, allowing consumers to learn about the origin, quality and unique
-      characteristics of each bean.
+      Beanthentic Coffee is a platform that highlights the hard work of local farmers and the authenticity of their coffee beans. It showcases different coffee varieties such as Liberica, Robusta, and Excelsa, allowing consumers to learn about the origin, quality, and unique characteristics of each bean.
     </p>
 
     <div class="about-image-slot" aria-label="About slideshow">
@@ -278,10 +275,7 @@
     </div>
 
     <p class="about-desc">
-      Beanthentic Coffee is a platform that highlights the hard work of local famers and
-      the authenticity of coffee beans. It showcases different coffee varieties such as Liberica,
-      Robusta, and Excelsa, allowing consumers to learn about the origin, quality and unique
-      characteristics of each bean.
+      Beanthentic Coffee is a platform that highlights the hard work of local farmers and the authenticity of their coffee beans. It showcases different coffee varieties such as Liberica, Robusta, and Excelsa, allowing consumers to learn about the origin, quality, and unique characteristics of each bean.
     </p>
 
     <div class="about-link-grid">
@@ -340,7 +334,7 @@
         </span>
         <span class="app-bottom-nav-label">Transaction</span>
       </a>
-      <a href="/register-farm" id="nav-register" class="app-bottom-nav-link app-bottom-nav-link--featured">
+      <a href="register_summary.php" id="nav-register" class="app-bottom-nav-link app-bottom-nav-link--featured">
         <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
           <svg class="app-bottom-nav-icon app-bottom-nav-register-svg app-bottom-nav-register-svg--pending" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
           <svg class="app-bottom-nav-icon app-bottom-nav-register-svg app-bottom-nav-register-svg--complete" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
@@ -364,6 +358,25 @@
 
   <script>
     (function () {
+      var backBtn = document.querySelector('.about-nav-back');
+      if (backBtn) {
+        backBtn.addEventListener('click', function (event) {
+          event.preventDefault();
+          try {
+            if (window.history && window.history.length > 1) {
+              window.history.back();
+              return;
+            }
+          } catch (_e) {}
+          var fallback = 'account.php';
+          try {
+            var params = new URLSearchParams(window.location.search || '');
+            if (params.get('from') === 'account_settings') fallback = 'account_settings.html';
+          } catch (_err) {}
+          window.location.href = fallback;
+        });
+      }
+
       var slides = Array.prototype.slice.call(document.querySelectorAll('.about-slide'));
       var dots = Array.prototype.slice.call(document.querySelectorAll('[data-slide-dot]'));
       if (!slides.length || !dots.length) return;

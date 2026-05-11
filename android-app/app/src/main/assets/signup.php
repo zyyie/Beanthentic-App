@@ -293,6 +293,62 @@
           sessionStorage.setItem(NEW_SIGNUP_LOGIN_ID_KEY, loginId);
         } catch (_k) {}
       }
+      function canUseServerAuth() {
+        return typeof location !== 'undefined' && (location.protocol === 'http:' || location.protocol === 'https:');
+      }
+      function signupApiCandidates() {
+        if (!canUseServerAuth()) return [];
+        var candidates = [];
+        function pushUrl(v) {
+          var s = String(v || '').trim();
+          if (!s) return;
+          if (candidates.indexOf(s) < 0) candidates.push(s);
+        }
+        try {
+          var customBase = localStorage.getItem('beanthentic_api_base') || sessionStorage.getItem('beanthentic_api_base');
+          if (customBase && String(customBase).trim()) {
+            var b = String(customBase).replace(/\/$/, '');
+            pushUrl(b + '/signup.php');
+          }
+        } catch (_e0) {}
+        try { pushUrl(new URL('api/signup.php', location.href).href); } catch (_e1) {}
+        try { pushUrl((location.origin || '').replace(/\/$/, '') + '/api/signup.php'); } catch (_e2) {}
+        pushUrl('http://localhost/Beanthentic-App/android-app/app/src/main/assets/api/signup.php');
+        pushUrl('http://127.0.0.1/Beanthentic-App/android-app/app/src/main/assets/api/signup.php');
+        return candidates;
+      }
+      function postJson(url, payload) {
+        return fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload || {})
+        }).then(function (res) {
+          return res.text().then(function (txt) {
+            var body = null;
+            try { body = txt ? JSON.parse(txt) : null; } catch (_p) { body = null; }
+            return { okHttp: !!res.ok, body: body };
+          });
+        });
+      }
+      function signupViaApi(loginId, password) {
+        var urls = signupApiCandidates();
+        if (!urls.length) return Promise.resolve({ ok: false, skipped: true });
+        var i = 0;
+        function tryNext() {
+          if (i >= urls.length) return Promise.resolve({ ok: false, skipped: true, error: 'Cannot reach server API.' });
+          var url = urls[i++];
+          return postJson(url, { phone_number: loginId, password: String(password || '') })
+            .then(function (resObj) {
+              var body = resObj && resObj.body;
+              if (body && typeof body === 'object' && Object.prototype.hasOwnProperty.call(body, 'ok')) {
+                return body;
+              }
+              return tryNext();
+            })
+            .catch(function () { return tryNext(); });
+        }
+        return tryNext();
+      }
 
       document.addEventListener('DOMContentLoaded', function () {
         var form = document.querySelector('.signup-form');
@@ -319,6 +375,42 @@
             } catch (_b) {}
             return;
           }
+          if (canUseServerAuth()) {
+            signupViaApi(loginId, pw ? pw.value : '').then(function (out) {
+              if (out && out.skipped) {
+                // Fallback for non-PHP servers (e.g., Flask static serving).
+                if (isAccountRegistered(loginId)) {
+                  try { window.alert('Naka-register na ang numerong ito. Mag-log in na lang o gumamit ng ibang numero.'); } catch (_c1) {}
+                  return;
+                }
+                registerAccount(loginId, pw ? pw.value : '');
+                try {
+                  localStorage.removeItem('beanthentic_user');
+                  sessionStorage.removeItem('beanthentic_user');
+                } catch (_clearErr1) {}
+                try { window.location.assign(new URL('login.php', location.href).href); }
+                catch (_e3) { window.location.assign('login.php'); }
+                return;
+              }
+              if (!out || !out.ok) {
+                var msg = (out && out.error) ? String(out.error) : 'Signup failed.';
+                try { window.alert(msg); } catch (_msg) {}
+                return;
+              }
+              try {
+                localStorage.setItem(NEW_SIGNUP_LOGIN_ID_KEY, loginId);
+                sessionStorage.setItem(NEW_SIGNUP_LOGIN_ID_KEY, loginId);
+                localStorage.removeItem('beanthentic_user');
+                sessionStorage.removeItem('beanthentic_user');
+              } catch (_st) {}
+              try {
+                window.location.assign(new URL('login.php', location.href).href);
+              } catch (_e2) {
+                window.location.assign('login.php');
+              }
+            });
+            return;
+          }
           if (isAccountRegistered(loginId)) {
             try {
               window.alert('Naka-register na ang numerong ito. Mag-log in na lang o gumamit ng ibang numero.');
@@ -326,13 +418,10 @@
             return;
           }
           registerAccount(loginId, pw ? pw.value : '');
-          /* Hindi auto-login: mag-log in muna sa login.php gamit ang numero at password. */
           try {
             localStorage.removeItem('beanthentic_user');
             sessionStorage.removeItem('beanthentic_user');
-          } catch (_clearErr) {
-            /* ignore */
-          }
+          } catch (_clearErr) {}
           try {
             window.location.assign(new URL('login.php', location.href).href);
           } catch (_e2) {

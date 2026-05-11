@@ -143,6 +143,69 @@
       color: #111827;
       white-space: nowrap;
     }
+
+    /* Video controls overlay (home hero card) */
+    .home-mobile-hero-card { position: relative; overflow: hidden; }
+    .home-video-controls {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 0.55rem 0.65rem;
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.62) 70%, rgba(0,0,0,0.72) 100%);
+      color: #ffffff;
+    }
+    .home-video-btn {
+      border: 0;
+      border-radius: 999px;
+      padding: 0.55rem;
+      width: 44px;
+      height: 44px;
+      color: #0b3b14;
+      background: #ffffff;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.25);
+      cursor: pointer;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 0;
+    }
+    .home-video-btn:active { transform: translateY(1px); }
+    .home-video-btn svg { width: 20px; height: 20px; }
+    .home-video-btn svg[hidden] { display: none !important; }
+    .home-video-volume-wrap {
+      margin-left: auto;
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .home-video-volume-pop {
+      position: absolute;
+      right: 0.05rem;
+      bottom: 3.15rem;
+      width: 44px;
+      height: 160px;
+      padding: 0.55rem 0.35rem;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.92);
+      box-shadow: 0 14px 34px rgba(0,0,0,0.22);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(6px);
+    }
+    .home-video-volume-wrap.is-open .home-video-volume-pop { display: flex; }
+    .home-video-volume {
+      width: 140px;
+      height: 24px;
+      transform: rotate(-90deg);
+      accent-color: #32c24d;
+    }
   </style>
 </head>
 <body class="has-app-bottom-nav home-page">
@@ -245,7 +308,46 @@
 
   <main class="home-mobile-layout">
     <section id="home" class="home-mobile-shell">
-      <div class="home-mobile-hero-card" aria-hidden="true"></div>
+      <div class="home-mobile-hero-card" aria-label="Beanthentic video preview">
+        <video
+          id="homeHeroVideo"
+          src="home/beanthentic_vid.mp4"
+          autoplay
+          muted
+          loop
+          playsinline
+          preload="metadata"
+          style="width:100%; height:100%; object-fit:cover; display:block; border-radius:inherit;"
+        ></video>
+        <div class="home-video-controls" aria-label="Video controls">
+          <button type="button" class="home-video-btn" id="homeVideoToggle" aria-label="Play/Pause">
+            <svg id="homeVideoIconPause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <rect x="6.6" y="5.5" width="4.1" height="13" rx="1.1"></rect>
+              <rect x="13.3" y="5.5" width="4.1" height="13" rx="1.1"></rect>
+            </svg>
+            <svg id="homeVideoIconPlay" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" hidden>
+              <path d="M8 5.6v12.8c0 .8.9 1.3 1.6.9l10-6.4c.7-.4.7-1.4 0-1.8l-10-6.4c-.7-.4-1.6.1-1.6.9z"></path>
+            </svg>
+          </button>
+          <div class="home-video-volume-wrap">
+            <button type="button" class="home-video-btn" id="homeVideoVolumeBtn" aria-label="Volume">
+              <svg id="homeVideoVolumeIconOn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M11 5 6 9H2v6h4l5 4V5z"></path>
+                <path d="M15.5 8.5a4.5 4.5 0 0 1 0 7"></path>
+                <path d="M18.5 5.5a8.5 8.5 0 0 1 0 13"></path>
+              </svg>
+              <svg id="homeVideoVolumeIconOff" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" hidden>
+                <path d="M11 5 6 9H2v6h4l5 4V5z"></path>
+                <path d="M22 9l-6 6"></path>
+                <path d="M16 9l6 6"></path>
+              </svg>
+            </button>
+            <div class="home-video-volume-pop" aria-label="Volume slider">
+              <input id="homeVideoVolume" class="home-video-volume" type="range" min="0" max="100" value="0" />
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div class="home-mobile-shortcuts" aria-label="Home shortcuts">
         <a class="home-mobile-shortcut" href="about.php">
@@ -309,10 +411,7 @@
       <section class="home-mobile-story">
         <h1 class="home-mobile-story-title">The Story Behind <span>Beanthentic</span></h1>
         <p class="home-mobile-story-lead">
-          Beanthentic Coffee is a platform that highlights the hard work of local farmers and the
-          authenticity of their coffee beans. It showcases different coffee varieties such as Liberica,
-          Robusta, and Excelsa, allowing consumers to learn about the origin, quality, and unique
-          characteristics of each bean.
+          The platform was created to bridge the gap between coffee farmers and consumers by promoting transparency, authenticity, and appreciation for locally produced coffee. Through Beanthentic Coffee, customers can better understand the value of every coffee bean and the effort invested by farmers from cultivation to harvesting.
         </p>
 
         <div class="home-mobile-story-list">
@@ -323,10 +422,7 @@
               style="background-image:url('story_beans.png'); background-size:cover; background-position:center; background-repeat:no-repeat;"
             ></div>
             <p class="home-mobile-story-row-text">
-              Beanthentic Coffee is a platform that highlights the hard work of local farmers and the
-              authenticity of their coffee beans. It showcases different coffee varieties such as Liberica,
-              Robusta, and Excelsa, allowing consumers to learn about the origin, quality, and unique
-              characteristics of each bean.
+              The platform was created to bridge the gap between coffee farmers and consumers by promoting transparency, authenticity, and appreciation for locally produced coffee. Through Beanthentic Coffee, customers can better understand the value of every coffee bean and the effort invested by farmers from cultivation to harvesting.
             </p>
           </article>
           <article class="home-mobile-story-row">
@@ -336,10 +432,7 @@
               style="background-image:url('story_beans_2.png'); background-size:cover; background-position:center; background-repeat:no-repeat;"
             ></div>
             <p class="home-mobile-story-row-text">
-              Beanthentic Coffee is a platform that highlights the hard work of local farmers and the
-              authenticity of their coffee beans. It showcases different coffee varieties such as Liberica,
-              Robusta, and Excelsa, allowing consumers to learn about the origin, quality, and unique
-              characteristics of each bean.
+              Beanthentic Coffee started with a simple goal: to help local coffee farmers receive fair recognition and better opportunities for their hard work. Many farmers produce high-quality coffee beans such as Liberica, Robusta, and Excelsa, yet their products are often undervalued in the market. Because of limited exposure and lack of direct connection with consumers, farmers sometimes struggle to sell their beans at the right price. This inspired the creation of Beanthentic Coffee — a platform that promotes authentic locally grown coffee while sharing the story, origin, and quality behind every bean.
             </p>
           </article>
               </div>
@@ -361,7 +454,7 @@
           </span>
         <span class="app-bottom-nav-label">Transaction</span>
       </a>
-      <a href="http://10.0.2.2:5000/register-farm" id="nav-register" data-beanthentic-flask="/register-farm" class="app-bottom-nav-link app-bottom-nav-link--featured">
+      <a href="register_summary.php" id="nav-register" class="app-bottom-nav-link app-bottom-nav-link--featured">
         <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
           <svg class="app-bottom-nav-icon app-bottom-nav-register-svg app-bottom-nav-register-svg--pending" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
           <svg class="app-bottom-nav-icon app-bottom-nav-register-svg app-bottom-nav-register-svg--complete" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
@@ -433,6 +526,111 @@
       }
       if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', applyFlaskNav);
       else applyFlaskNav();
+    })();
+  </script>
+
+  <script>
+    (function () {
+      function initHomeVideoControls() {
+        var v = document.getElementById('homeHeroVideo');
+        var toggle = document.getElementById('homeVideoToggle');
+        var volume = document.getElementById('homeVideoVolume');
+        var volWrap = (volume && volume.closest) ? volume.closest('.home-video-volume-wrap') : null;
+        var volBtn = document.getElementById('homeVideoVolumeBtn');
+        var pauseIc = document.getElementById('homeVideoIconPause');
+        var playIc = document.getElementById('homeVideoIconPlay');
+        var volOn = document.getElementById('homeVideoVolumeIconOn');
+        var volOff = document.getElementById('homeVideoVolumeIconOff');
+        if (!v || !toggle || !volume) return;
+
+        // Keep autoplay-friendly: start muted, then unmute when user touches volume.
+        try { volume.value = v.muted ? '0' : String(Math.round((v.volume || 0) * 100)); } catch (_e0) {}
+
+        function syncToggleLabel() {
+          try {
+            var paused = !!v.paused;
+            if (pauseIc) pauseIc.hidden = paused;
+            if (playIc) playIc.hidden = !paused;
+          } catch (_e) {}
+        }
+        function setTogglePaused(isPaused) {
+          try {
+            var paused = !!isPaused;
+            if (pauseIc) pauseIc.hidden = paused;
+            if (playIc) playIc.hidden = !paused;
+          } catch (_e) {}
+        }
+        function syncVolumeIcon() {
+          try {
+            var isMuted = v.muted || (v.volume === 0);
+            if (volOn) volOn.hidden = isMuted;
+            if (volOff) volOff.hidden = !isMuted;
+          } catch (_e) {}
+        }
+
+        toggle.addEventListener('click', function () {
+          try {
+            if (v.paused) {
+              // Optimistic UI: show pause icon immediately.
+              setTogglePaused(false);
+              var p = v.play();
+              if (p && typeof p.then === 'function') {
+                p.then(function () { syncToggleLabel(); }).catch(function () { syncToggleLabel(); });
+              }
+            } else {
+              // Optimistic UI: show play icon immediately.
+              setTogglePaused(true);
+              v.pause();
+            }
+          } catch (_e) {}
+          // Run once immediately (then again on play/pause events).
+          syncToggleLabel();
+          setTimeout(syncToggleLabel, 0);
+        });
+
+        if (volBtn && volWrap) {
+          volBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            try { volWrap.classList.toggle('is-open'); } catch (_e) {}
+          });
+          document.addEventListener('click', function (e) {
+            if (!volWrap.classList.contains('is-open')) return;
+            var t = e.target;
+            if (t && volWrap.contains(t)) return;
+            volWrap.classList.remove('is-open');
+          }, true);
+        }
+
+        volume.addEventListener('input', function () {
+          var val = 0;
+          try { val = Math.max(0, Math.min(100, parseInt(volume.value, 10) || 0)); } catch (_e) { val = 0; }
+          try {
+            v.muted = val === 0;
+            v.volume = val / 100;
+          } catch (_e2) {}
+          syncVolumeIcon();
+        });
+
+        v.addEventListener('play', syncToggleLabel);
+        v.addEventListener('pause', syncToggleLabel);
+        v.addEventListener('ended', function () {
+          syncToggleLabel();
+        });
+        // Some WebViews can lag the play/pause events; keep icon accurate.
+        v.addEventListener('timeupdate', function () {
+          syncToggleLabel();
+        });
+
+        // Autoplay can start after a tick; keep the icon in sync.
+        syncToggleLabel();
+        setTimeout(syncToggleLabel, 0);
+        v.addEventListener('loadedmetadata', syncToggleLabel);
+        syncVolumeIcon();
+      }
+
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initHomeVideoControls);
+      else initHomeVideoControls();
     })();
   </script>
 
@@ -538,27 +736,42 @@
 
   <script>
     (function () {
+      function getSignedInEmail() {
+        function parseUser(raw) {
+          if (!raw) return '';
+          try {
+            var u = JSON.parse(raw);
+            return u && u.email ? String(u.email).trim().toLowerCase() : '';
+          } catch (_e) {
+            return '';
+          }
+        }
+        try {
+          return (
+            parseUser(localStorage.getItem('beanthentic_user')) ||
+            parseUser(sessionStorage.getItem('beanthentic_user')) ||
+            ''
+          );
+        } catch (_e2) {
+          return '';
+        }
+      }
+
       function hasFarmerRegistration() {
         try {
-          var id = localStorage.getItem('beanthentic_farmer_id');
-          return !!(id && String(id).trim());
+          var email = getSignedInEmail();
+          var rawMap = localStorage.getItem('beanthentic_farmer_id_map') || sessionStorage.getItem('beanthentic_farmer_id_map');
+          var map = rawMap ? JSON.parse(rawMap) : null;
+          if (!email) return false;
+          return !!(map && typeof map[email] === 'string' && map[email].trim());
         } catch (_e) {
           return false;
         }
       }
 
       function registerFarmHref() {
-        try {
-          var s = localStorage.getItem('beanthentic_flask_base');
-          var base = s && String(s).replace(/\s/g, '') ? String(s).replace(/\/$/, '') : '';
-          if (!base && typeof location !== 'undefined' && (location.protocol === 'http:' || location.protocol === 'https:')) {
-            base = (location.origin || '').replace(/\/$/, '');
-          }
-          if (!base) base = 'http://10.0.2.2:5000';
-          return base + '/register-farm';
-        } catch (_e2) {
-          return 'http://10.0.2.2:5000/register-farm';
-        }
+        // Always use same-origin route so this works on 192... Flask host.
+        return '/register-farm';
       }
 
       var gate = document.getElementById('home-register-gate');
@@ -578,9 +791,111 @@
         document.body.classList.remove('home-register-gate-open');
       }
 
+      function shouldShowGateForNewUserFlow() {
+        try {
+          // Primary: URL marker (works reliably on 192... without storage timing issues).
+          if (typeof location !== 'undefined') {
+            var sp = new URLSearchParams(String(location.search || '').replace(/^\\?/, ''));
+            if (sp.get('new_user') === '1') return true;
+          }
+          // Back-compat: storage flag (older code paths).
+          var flag =
+            sessionStorage.getItem('beanthentic_prompt_register_after_tutorial') ||
+            localStorage.getItem('beanthentic_prompt_register_after_tutorial');
+          return flag === '1';
+        } catch (_e) {
+          return false;
+        }
+      }
+
+      function clearGateFlag() {
+        try {
+          sessionStorage.removeItem('beanthentic_prompt_register_after_tutorial');
+          localStorage.removeItem('beanthentic_prompt_register_after_tutorial');
+        } catch (_e) {}
+        // Remove URL marker so it doesn't keep re-opening the gate.
+        try {
+          if (typeof location !== 'undefined' && typeof history !== 'undefined' && history.replaceState) {
+            var url = new URL(location.href);
+            url.searchParams.delete('new_user');
+            history.replaceState({}, '', url.pathname + (url.search ? url.search : '') + (url.hash ? url.hash : ''));
+          }
+        } catch (_u) {}
+      }
+
+      function gateDebugEnabled() {
+        try {
+          return typeof location !== 'undefined' && String(location.search || '').indexOf('gate_debug=1') !== -1;
+        } catch (_e) {
+          return false;
+        }
+      }
+
+      function emitGateDebug(stage) {
+        if (!gateDebugEnabled()) return;
+        var info = {};
+        try {
+          info.stage = stage || '';
+          info.pathname = (location && location.pathname) ? String(location.pathname) : '';
+          info.hasGateEl = !!gate;
+          info.hasProceedEl = !!proceedBtn;
+          info.user = getSignedInEmail();
+          info.hasFarmerRegistration = hasFarmerRegistration();
+          info.flag_session = sessionStorage.getItem('beanthentic_prompt_register_after_tutorial');
+          info.flag_local = localStorage.getItem('beanthentic_prompt_register_after_tutorial');
+          info.new_signup_session = sessionStorage.getItem('beanthentic_new_signup_login_id');
+          info.new_signup_local = localStorage.getItem('beanthentic_new_signup_login_id');
+          info.farmer_id = localStorage.getItem('beanthentic_farmer_id');
+          info.farmer_id_map = localStorage.getItem('beanthentic_farmer_id_map') || sessionStorage.getItem('beanthentic_farmer_id_map');
+        } catch (_e2) {
+          info.error = 'debug_failed';
+        }
+        try { console.log('[GateDebug]', info); } catch (_c) {}
+        try {
+          var box = document.getElementById('gate-debug-box');
+          if (!box) {
+            box = document.createElement('pre');
+            box.id = 'gate-debug-box';
+            box.style.position = 'fixed';
+            box.style.left = '10px';
+            box.style.bottom = '90px';
+            box.style.zIndex = '99999';
+            box.style.maxWidth = 'min(92vw, 520px)';
+            box.style.maxHeight = '38vh';
+            box.style.overflow = 'auto';
+            box.style.margin = '0';
+            box.style.padding = '10px 12px';
+            box.style.background = 'rgba(17,24,39,0.92)';
+            box.style.color = '#fff';
+            box.style.borderRadius = '12px';
+            box.style.fontSize = '12px';
+            box.style.lineHeight = '1.35';
+            box.style.whiteSpace = 'pre-wrap';
+            document.body.appendChild(box);
+          }
+          box.textContent = JSON.stringify(info, null, 2);
+        } catch (_d) {}
+      }
+
       window.addEventListener('beanthentic-home-loader-hidden', function () {
+        emitGateDebug('loader_hidden');
         if (hasFarmerRegistration()) return;
+        if (!shouldShowGateForNewUserFlow()) return;
+        clearGateFlag();
         showGate();
+      });
+
+      // Fallback for 192... (Flask) and some WebViews: if the loader event is missed,
+      // still show the gate shortly after DOM is ready.
+      document.addEventListener('DOMContentLoaded', function () {
+        emitGateDebug('dom_ready');
+        window.setTimeout(function () {
+          emitGateDebug('dom_ready+350ms');
+          if (hasFarmerRegistration()) return;
+          if (!shouldShowGateForNewUserFlow()) return;
+          clearGateFlag();
+          showGate();
+        }, 350);
       });
 
       window.addEventListener('storage', function (e) {
@@ -599,13 +914,12 @@
           if (loader) {
             loader.style.display = 'flex';
           }
-          window.setTimeout(function () {
-            try {
-              window.location.assign(registerFarmHref());
-            } catch (_err) {
-              window.location.href = registerFarmHref();
-            }
-          }, 2000);
+          // Navigate immediately; no need to wait.
+          try {
+            window.location.assign(registerFarmHref());
+          } catch (_err) {
+            window.location.href = registerFarmHref();
+          }
         });
       });
     })();

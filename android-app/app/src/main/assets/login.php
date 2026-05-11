@@ -147,7 +147,9 @@
             autocomplete="tel-national"
             class="login-phone-input"
             placeholder="9XXXXXXXXX"
-            maxlength="96"
+            maxlength="10"
+            pattern="[0-9]{10}"
+            title="10-digit Philippine mobile (starts with 9)"
           />
         </div>
 
@@ -201,6 +203,15 @@
     />
     <p class="tutorial-loader-text">Please wait for a moment</p>
   </div>
+  <div id="login-notice-modal" style="position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(9,58,17,0.33); z-index:100000;">
+    <div style="width:min(92vw, 420px); background:linear-gradient(165deg, #0f5f16 0%, #0b4d12 100%); color:#f8fafc; border-radius:16px; box-shadow:0 18px 40px rgba(9,58,17,0.38); padding:1rem 1rem 0.85rem;">
+      <p style="margin:0 0 0.55rem; font-size:0.95rem; font-weight:800;">Beanthentic</p>
+      <p id="login-notice-text" style="margin:0; font-size:1rem; line-height:1.4; color:#ecfdf3;"></p>
+      <div style="display:flex; justify-content:flex-end; margin-top:0.9rem;">
+        <button type="button" id="login-notice-ok" style="border:1px solid rgba(13,84,23,0.32); border-radius:10px; background:#f0fdf4; color:#14532d; font-weight:800; padding:0.48rem 0.82rem; cursor:pointer;">OK</button>
+      </div>
+    </div>
+  </div>
 
   <script src="js/navigation.js"></script>
   <script src="js/ui.js"></script>
@@ -233,6 +244,28 @@
   <script>
     (function () {
       var USER_NAME_MAP_KEY = 'beanthentic_user_name_map';
+      var noticeModal = document.getElementById('login-notice-modal');
+      var noticeText = document.getElementById('login-notice-text');
+      var noticeOk = document.getElementById('login-notice-ok');
+
+      function showLoginNotice(message) {
+        if (!noticeModal || !noticeText) {
+          try { window.alert(message); } catch (_a) {}
+          return;
+        }
+        noticeText.textContent = String(message || '');
+        noticeModal.style.display = 'flex';
+      }
+      if (noticeOk && noticeModal) {
+        noticeOk.addEventListener('click', function () {
+          noticeModal.style.display = 'none';
+        });
+      }
+      if (noticeModal) {
+        noticeModal.addEventListener('click', function (e) {
+          if (e.target === noticeModal) noticeModal.style.display = 'none';
+        });
+      }
 
       function getKnownUserName(email) {
         var cleanEmail = String(email || '').trim().toLowerCase();
@@ -287,6 +320,95 @@
       function getRegisteredRecord(loginId) {
         return getRegisteredAccounts()[loginId] || null;
       }
+      function canUseServerAuth() {
+        return typeof location !== 'undefined' && (location.protocol === 'http:' || location.protocol === 'https:');
+      }
+      function loginApiCandidates() {
+        if (!canUseServerAuth()) return [];
+        var candidates = [];
+        function pushUrl(v) {
+          var s = String(v || '').trim();
+          if (!s) return;
+          if (candidates.indexOf(s) < 0) candidates.push(s);
+        }
+        try {
+          var customBase = localStorage.getItem('beanthentic_api_base') || sessionStorage.getItem('beanthentic_api_base');
+          if (customBase && String(customBase).trim()) {
+            var b = String(customBase).replace(/\/$/, '');
+            pushUrl(b + '/login.php');
+          }
+        } catch (_e0) {}
+        try { pushUrl(new URL('api/login.php', location.href).href); } catch (_e1) {}
+        try { pushUrl((location.origin || '').replace(/\/$/, '') + '/api/login.php'); } catch (_e2) {}
+        // Common XAMPP path if project is under htdocs/Beanthentic-App
+        pushUrl('http://localhost/Beanthentic-App/android-app/app/src/main/assets/api/login.php');
+        pushUrl('http://127.0.0.1/Beanthentic-App/android-app/app/src/main/assets/api/login.php');
+        return candidates;
+      }
+      function postJson(url, payload) {
+        return fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload || {})
+        }).then(function (res) {
+          return res.text().then(function (txt) {
+            var body = null;
+            try { body = txt ? JSON.parse(txt) : null; } catch (_p) { body = null; }
+            return { okHttp: !!res.ok, body: body };
+          });
+        });
+      }
+      function loginViaApi(loginId, password) {
+        var urls = loginApiCandidates();
+        if (!urls.length) return Promise.resolve({ ok: false, skipped: true });
+        var i = 0;
+        function tryNext() {
+          if (i >= urls.length) return Promise.resolve({ ok: false, skipped: true, error: 'Cannot reach server API.' });
+          var url = urls[i++];
+          return postJson(url, { phone_number: loginId, password: String(password || '') })
+            .then(function (resObj) {
+              var body = resObj && resObj.body;
+              // Valid API response if object has explicit ok flag.
+              if (body && typeof body === 'object' && Object.prototype.hasOwnProperty.call(body, 'ok')) {
+                return body;
+              }
+              // Otherwise not our PHP API endpoint, try next candidate.
+              return tryNext();
+            })
+            .catch(function () { return tryNext(); });
+        }
+        return tryNext();
+      }
+      function keyVariants(v) {
+        var out = [];
+        var s = String(v || '').trim().toLowerCase();
+        if (!s) return out;
+        out.push(s);
+        var d = s.replace(/\D/g, '');
+        if (d.length === 10 && d.charAt(0) === '9') {
+          out.push('+63' + d);
+          out.push('0' + d);
+        }
+        if (d.indexOf('63') === 0 && d.length >= 12) out.push('0' + d.slice(2));
+        if (d.indexOf('0') === 0 && d.length >= 11) out.push('+63' + d.slice(1));
+        return Array.from(new Set(out));
+      }
+      function hasRegisteredFarmFor(loginId) {
+        try {
+          var rawMap = localStorage.getItem('beanthentic_farmer_id_map') || sessionStorage.getItem('beanthentic_farmer_id_map');
+          var map = rawMap ? JSON.parse(rawMap) : null;
+          if (map && typeof map === 'object') {
+            var keys = keyVariants(loginId);
+            for (var i = 0; i < keys.length; i += 1) {
+              var v = map[keys[i]];
+              if (v != null && String(v).trim() !== '') return true;
+            }
+          }
+        } catch (_m) {}
+        // IMPORTANT: Do not fallback to legacy global farmer_id here.
+        // That key is not account-scoped and can incorrectly mark new users as registered.
+        return false;
+      }
 
       function bindPasswordToggles(root) {
         root.querySelectorAll('.signup-password-toggle').forEach(function (btn) {
@@ -313,77 +435,111 @@
         if (!form) return;
         bindPasswordToggles(form);
         var phoneEl = document.getElementById('login-phone-local');
+        if (phoneEl) {
+          phoneEl.addEventListener('input', function () {
+            var raw = String(phoneEl.value || '').replace(/\D/g, '');
+            phoneEl.value = raw.slice(0, 10);
+          });
+        }
         form.addEventListener('submit', function (e) {
           e.preventDefault();
           var localVal = phoneEl ? String(phoneEl.value || '').trim() : '';
           if (!localVal) return;
           var loginId = localVal.indexOf('@') >= 0 ? localVal.toLowerCase() : normalizeLoginId(localVal);
           if (!loginId) {
-            try {
-              window.alert('Please enter a valid Philippine mobile number (9XXXXXXXXX) or your email.');
-            } catch (_a) {}
-            return;
-          }
-          var record = getRegisteredRecord(loginId);
-          if (!record) {
-            try {
-              window.alert(
-                'Hindi pa naka-register ang account na ito. Mag-sign up muna bago mag-log in.'
-              );
-            } catch (_ns) {}
+            showLoginNotice('Please enter a valid Philippine mobile number (9XXXXXXXXX) or your email.');
             return;
           }
           var pwEl = document.getElementById('login-password');
           var pwVal = pwEl ? String(pwEl.value || '') : '';
-          if (pwVal !== record.password) {
-            try {
-              window.alert('Mali ang password. Subukan ulit.');
-            } catch (_wp) {}
-            return;
-          }
-          var savedName = getKnownUserName(loginId);
-          var name = savedName;
-          if (!name) {
-            if (loginId.indexOf('@') > 0) name = loginId.split('@')[0];
-            else name = loginId.replace(/^\+63/, '');
-          }
           var rememberEl = document.getElementById('login-remember');
           var remember = rememberEl ? !!rememberEl.checked : true;
-          try {
-            var user = {
-              email: loginId,
-              name: name,
-              signedInAt: Date.now()
-            };
-            if (savedName) saveKnownUserName(loginId, savedName);
-            var payload = JSON.stringify(user);
-            sessionStorage.setItem('beanthentic_user', payload);
-            if (remember) {
-              localStorage.setItem('beanthentic_user', payload);
-            } else {
-              try {
-                localStorage.removeItem('beanthentic_user');
-              } catch (_r) {}
+
+          function finishLogin(nameFromRecord) {
+            var savedName = getKnownUserName(loginId);
+            var name = String(nameFromRecord || '').trim() || savedName;
+            if (!name) {
+              if (loginId.indexOf('@') > 0) name = loginId.split('@')[0];
+              else name = loginId.replace(/^\+63/, '');
             }
-          } catch (err) {
-            /* ignore */
-          }
-          var overlay = document.getElementById('login-success-loader');
-          if (overlay) {
-            overlay.hidden = false;
-            overlay.removeAttribute('aria-hidden');
-            overlay.setAttribute('aria-busy', 'true');
-          }
-          try {
-            sessionStorage.setItem('beanthentic_skip_tutorial_loader', '1');
-          } catch (_sk) {}
-          window.setTimeout(function () {
+            var isNewUser = false;
             try {
-              window.location.assign(new URL('tutorial.php', location.href).href);
-            } catch (e2) {
-              window.location.assign('tutorial.php');
+              var newIdForUser =
+                localStorage.getItem('beanthentic_new_signup_login_id') ||
+                sessionStorage.getItem('beanthentic_new_signup_login_id');
+              isNewUser = !!(newIdForUser && String(newIdForUser).trim().toLowerCase() === String(loginId).trim().toLowerCase());
+            } catch (_nu) {}
+            try {
+              var user = {
+                email: loginId,
+                name: isNewUser ? '' : name,
+                needs_registration: isNewUser ? true : false,
+                signedInAt: Date.now()
+              };
+              if (name) saveKnownUserName(loginId, name);
+              var payload = JSON.stringify(user);
+              sessionStorage.setItem('beanthentic_user', payload);
+              if (remember) localStorage.setItem('beanthentic_user', payload);
+              else localStorage.removeItem('beanthentic_user');
+            } catch (_set) {}
+            var isRegistered = hasRegisteredFarmFor(loginId);
+            var nextDest = isRegistered ? 'index.php#home' : 'tutorial.php?new_user=1';
+            var overlay = document.getElementById('login-success-loader');
+            if (overlay) {
+              overlay.hidden = false;
+              overlay.removeAttribute('aria-hidden');
+              overlay.setAttribute('aria-busy', 'true');
             }
-          }, 1200);
+            if (!isRegistered) {
+              try {
+                sessionStorage.setItem('beanthentic_prompt_register_after_tutorial', '1');
+                if (remember) localStorage.setItem('beanthentic_prompt_register_after_tutorial', '1');
+              } catch (_rg) {}
+            }
+            try { sessionStorage.setItem('beanthentic_skip_tutorial_loader', '1'); } catch (_sk) {}
+            window.setTimeout(function () {
+              try { window.location.assign(new URL(nextDest, location.href).href); }
+              catch (e2) { window.location.assign(nextDest); }
+            }, 1200);
+          }
+
+          if (canUseServerAuth()) {
+            loginViaApi(loginId, pwVal).then(function (out) {
+              if (out && out.skipped) {
+                // Fallback for non-PHP servers (e.g., Flask static serving).
+                var localRecord = getRegisteredRecord(loginId);
+                if (!localRecord) {
+                  showLoginNotice('This account is not registered yet. Please sign up first before logging in.');
+                  return;
+                }
+                if (pwVal !== localRecord.password) {
+                  showLoginNotice('Incorrect password. Please try again.');
+                  return;
+                }
+                finishLogin('');
+                return;
+              }
+              if (!out || !out.ok) {
+                var msg = (out && out.error) ? String(out.error) : 'Login failed.';
+                showLoginNotice(msg);
+                return;
+              }
+              var apiName = out.user && out.user.name ? String(out.user.name) : '';
+              finishLogin(apiName);
+            });
+            return;
+          }
+
+          var record = getRegisteredRecord(loginId);
+          if (!record) {
+            showLoginNotice('This account is not registered yet. Please sign up first before logging in.');
+            return;
+          }
+          if (pwVal !== record.password) {
+            showLoginNotice('Incorrect password. Please try again.');
+            return;
+          }
+          finishLogin('');
         });
       });
     })();

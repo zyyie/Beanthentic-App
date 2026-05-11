@@ -1272,6 +1272,16 @@ body.signup-page .signup-page-header {
   border-radius: 12px !important;
 }
 
+/* Hide browser-native reveal/clear icons so only one eye toggle shows */
+.signup-form .signup-password-input::-ms-reveal,
+.signup-form .signup-password-input::-ms-clear,
+.login-form .signup-password-input::-ms-reveal,
+.login-form .signup-password-input::-ms-clear {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
 .signup-form .signup-password-toggle,
 .login-form .signup-password-toggle {
   position: absolute;
@@ -1420,6 +1430,64 @@ body.tutorial-page {
 
 .login-success-loader.tutorial-loader {
   z-index: 99999;
+}
+
+.bt-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 99998;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+.bt-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(3px);
+}
+.bt-modal-card {
+  position: relative;
+  width: min(92vw, 420px);
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 1.15rem 1.05rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.26);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+}
+.bt-modal-title {
+  margin: 0 0 0.35rem;
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: #143d22;
+  letter-spacing: -0.01em;
+}
+.bt-modal-text {
+  margin: 0 0 0.95rem;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  color: #374151;
+  font-weight: 600;
+}
+.bt-modal-actions {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+.bt-modal-btn {
+  border: 0;
+  border-radius: 999px;
+  padding: 0.7rem 1.05rem;
+  font-weight: 900;
+  font-family: inherit;
+  cursor: pointer;
+  background: rgba(20, 61, 34, 0.12);
+  color: #143d22;
+}
+.bt-modal-btn.primary {
+  background: #143d22;
+  color: #ffffff;
 }
 
 .tutorial-loader {
@@ -2586,8 +2654,8 @@ body.account-security-page .account-security-shell.auth-card {
   padding: 0.56rem 0.82rem;
   font-size: 0.78rem;
   font-weight: 700;
-  background: linear-gradient(180deg, #a86d4a 0%, #9b6343 45%, #7a4a33 100%) !important;
-  box-shadow: 0 9px 20px rgba(60, 34, 18, 0.2) !important;
+  background: linear-gradient(180deg, #2f9f3a 0%, #23872e 45%, #1a6a24 100%) !important;
+  box-shadow: 0 9px 20px rgba(18, 78, 25, 0.22) !important;
 }
 
 @media (max-width: 720px) {
@@ -2906,7 +2974,7 @@ body.home-page > main.home-mobile-layout {
 }
 
 .home-mobile-hero-card {
-  height: 13.2rem;
+  height: 18.5rem;
   border-radius: 10px;
   background: #d8d8d8;
 }
@@ -3125,6 +3193,19 @@ body.home-register-gate-open {
 
 .home-register-gate-btn:active {
   opacity: 0.92;
+}
+
+/* Global top-navbar lock: keep page headers pinned on scroll */
+header.about-hero,
+header.hist-hero,
+header.mv-hero,
+header.msg-top,
+header.updates-topbar,
+header.reg-hero,
+.fr-reg-hero {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1200 !important;
 }
 
 .home-register-gate-btn:disabled {

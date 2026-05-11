@@ -327,10 +327,16 @@
       }
 
       function goHome() {
+        // If login marked this as a new-user session, carry marker to Home.
+        var marker = '';
         try {
-          window.location.assign(new URL('index.php#home', location.href).href);
+          var sp = new URLSearchParams(String(location.search || '').replace(/^\\?/, ''));
+          if (sp.get('new_user') === '1') marker = '?new_user=1';
+        } catch (_p) {}
+        try {
+          window.location.assign(new URL('index.php' + marker + '#home', location.href).href);
         } catch (_e) {
-          window.location.assign('index.php#home');
+          window.location.assign('index.php' + marker + '#home');
         }
       }
 

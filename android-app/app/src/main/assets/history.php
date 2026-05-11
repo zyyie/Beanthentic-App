@@ -23,46 +23,32 @@
     .hist-hero-row {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: center;
       gap: 0.75rem;
+      position: relative;
+      min-height: 42px;
     }
-    .hist-brand {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      min-width: 0;
-    }
-    .hist-logo {
-      width: 36px;
-      height: 36px;
-      border-radius: 999px;
-      object-fit: contain;
-      background: #fff;
-      padding: 4px;
-    }
-    .hist-brand-name {
-      font-size: 1.05rem;
-      font-weight: 700;
-      line-height: 1.1;
-    }
-    .hist-actions {
-      display: flex;
-      align-items: center;
-      gap: 0.35rem;
-    }
-    .hist-icon-btn {
-      width: 30px;
-      height: 30px;
-      border-radius: 999px;
-      border: none;
-      background: rgba(255, 255, 255, 0.95);
-      color: #1c6f20;
+    .hist-nav-back {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #ffffff;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
+      padding: 8px;
+      text-decoration: none;
+      -webkit-tap-highlight-color: transparent;
     }
-    .hist-icon-btn svg { width: 16px; height: 16px; }
+    .hist-nav-back svg { width: 18px; height: 18px; }
+    .hist-nav-title {
+      margin: 0;
+      font-size: clamp(1.35rem, 4.4vw, 1.7rem);
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: 0.02em;
+    }
 
     .hist-main {
       max-width: 920px;
@@ -222,12 +208,12 @@
       width: 3rem;
       height: 3rem;
       border-radius: 999px;
-      background: linear-gradient(165deg, #1c6f20 0%, #1f8a2f 100%);
+      background: linear-gradient(165deg, #6f4a2d 0%, #8b5a34 100%);
       display: inline-flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      box-shadow: 0 2px 10px rgba(20, 82, 24, 0.22);
+      box-shadow: 0 2px 10px rgba(87, 58, 36, 0.28);
       border: 1px solid rgba(255, 255, 255, 0.22);
       transition:
         transform 0.18s ease,
@@ -266,7 +252,7 @@
     .hist-card:hover .hist-card-icon-ring,
     .hist-card:focus-visible .hist-card-icon-ring {
       transform: scale(1.06);
-      box-shadow: 0 4px 14px rgba(20, 82, 24, 0.32);
+      box-shadow: 0 4px 14px rgba(87, 58, 36, 0.38);
       filter: brightness(1.06);
     }
     .hist-card:active {
@@ -305,31 +291,19 @@
 <body class="has-app-bottom-nav">
   <header class="hist-hero">
     <div class="hist-hero-row">
-      <div class="hist-brand">
-        <img class="hist-logo" src="beanthentic_logo.png" alt="Beanthentic" />
-        <div class="hist-brand-name">Beanthentic</div>
-      </div>
-      <div class="hist-actions">
-        <button type="button" class="hist-icon-btn" aria-label="Notifications">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 17h5l-1.4-1.4a2 2 0 0 1-.6-1.4V11a6 6 0 1 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5"/><path d="M9 17a3 3 0 0 0 6 0"/></svg>
-        </button>
-        <a href="account.php" class="hist-icon-btn" aria-label="Account">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg>
-        </a>
-      </div>
+      <a class="hist-nav-back" href="about.php" aria-label="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </a>
+      <h1 class="hist-nav-title">Coffee History</h1>
     </div>
   </header>
 
   <main class="hist-main">
-    <a class="hist-back" href="about.php" aria-label="Back to about">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-      Back
-    </a>
-
     <div>
       <span class="hist-badge"><span class="hist-badge-dot" aria-hidden="true"></span> History</span>
     </div>
-    <h1 class="hist-page-title">COFFEE HISTORY</h1>
 
     <p class="hist-lead">
       Beanthentic Coffee is a platform that highlights the hard work of local farmers and the authenticity of their coffee beans.
@@ -341,11 +315,8 @@
       <a href="history-liberica.php" class="hist-card" aria-label="Open Liberica article">
         <span class="hist-card-icon-ring" aria-hidden="true">
           <svg class="hist-coffee-icon" viewBox="0 0 64 64" aria-hidden="true">
-            <!-- Coffee cup + steam (reads clearly at small sizes) -->
-            <path fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" d="M25 11c1.2 2.8.4 4.6-.8 7.2M32 9c1.2 2.8.4 4.6-.8 7.2M39 11c1.2 2.8.4 4.6-.8 7.2"/>
-            <path fill="#fff" d="M14 26.5h27.5a2 2 0 0 1 2 2V42c0 7.2-5.8 13-13 13h-2.5c-7.2 0-13-5.8-13-13V28.5a2 2 0 0 1 2-2H14z"/>
-            <path fill="rgba(15,74,21,0.38)" d="M16 29h24v4.5c0 1.2-5 3-12 3s-12-1.8-12-3V29z"/>
-            <path fill="none" stroke="#fff" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round" d="M43.5 30H46c4.7 0 8.5 3.8 8.5S50.7 47 46 47h-2.5"/>
+            <ellipse cx="32" cy="32" rx="14" ry="19" fill="#ffffff" transform="rotate(-18 32 32)"/>
+            <path d="M31 16c-3 8-3 24 1 32" fill="none" stroke="#d1d5db" stroke-width="2.8" stroke-linecap="round"/>
           </svg>
         </span>
         <span class="hist-card-label">Liberica</span>
@@ -353,10 +324,8 @@
       <a href="history-excelsa.php" class="hist-card" aria-label="Open Excelsa article">
         <span class="hist-card-icon-ring" aria-hidden="true">
           <svg class="hist-coffee-icon" viewBox="0 0 64 64" aria-hidden="true">
-            <path fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" d="M25 11c1.2 2.8.4 4.6-.8 7.2M32 9c1.2 2.8.4 4.6-.8 7.2M39 11c1.2 2.8.4 4.6-.8 7.2"/>
-            <path fill="#fff" d="M14 26.5h27.5a2 2 0 0 1 2 2V42c0 7.2-5.8 13-13 13h-2.5c-7.2 0-13-5.8-13-13V28.5a2 2 0 0 1 2-2H14z"/>
-            <path fill="rgba(15,74,21,0.38)" d="M16 29h24v4.5c0 1.2-5 3-12 3s-12-1.8-12-3V29z"/>
-            <path fill="none" stroke="#fff" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round" d="M43.5 30H46c4.7 0 8.5 3.8 8.5S50.7 47 46 47h-2.5"/>
+            <ellipse cx="32" cy="32" rx="14" ry="19" fill="#ffffff" transform="rotate(-18 32 32)"/>
+            <path d="M31 16c-3 8-3 24 1 32" fill="none" stroke="#d1d5db" stroke-width="2.8" stroke-linecap="round"/>
           </svg>
         </span>
         <span class="hist-card-label">Excelsa</span>
@@ -364,10 +333,8 @@
       <a href="history-robusta.php" class="hist-card" aria-label="Open Robusta article">
         <span class="hist-card-icon-ring" aria-hidden="true">
           <svg class="hist-coffee-icon" viewBox="0 0 64 64" aria-hidden="true">
-            <path fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" d="M25 11c1.2 2.8.4 4.6-.8 7.2M32 9c1.2 2.8.4 4.6-.8 7.2M39 11c1.2 2.8.4 4.6-.8 7.2"/>
-            <path fill="#fff" d="M14 26.5h27.5a2 2 0 0 1 2 2V42c0 7.2-5.8 13-13 13h-2.5c-7.2 0-13-5.8-13-13V28.5a2 2 0 0 1 2-2H14z"/>
-            <path fill="rgba(15,74,21,0.38)" d="M16 29h24v4.5c0 1.2-5 3-12 3s-12-1.8-12-3V29z"/>
-            <path fill="none" stroke="#fff" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round" d="M43.5 30H46c4.7 0 8.5 3.8 8.5S50.7 47 46 47h-2.5"/>
+            <ellipse cx="32" cy="32" rx="14" ry="19" fill="#ffffff" transform="rotate(-18 32 32)"/>
+            <path d="M31 16c-3 8-3 24 1 32" fill="none" stroke="#d1d5db" stroke-width="2.8" stroke-linecap="round"/>
           </svg>
         </span>
         <span class="hist-card-label">Robusta</span>
@@ -403,12 +370,7 @@
       </div>
     </div>
 
-    <section class="hist-compare" aria-labelledby="hist-compare-heading">
-      <h2 id="hist-compare-heading" class="hist-section-title">How varieties compare</h2>
-      <div class="hist-compare-frame">
-        <img src="history/arabica_liberica_robusta.png" alt="Infographic comparing Arabica, Liberica, and Robusta beans" loading="lazy" decoding="async" />
-      </div>
-    </section>
+    
 
   </main>
 
@@ -426,7 +388,7 @@
         </span>
         <span class="app-bottom-nav-label">Transaction</span>
       </a>
-      <a href="/register-farm" id="nav-register" class="app-bottom-nav-link app-bottom-nav-link--featured">
+      <a href="register_summary.php" id="nav-register" class="app-bottom-nav-link app-bottom-nav-link--featured">
         <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
           <svg class="app-bottom-nav-icon app-bottom-nav-register-svg app-bottom-nav-register-svg--pending" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
           <svg class="app-bottom-nav-icon app-bottom-nav-register-svg app-bottom-nav-register-svg--complete" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>

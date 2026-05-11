@@ -23,46 +23,32 @@
     .hist-hero-row {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: center;
       gap: 0.75rem;
+      position: relative;
+      min-height: 42px;
     }
-    .hist-brand {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      min-width: 0;
-    }
-    .hist-logo {
-      width: 36px;
-      height: 36px;
-      border-radius: 999px;
-      object-fit: contain;
-      background: #fff;
-      padding: 4px;
-    }
-    .hist-brand-name {
-      font-size: 1.05rem;
-      font-weight: 700;
-      line-height: 1.1;
-    }
-    .hist-actions {
-      display: flex;
-      align-items: center;
-      gap: 0.35rem;
-    }
-    .hist-icon-btn {
-      width: 30px;
-      height: 30px;
-      border-radius: 999px;
-      border: none;
-      background: rgba(255, 255, 255, 0.95);
-      color: #1c6f20;
+    .hist-nav-back {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #ffffff;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
+      padding: 8px;
+      text-decoration: none;
+      -webkit-tap-highlight-color: transparent;
     }
-    .hist-icon-btn svg { width: 16px; height: 16px; }
+    .hist-nav-back svg { width: 18px; height: 18px; }
+    .hist-nav-title {
+      margin: 0;
+      font-size: clamp(1.35rem, 4.4vw, 1.7rem);
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: 0.02em;
+    }
     .hist-main {
       max-width: 920px;
       margin: 0 auto;
@@ -91,34 +77,47 @@
       box-shadow: 0 6px 18px rgba(13, 77, 43, 0.06);
       border: 1px solid rgba(37, 103, 30, 0.12);
     }
+
+    .hist-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: #4a3728;
+      color: #fff;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      padding: 0.38rem 0.95rem 0.38rem 0.65rem;
+      border-radius: 999px;
+      margin: 0.15rem 0 0.7rem;
+    }
+    .hist-badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #fff;
+      opacity: 0.95;
+    }
   </style>
 </head>
 <body class="has-app-bottom-nav">
   <header class="hist-hero">
     <div class="hist-hero-row">
-      <div class="hist-brand">
-        <img class="hist-logo" src="beanthentic_logo.png" alt="Beanthentic" />
-        <div class="hist-brand-name">Beanthentic</div>
-      </div>
-      <div class="hist-actions">
-        <button type="button" class="hist-icon-btn" aria-label="Notifications">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 17h5l-1.4-1.4a2 2 0 0 1-.6-1.4V11a6 6 0 1 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5"/><path d="M9 17a3 3 0 0 0 6 0"/></svg>
-        </button>
-        <a href="account.php" class="hist-icon-btn" aria-label="Account">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg>
-        </a>
-      </div>
+      <a class="hist-nav-back" href="history.php" aria-label="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </a>
+      <h1 class="hist-nav-title">Liberica Coffee</h1>
     </div>
   </header>
 
   <main class="hist-main">
-    <a class="hist-back" href="history.php" aria-label="Back to History">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-      Back
-    </a>
     <div class="about-card hist-variety-single">
                 <section id="history-liberica" class="about-topic hist-variety-topic" aria-label="Liberica">
-                  <h4>LIBERICA</h4>
+                  <div>
+                    <span class="hist-badge"><span class="hist-badge-dot" aria-hidden="true"></span> Liberica</span>
+                  </div>
                   <p>Although most coffee aficionados are well-versed in Arabica and Robusta varieties, there exists a lesser-known third species of coffee bean: Liberica. This particular variety constitutes approximately 2% of global coffee consumption; however, most of this consumption transpires in the nation where Liberica coffee enjoys considerable popularity: the Philippines (Earl of Coffee, 2020).</p>
                   <p>Liberica, or Liberian coffee (Coffea liberica), is frequently referred to as the "third coffee crop species" (after Coffea arabica and Coffea canephora). A commonly misquoted statistic suggests that Liberica comprises approximately 1 per cent of the global coffee supply; however, the production output of this species remains minuscule when compared with that of Arabica and Robusta. Although, during the latter portion of the 19th century, Liberica was positioned alongside Arabica as the second most significant species in the coffee trade (Ralph, 2023), this status has diminished over time.</p>
                   <p>Liberica, a coffee species from Liberia (West Africa), was introduced with remarkable scale and efficiency beginning in the early 1870s. This introduction primarily responded to the devastating coffee leaf rust epidemic that severely impacted Arabica plantations in Sri Lanka. However, shortly thereafter, Liberica was utilized to expand coffee production into low-elevation tropical regions where climatic conditions-characterized by excessive heat and moisture-rendered Arabica cultivation untenable. Consequently, Liberica has cultivated a steadfast following in the Philippines, Malaysia, and Indonesia. Due to an outbreak of coffee rust disease in various regions, the Philippines emerged as one of the foremost exporters of this rare coffee species. This development was significant because Liberica effectively addressed the demand for coffee in areas where Arabica could not flourish.</p>
@@ -196,7 +195,7 @@
         </span>
         <span class="app-bottom-nav-label">Transaction</span>
       </a>
-      <a href="/register-farm" id="nav-register" class="app-bottom-nav-link app-bottom-nav-link--featured">
+      <a href="register_summary.php" id="nav-register" class="app-bottom-nav-link app-bottom-nav-link--featured">
         <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
           <svg class="app-bottom-nav-icon app-bottom-nav-register-svg app-bottom-nav-register-svg--pending" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
           <svg class="app-bottom-nav-icon app-bottom-nav-register-svg app-bottom-nav-register-svg--complete" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>

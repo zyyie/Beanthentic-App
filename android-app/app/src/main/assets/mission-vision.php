@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/responsive.css">
+  <script id="beanthentic-fixed-topbar-js" src="js/beanthentic_fixed_topbar.js" defer></script>
   <style>
     .mv-hero {
       background: linear-gradient(160deg, #1c6f20 0%, #0f4a15 100%);

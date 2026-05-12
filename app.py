@@ -1,5 +1,6 @@
 from datetime import datetime
 from flask import Flask, Response, request
+import json
 import os
 import re
 import html
@@ -65,6 +66,19 @@ def _load_maps_module_class():
 MapsModule = _load_maps_module_class()
 maps_module = MapsModule(app)
 
+try:
+    from beanthentic_mysql_api import register_mysql_json_routes
+
+    register_mysql_json_routes(app)
+except Exception as mysql_api_err:
+    import warnings
+
+    warnings.warn(
+        "beanthentic_mysql_api not loaded (pip install PyMySQL bcrypt). "
+        f"Signup/login via /api/*.php on Flask will not work: {mysql_api_err}",
+        stacklevel=1,
+    )
+
 
 def _serve_php_asset(filename: str) -> Response:
     path = os.path.join(ASSETS_DIR, filename)
@@ -80,6 +94,17 @@ def _serve_php_asset(filename: str) -> Response:
         title_text = title_decl.group(1)
         body = body.replace(title_decl.group(0), "", 1)
         body = body.replace("<?php echo $title; ?>", title_text)
+    if filename == "server_url.php":
+        try:
+            injected = request.url_root.rstrip("/")
+        except RuntimeError:
+            injected = ""
+        marker = 'window.__BEANTHENTIC_INJECTED_ORIGIN__ = "";'
+        body = body.replace(
+            marker,
+            "window.__BEANTHENTIC_INJECTED_ORIGIN__ = " + json.dumps(injected) + ";",
+            1,
+        )
     resp = Response(body, mimetype="text/html; charset=utf-8")
     # Prevent stale assets on LAN testing (192.x) from hiding recent fixes.
     resp.headers["Cache-Control"] = "no-store, max-age=0"
@@ -122,6 +147,12 @@ def account_page():
 @app.route("/signup.php")
 def signup_page():
     return _serve_php_asset("signup.php")
+
+
+@app.route("/server_url.php")
+def server_url_page():
+    """One-page UI to set beanthentic_api_base / beanthentic_flask_base in WebView storage."""
+    return _serve_php_asset("server_url.php")
 
 
 @app.route("/tutorial.php")

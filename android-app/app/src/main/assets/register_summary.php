@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#25671E" />
+  <script>window.__BEANTHENTIC_SESSION_GATE__ = 'protected';</script>
+  <script src="js/beanthentic_session_gate.js"></script>
   <title>Registration Summary · Beanthentic Coffee</title>
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">
@@ -77,8 +79,30 @@
       place-items: center;
       margin: 0 auto 0.7rem;
       color: rgba(17, 24, 39, 0.55);
+      position: relative;
+      overflow: hidden;
     }
-    .reg-avatar svg { width: 44px; height: 44px; }
+    .reg-avatar-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 999px;
+      z-index: 1;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .reg-avatar.has-photo .reg-avatar-img {
+      opacity: 1;
+      visibility: visible;
+    }
+    .reg-avatar.has-photo .reg-avatar-fallback {
+      display: none;
+    }
+    .reg-avatar svg,
+    .reg-avatar .reg-avatar-fallback { width: 44px; height: 44px; }
     .reg-section-title {
       margin: 0.9rem 0 0.55rem;
       font-size: 0.95rem;
@@ -158,7 +182,8 @@
   <main class="reg-main">
     <section class="reg-card" aria-label="Registration summary">
       <div class="reg-avatar" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <img id="rs-profile-photo" class="reg-avatar-img" alt="" width="92" height="92" decoding="async" />
+        <svg class="reg-avatar-fallback" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           <path d="M12 12a4.2 4.2 0 1 0-4.2-4.2A4.2 4.2 0 0 0 12 12Zm0 2c-4.4 0-8 2.2-8 4.9V21h16v-2.1c0-2.7-3.6-4.9-8-4.9Z"/>
         </svg>
       </div>
@@ -407,11 +432,22 @@
           var map = safeGetJson('beanthentic_farmer_profile_map');
           if (!map || typeof map !== 'object') map = {};
           var keys = keyVariants(key);
-          for (var i = 0; i < keys.length; i += 1) map[keys[i]] = profile;
+          var lastMerged = profile;
+          for (var i = 0; i < keys.length; i += 1) {
+            var kk = keys[i];
+            var prev = map[kk];
+            var merged = Object.assign({}, profile);
+            if (prev && typeof prev === 'object' && String(prev.profile_photo_data || '').trim()) {
+              var incoming = String(merged.profile_photo_data || '').trim();
+              if (!incoming) merged.profile_photo_data = prev.profile_photo_data;
+            }
+            map[kk] = merged;
+            lastMerged = merged;
+          }
           localStorage.setItem('beanthentic_farmer_profile_map', JSON.stringify(map));
           sessionStorage.setItem('beanthentic_farmer_profile_map', JSON.stringify(map));
-          localStorage.setItem('beanthentic_farmer_profile', JSON.stringify(profile));
-          sessionStorage.setItem('beanthentic_farmer_profile', JSON.stringify(profile));
+          localStorage.setItem('beanthentic_farmer_profile', JSON.stringify(lastMerged));
+          sessionStorage.setItem('beanthentic_farmer_profile', JSON.stringify(lastMerged));
         } catch (_e) {}
       }
       function apiBases() {
@@ -445,10 +481,38 @@
         }
         return null;
       }
+      function normalizeProfilePhotoData(raw) {
+        var s = String(raw || '').trim();
+        if (!s) return '';
+        if (/^data:image\//i.test(s) || /^https?:\/\//i.test(s)) return s;
+        if (s.charAt(0) === '/' && s.length > 4) return s;
+        var compact = s.replace(/\s/g, '');
+        if (/^[A-Za-z0-9+/=]+$/.test(compact) && compact.length > 240) {
+          return 'data:image/jpeg;base64,' + compact;
+        }
+        return s;
+      }
+      function displayCapitalize(raw) {
+        var s = String(raw == null ? '' : raw).trim();
+        if (!s) return '';
+        if (s === '—' || s === '-') return s;
+        if (/_/.test(s) && !/\s/.test(s)) {
+          return s.split('_').filter(Boolean).map(function (w) {
+            return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+          }).join(' ');
+        }
+        return s.replace(/\b([a-zA-Z])([a-zA-Z']*)\b/g, function (_, a, rest) {
+          return a.toUpperCase() + (rest || '').toLowerCase();
+        });
+      }
       function set(id, value) {
         var el = document.getElementById(id);
         if (!el) return;
-        el.value = (value === null || value === undefined || value === '') ? '—' : String(value);
+        if (value === null || value === undefined || value === '') {
+          el.value = '—';
+          return;
+        }
+        el.value = displayCapitalize(String(value));
       }
       function prod(p, key) {
         var obj = (p && p.production && typeof p.production === 'object') ? p.production : {};
@@ -461,6 +525,14 @@
           if (note) {
             note.hidden = false;
             note.textContent = 'No saved farmer registration found for this account yet. Please register first.';
+          }
+          var photoEl0 = document.getElementById('rs-profile-photo');
+          var avEl0 = document.querySelector('.reg-avatar');
+          if (photoEl0 && avEl0) {
+            try { photoEl0.removeAttribute('src'); } catch (_r0) {}
+            photoEl0.style.opacity = '0';
+            photoEl0.style.visibility = 'hidden';
+            avEl0.classList.remove('has-photo');
           }
           return;
         }
@@ -521,11 +593,53 @@
         set('rs-prod-rob-unit', pr.unit || 'kg');
         set('rs-prod-exc', (pe.qty != null ? pe.qty : (pe.quantity != null ? pe.quantity : '')));
         set('rs-prod-exc-unit', pe.unit || 'kg');
+
+        var photoRaw = normalizeProfilePhotoData(p.profile_photo_data);
+        var photoEl = document.getElementById('rs-profile-photo');
+        var avEl = document.querySelector('.reg-avatar');
+        if (photoEl && avEl) {
+          if (/^data:image\//i.test(photoRaw) || /^https?:\/\//i.test(photoRaw) || (photoRaw.charAt(0) === '/' && photoRaw.length > 4)) {
+            photoEl.src = photoRaw;
+            photoEl.style.opacity = '1';
+            photoEl.style.visibility = 'visible';
+            avEl.classList.add('has-photo');
+          } else {
+            try { photoEl.removeAttribute('src'); } catch (_r) {}
+            photoEl.style.opacity = '0';
+            photoEl.style.visibility = 'hidden';
+            avEl.classList.remove('has-photo');
+          }
+        }
       }
       async function render() {
-        var p = pickProfile();
-        if (!p) p = await fetchProfileFromApi();
+        var pLocal = pickProfile();
+        var pApi = null;
+        try {
+          pApi = await fetchProfileFromApi();
+        } catch (_ea) {}
+        var p = pLocal || pApi;
+        if (pLocal && pApi) {
+          p = Object.assign({}, pApi, pLocal);
+          var keepPhoto = String(pLocal.profile_photo_data || '').trim();
+          if (keepPhoto) p.profile_photo_data = keepPhoto;
+        }
         renderProfile(p);
+        try {
+          if (typeof window.beanthenticSyncRegisterNavIcon === 'function') {
+            window.beanthenticSyncRegisterNavIcon();
+          }
+        } catch (_sb) {}
+      }
+      var regBack = document.querySelector('.reg-nav-back');
+      if (regBack) {
+        regBack.addEventListener('click', function (e) {
+          e.preventDefault();
+          try {
+            window.location.assign(new URL('index.php#home', location.href).href);
+          } catch (_eb) {
+            window.location.href = 'index.php#home';
+          }
+        });
       }
       if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { render(); });
       else render();

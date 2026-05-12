@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#25671E" />
+  <script>window.__BEANTHENTIC_SESSION_GATE__ = 'protected';</script>
+  <script src="js/beanthentic_session_gate.js"></script>
   <title>Account · Beanthentic Coffee</title>
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">
@@ -79,6 +81,20 @@
       display: grid;
       place-items: center;
       margin: 0 auto 0.68rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .account-simple-avatar-photo {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 999px;
+      z-index: 1;
+    }
+    .account-simple-avatar.has-photo span {
+      opacity: 0;
     }
     .account-simple-avatar span {
       font-weight: 800;
@@ -109,118 +125,222 @@
       line-height: 1.1;
     }
     .account-filter-row {
-      margin: 0.65rem 0 0.75rem;
+      margin: 0.65rem auto 0.72rem;
       display: flex;
-      justify-content: center;
-      gap: 0.48rem;
-      flex-wrap: wrap;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.34rem;
+      width: 100%;
+      max-width: 9.25rem;
     }
     .account-filter-pill {
-      border: 0;
+      border: 1px solid rgba(20, 94, 30, 0.45);
       border-radius: 999px;
-      min-height: 34px;
-      padding: 0.38rem 1rem;
-      font-size: 0.82rem;
+      min-height: 30px;
+      width: 100%;
+      max-width: 9.25rem;
+      padding: 0.3rem 0.55rem;
+      font-size: 0.76rem;
       font-weight: 700;
-      color: #4b5563;
-      background: #e5e7eb;
+      color: #145e1e;
+      background: #ffffff;
       display: inline-flex;
       align-items: center;
-      gap: 0.45rem;
+      justify-content: center;
+      gap: 0.38rem;
+      cursor: pointer;
+      box-shadow: 0 0 0 1px rgba(20, 94, 30, 0.08), 0 1px 3px rgba(15, 23, 42, 0.06);
+      transition: background 0.16s ease, color 0.16s ease, border-color 0.16s ease, transform 0.12s ease, box-shadow 0.16s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .account-filter-pill:active {
+      transform: scale(0.98);
     }
     .account-filter-count {
-      font-size: 0.72rem;
+      font-size: 0.68rem;
       font-weight: 800;
       letter-spacing: 0.02em;
-      color: #1f2937;
-      opacity: 0.9;
+      color: #145e1e;
+      opacity: 1;
     }
+    /* Selected: same palette, slightly stronger ring */
     .account-filter-pill.is-active {
-      color: #ffffff;
-      background: #145e1e;
+      color: #145e1e;
+      background: #ffffff;
+      border-color: rgba(20, 94, 30, 0.65);
+      box-shadow: 0 0 0 2px rgba(20, 94, 30, 0.12), 0 2px 6px rgba(20, 94, 30, 0.12);
     }
     .account-filter-pill.is-active .account-filter-count {
+      color: #145e1e;
+      opacity: 1;
+    }
+    .account-filter-pill:hover,
+    .account-filter-pill:focus-visible {
+      color: #ffffff;
+      background: #145e1e;
+      border-color: #145e1e;
+      box-shadow: 0 4px 12px rgba(20, 94, 30, 0.28);
+    }
+    .account-filter-pill:hover .account-filter-count,
+    .account-filter-pill:focus-visible .account-filter-count {
       color: rgba(255, 255, 255, 0.95);
-      opacity: 0.95;
+      opacity: 0.98;
     }
     .account-stats {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 145px));
-      gap: 0.35rem;
-      justify-content: center;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.45rem;
+      width: 100%;
+      max-width: 14.5rem;
+      margin-left: auto;
+      margin-right: auto;
+      box-sizing: border-box;
     }
     .account-stat {
       border-radius: 12px;
-      padding: 0.4rem 0.4rem 0.42rem;
-      min-height: 92px;
+      padding: 0.28rem 0.45rem 0.32rem;
+      min-height: 0;
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       text-align: center;
+      background: #ffffff;
+      border: 1px solid rgba(20, 94, 30, 0.28);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+      cursor: default;
+      transition: background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .account-stat:hover {
+      background: linear-gradient(165deg, #124a16 0%, #145e1e 48%, #1a7a24 100%);
+      border-color: #145e1e;
+      box-shadow: 0 6px 18px rgba(20, 94, 30, 0.28);
     }
     .account-stat-title {
       margin: 0;
-      font-size: 0.56rem;
+      font-size: 0.52rem;
       font-weight: 700;
-      line-height: 1.2;
-      color: #0f172a;
+      line-height: 1.15;
+      color: #145e1e;
+      transition: color 0.18s ease;
     }
     .account-stat-sub {
-      margin: 0 0 0.28rem;
-      font-size: 0.45rem;
+      margin: 0 0 0.12rem;
+      font-size: 0.42rem;
       font-style: italic;
-      color: #9ca3af;
+      color: #6b7280;
       line-height: 1.1;
+      transition: color 0.18s ease;
     }
     .account-stat-value {
       margin: 0;
-      font-size: 1.8rem;
-      line-height: 0.95;
+      font-size: 1.28rem;
+      line-height: 1;
       font-weight: 800;
-      letter-spacing: -0.01em;
-      color: #ffffff;
-      text-transform: uppercase;
-    }
-    .account-stat--total {
-      background: #145e1e;
-    }
-    .account-stat--total .account-stat-title {
-      color: #ffffff;
-    }
-    .account-stat--total .account-stat-sub {
-      color: #d9efe0;
-    }
-    .account-stat--remaining {
-      background: #dfe8e0;
-    }
-    .account-stat--remaining .account-stat-value {
+      letter-spacing: -0.02em;
       color: #145e1e;
+      text-transform: uppercase;
+      transition: color 0.18s ease;
+    }
+    .account-stat:hover .account-stat-title,
+    .account-stat:hover .account-stat-sub,
+    .account-stat:hover .account-stat-value {
+      color: #ffffff;
+    }
+    .account-stat:hover .account-stat-sub {
+      color: rgba(255, 255, 255, 0.88);
+    }
+    .account-qr-section {
+      margin-top: 1rem;
+      text-align: center;
+    }
+    .account-qr-note {
+      margin: 0 0 0.7rem;
+      color: #7b7b7b;
+      font-size: 0.82rem;
+      font-weight: 600;
+      line-height: 1.25;
     }
     .account-qr-wrap {
-      margin-top: 0.95rem;
       display: flex;
       justify-content: center;
       width: fit-content;
       margin-left: auto;
       margin-right: auto;
       background: #ffffff;
-      border: 1px solid rgba(17, 24, 39, 0.12);
+      border: 1px solid rgba(17, 24, 39, 0.08);
       border-radius: 12px;
-      padding: 0.28rem;
-      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+      padding: 0.35rem;
+      box-shadow: 0 3px 10px rgba(15, 23, 42, 0.06);
     }
     .account-qr-img {
-      width: 170px;
-      height: 170px;
+      width: 230px;
+      height: 230px;
       display: block;
       object-fit: contain;
       background: #ffffff;
       border-radius: 8px;
-      border: 1px solid rgba(17, 24, 39, 0.05);
-      padding: 0.35rem;
+      border: 1px solid rgba(17, 24, 39, 0.04);
+      padding: 0.4rem;
       box-sizing: border-box;
+    }
+    .account-qr-wrap[hidden] { display: none !important; }
+    .account-qr-download {
+      margin: 0.9rem auto 0;
+      width: min(100%, 330px);
+      min-height: 42px;
+      border: 0;
+      border-radius: 14px;
+      background: linear-gradient(165deg, #124a16 0%, #145e1e 55%, #1a7a24 100%);
+      color: #ffffff;
+      font-size: 0.92rem;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(20, 94, 30, 0.24);
+      -webkit-tap-highlight-color: transparent;
+    }
+    .account-qr-download:active {
+      transform: scale(0.985);
+    }
+    .account-qr-download svg {
+      width: 20px;
+      height: 20px;
+      flex: 0 0 auto;
+    }
+    .account-qr-download[hidden] { display: none !important; }
+    .account-qr-enlarge {
+      margin: 0.35rem auto 0.2rem;
+      width: min(100%, 260px);
+      min-height: 40px;
+      border: 0;
+      border-radius: 999px;
+      background: rgba(37, 103, 30, 0.12);
+      color: #145e1e;
+      font-size: 0.92rem;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.55rem;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .account-qr-enlarge:active { transform: scale(0.99); }
+    .account-qr-enlarge svg { width: 22px; height: 22px; flex: 0 0 auto; }
+    .account-qr-enlarge[hidden] { display: none !important; }
+    @media (max-width: 420px) {
+      .account-qr-img {
+        width: min(70vw, 220px);
+        height: min(70vw, 220px);
+      }
     }
   </style>
 </head>
@@ -238,6 +358,7 @@
     <section class="account-dash" id="account-simple-root" hidden>
       <div class="account-dash-top">
         <div class="account-simple-avatar" aria-hidden="true">
+          <img id="account-simple-photo" class="account-simple-avatar-photo" alt="" width="128" height="128" hidden decoding="async" />
           <span id="account-simple-initials"></span>
         </div>
         <p class="account-simple-name" id="account-simple-name">—</p>
@@ -276,8 +397,32 @@
         </article>
       </section>
 
-      <div class="account-qr-wrap">
-        <img id="account-qr-img" class="account-qr-img" alt="Account QR code" />
+      <div class="account-qr-section">
+        <p class="account-qr-note">Scan this QR code with the farmer's application to share this website.</p>
+        <button type="button" id="account-qr-enlarge" class="account-qr-enlarge" aria-label="Enlarge QR" aria-expanded="false" aria-controls="account-qr-wrap">
+          <span id="account-qr-enlarge-label">Enlarge QR</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 9V4h5"></path>
+            <path d="M20 9V4h-5"></path>
+            <path d="M4 15v5h5"></path>
+            <path d="M20 15v5h-5"></path>
+            <path d="M9 4 4 9"></path>
+            <path d="m15 4 5 5"></path>
+            <path d="m9 20-5-5"></path>
+            <path d="m15 20 5-5"></path>
+          </svg>
+        </button>
+        <div class="account-qr-wrap" id="account-qr-wrap" hidden>
+          <img id="account-qr-img" class="account-qr-img" alt="Account QR code" />
+        </div>
+        <a id="account-qr-download" class="account-qr-download" aria-label="Download QR code" href="#" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 4v10"></path>
+            <path d="m7.5 10.5 4.5 4.5 4.5-4.5"></path>
+            <path d="M5 20h14"></path>
+          </svg>
+          <span>Download QR Code</span>
+        </a>
       </div>
     </section>
   </main>
@@ -411,10 +556,17 @@
         try {
           var raw = localStorage.getItem(USER_NAME_MAP_KEY) || sessionStorage.getItem(USER_NAME_MAP_KEY);
           var map = raw ? JSON.parse(raw) : {};
-          return map && typeof map[cleanEmail] === 'string' ? String(map[cleanEmail]).trim() : '';
+          var v = map && typeof map[cleanEmail] === 'string' ? String(map[cleanEmail]).trim() : '';
+          if (looksLikePhoneIdentifier(v)) return '';
+          return v;
         } catch (_err) {
           return '';
         }
+      }
+      function looksLikePhoneIdentifier(s) {
+        var t = String(s || '').replace(/[\s\-]/g, '');
+        if (!t) return false;
+        return /^\+?\d{10,15}$/.test(t) || /^09\d{9}$/.test(t) || /^639\d{9}$/.test(t) || /^63\d{10,12}$/.test(t);
       }
       function normalizeLoginId(raw) {
         var s = String(raw || '').trim();
@@ -510,6 +662,34 @@
         // If it looks like digits-only (e.g. 9920...), keep as-is.
         return s;
       }
+      function titleCaseDisplayName(raw) {
+        var s = String(raw == null ? '' : raw).trim();
+        if (!s) return '';
+        if (/_/.test(s) && !/\s/.test(s)) {
+          return s.split('_').filter(Boolean).map(function (w) {
+            return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+          }).join(' ');
+        }
+        return s.replace(/\b([a-zA-Z])([a-zA-Z']*)\b/g, function (_, a, rest) {
+          return a.toUpperCase() + (rest || '').toLowerCase();
+        });
+      }
+      function keyVariantsProfile(v) {
+        var out = [];
+        var k = String(v || '').trim().toLowerCase();
+        if (!k) return out;
+        out.push(k);
+        var d = k.replace(/\D/g, '');
+        if (d) {
+          if (d.indexOf('63') === 0 && d.length >= 12) out.push('0' + d.slice(2));
+          if (d.indexOf('0') === 0 && d.length >= 11) out.push('+63' + d.slice(1));
+          if (d.length === 10 && d.charAt(0) === '9') {
+            out.push('0' + d);
+            out.push('+63' + d);
+          }
+        }
+        return Array.from(new Set(out));
+      }
       function getRegisteredFarmerProfile(email) {
         var cleanEmail = String(email || '').trim().toLowerCase();
         // Per-account profile (preferred).
@@ -517,8 +697,13 @@
           try {
             var mapRaw = localStorage.getItem('beanthentic_farmer_profile_map') || sessionStorage.getItem('beanthentic_farmer_profile_map');
             var map = mapRaw ? JSON.parse(mapRaw) : null;
-            var prof = map && typeof map === 'object' ? map[cleanEmail] : null;
-            if (prof && typeof prof === 'object') return prof;
+            if (map && typeof map === 'object') {
+              var vk = keyVariantsProfile(cleanEmail);
+              for (var vi = 0; vi < vk.length; vi += 1) {
+                var prof = map[vk[vi]];
+                if (prof && typeof prof === 'object') return prof;
+              }
+            }
           } catch (_em) {}
         }
         var keys = ['beanthentic_farmer_profile', 'beanthentic_registered_farmer_profile'];
@@ -555,41 +740,110 @@
           var fpFirst = String(farmerProfile.first_name || '').trim();
           var fpLast = String(farmerProfile.last_name || '').trim();
           if (fpLast || fpFirst) {
-            farmerName = (fpLast + ', ' + fpFirst).replace(/^,\s*/, '').replace(/\s+,/g, ',').trim();
+            farmerName = (fpFirst + ' ' + fpLast).replace(/\s+/g, ' ').trim();
           } else {
             farmerName = fpName;
           }
         }
-        var rawName = knownName || farmerName || ((u.name && String(u.name).trim()) ? String(u.name).trim() : '');
-        var displayName = rawName || (email.split('@')[0] || 'Member');
+        /* Personal Information / farmer registration first — not sign-in phone as "name". */
+        var rawName = '';
+        if (farmerName && !looksLikePhoneIdentifier(farmerName)) rawName = farmerName;
+        else if (knownName && !looksLikePhoneIdentifier(knownName)) rawName = knownName;
+        else if (u.name && String(u.name).trim() && !looksLikePhoneIdentifier(u.name)) rawName = String(u.name).trim();
+        if (!rawName) rawName = email.split('@')[0] || 'Member';
+        if (looksLikePhoneIdentifier(rawName)) rawName = 'Member';
+        var displayName = titleCaseDisplayName(rawName);
         if (u.needs_registration) displayName = 'Member';
-        // If the "name" is actually a phone/number, don't show it as name.
-        if (/^\+?\d{8,}$/.test(displayName.replace(/\s/g, ''))) {
-          displayName = knownName || farmerName || 'Member';
-        }
 
-        // Prefer explicit phone fields; fall back to login identifier if it looks like a phone number.
-        var phoneRaw = String((farmerProfile && (farmerProfile.phone || farmerProfile.mobile)) || u.phone || u.mobile || '').trim();
+        var phoneRaw = String((farmerProfile && (farmerProfile.phone || farmerProfile.mobile)) || u.phone || u.mobile || u.phone_number || '').trim();
+        if (!phoneRaw) phoneRaw = normalizeLoginId(email) || '';
         if (!phoneRaw) {
           var maybePhone = email.split('@')[0];
-          if (/^\+?\d{10,14}$/.test(maybePhone) || /^09\d{9}$/.test(maybePhone)) phoneRaw = maybePhone;
+          if (/^\+?\d{10,14}$/.test(String(maybePhone).replace(/\s/g, '')) || /^09\d{9}$/.test(maybePhone)) phoneRaw = maybePhone;
         }
         var phone = formatPhoneDisplay(phoneRaw);
         var ini = document.getElementById('account-simple-initials');
         if (ini) ini.textContent = initialsFromName(displayName);
+        var photoRaw = String((farmerProfile && farmerProfile.profile_photo_data) || '').trim();
+        var photoEl = document.getElementById('account-simple-photo');
+        var avWrap = document.querySelector('.account-simple-avatar');
+        if (photoEl && avWrap) {
+          if (/^data:image\//i.test(photoRaw) || /^https?:\/\//i.test(photoRaw)) {
+            photoEl.src = photoRaw;
+            photoEl.removeAttribute('hidden');
+            avWrap.classList.add('has-photo');
+          } else {
+            try { photoEl.removeAttribute('src'); } catch (_rs) {}
+            photoEl.setAttribute('hidden', '');
+            avWrap.classList.remove('has-photo');
+          }
+        }
         var elName = document.getElementById('account-simple-name');
         if (elName) elName.textContent = displayName;
         var elPhone = document.getElementById('account-simple-phone');
         if (elPhone) elPhone.textContent = phone || '—';
         var qr = document.getElementById('account-qr-img');
+        var qrData = '';
         if (qr) {
-          var qrData = '';
+          // Fixed client website URL for Farmer Account QR (scan should open this directly).
+          qrData = 'http://192.168.100.252:5001/';
+          var qrImgUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=640x640&data=' + encodeURIComponent(qrData);
+          qr.src = qrImgUrl;
+          // Force real file download (WebView can display PNG, so we use download=1).
+          try { qr.dataset.downloadUrl = qrImgUrl + '&download=1'; } catch (_d) {}
+        }
+        var enlargeBtn = document.getElementById('account-qr-enlarge');
+        var qrWrap = document.getElementById('account-qr-wrap');
+        var qrDownload = document.getElementById('account-qr-download');
+
+        var enlargeLabel = document.getElementById('account-qr-enlarge-label');
+
+        function setQrExpanded(isExpanded) {
+          var expanded = !!isExpanded;
+          try { if (qrWrap) qrWrap.hidden = !expanded; } catch (_h2) {}
+          try { if (qrDownload) qrDownload.hidden = !expanded; } catch (_h3) {}
           try {
-            qrData = new URL('profile.php?name=' + encodeURIComponent(displayName) + '&email=' + encodeURIComponent(email), location.href).href;
-          } catch (_e) {
-            qrData = 'profile.php?name=' + encodeURIComponent(displayName) + '&email=' + encodeURIComponent(email);
-          }
-          qr.src = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=' + encodeURIComponent(qrData);
+            if (enlargeBtn) {
+              enlargeBtn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+              enlargeBtn.setAttribute('aria-label', expanded ? 'Hide QR' : 'Enlarge QR');
+            }
+          } catch (_a) {}
+          try { if (enlargeLabel) enlargeLabel.textContent = expanded ? 'Hide QR' : 'Enlarge QR'; } catch (_t) {}
+        }
+
+        // Default collapsed.
+        setQrExpanded(false);
+
+        if (enlargeBtn) {
+          enlargeBtn.addEventListener('click', function () {
+            var isExpanded = false;
+            try { isExpanded = enlargeBtn.getAttribute('aria-expanded') === 'true'; } catch (_r) {}
+            setQrExpanded(!isExpanded);
+            if (!isExpanded) {
+              try { (qrWrap || qr || enlargeBtn).scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (_siv) {}
+            }
+          });
+        }
+
+        if (qrDownload && qr) {
+          var filename = 'beanthentic-qr.png';
+          try {
+            var dl = (qr.dataset && qr.dataset.downloadUrl) ? qr.dataset.downloadUrl : (qr.src || '#');
+            qrDownload.setAttribute('href', dl);
+            qrDownload.setAttribute('download', filename);
+            qrDownload.setAttribute('rel', 'noopener');
+          } catch (_h) {}
+          qrDownload.addEventListener('click', function (e) {
+            if (!qr.src) {
+              e.preventDefault();
+              return;
+            }
+            // Ensure href points to the download=1 URL (so Android WebView treats it as a download).
+            try {
+              var href = (qr.dataset && qr.dataset.downloadUrl) ? qr.dataset.downloadUrl : qr.src;
+              qrDownload.setAttribute('href', href);
+            } catch (_s) {}
+          });
         }
         root.hidden = false;
       }

@@ -812,7 +812,7 @@
   border: 1px solid rgba(37, 103, 30, 0.18);
   padding: 0.85rem 0.75rem;
   position: sticky;
-  top: 74px;
+  top: calc(var(--beanthentic-fixed-topbar-h, 56px) + 0.75rem);
 }
 
 .about-menu-title {
@@ -3195,17 +3195,26 @@ body.home-register-gate-open {
   opacity: 0.92;
 }
 
-/* Global top-navbar lock: keep page headers pinned on scroll */
+/* Global top bar: fixed with layout.css header; reinforce hero variants */
 header.about-hero,
 header.hist-hero,
 header.mv-hero,
 header.msg-top,
-header.updates-topbar,
 header.reg-hero,
-.fr-reg-hero {
-  position: sticky !important;
+header:has(a.updates-topbar),
+header.fr-reg-hero {
+  position: fixed !important;
   top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  inset-inline: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
   z-index: 1200 !important;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .home-register-gate-btn:disabled {

@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#25671E" />
+  <script>window.__BEANTHENTIC_SESSION_GATE__ = 'protected';</script>
+  <script src="js/beanthentic_session_gate.js"></script>
   <title>History · Beanthentic Coffee</title>
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">
@@ -208,13 +210,13 @@
       width: 3rem;
       height: 3rem;
       border-radius: 999px;
-      background: linear-gradient(165deg, #6f4a2d 0%, #8b5a34 100%);
+      background: linear-gradient(165deg, #0f4a14 0%, #145218 42%, #1f8a2f 100%);
       display: inline-flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      box-shadow: 0 2px 10px rgba(87, 58, 36, 0.28);
-      border: 1px solid rgba(255, 255, 255, 0.22);
+      box-shadow: 0 2px 10px rgba(20, 82, 24, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.28);
       transition:
         transform 0.18s ease,
         box-shadow 0.18s ease,
@@ -252,8 +254,8 @@
     .hist-card:hover .hist-card-icon-ring,
     .hist-card:focus-visible .hist-card-icon-ring {
       transform: scale(1.06);
-      box-shadow: 0 4px 14px rgba(87, 58, 36, 0.38);
-      filter: brightness(1.06);
+      box-shadow: 0 4px 14px rgba(20, 82, 24, 0.45);
+      filter: brightness(1.08);
     }
     .hist-card:active {
       transform: translateY(0) scale(0.985);

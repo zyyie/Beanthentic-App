@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#25671E" />
+  <script>window.__BEANTHENTIC_SESSION_GATE__ = 'protected';</script>
+  <script src="js/beanthentic_session_gate.js"></script>
   <title>Liberica · History · Beanthentic</title>
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">

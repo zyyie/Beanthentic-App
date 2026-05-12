@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/responsive.css">
+  <script id="beanthentic-fixed-topbar-js" src="js/beanthentic_fixed_topbar.js" defer></script>
   <style>
     body {
       background: #fff;
@@ -17,7 +18,8 @@
     .about-hero {
       background: linear-gradient(160deg, #1c6f20 0%, #0f4a15 100%);
       border-radius: 0 0 16px 16px;
-      padding: 1.75rem 1rem 1.6rem;
+      padding: calc(env(safe-area-inset-top, 0px) + 0.72rem) max(1rem, env(safe-area-inset-right, 0px)) 0.75rem
+        max(1rem, env(safe-area-inset-left, 0px));
       color: #fff;
     }
     .about-hero-row {
@@ -25,7 +27,7 @@
       align-items: center;
       justify-content: center;
       position: relative;
-      min-height: 42px;
+      min-height: 44px;
     }
     .about-nav-back {
       position: absolute;
@@ -43,7 +45,7 @@
     .about-nav-back svg { width: 18px; height: 18px; }
     .about-nav-title {
       margin: 0;
-      font-size: clamp(1.35rem, 4.4vw, 1.7rem);
+      font-size: clamp(1.18rem, 3.9vw, 1.55rem);
       font-weight: 800;
       line-height: 1;
       letter-spacing: 0.02em;
@@ -88,11 +90,14 @@
     }
     .about-image-slot {
       width: 100%;
-      aspect-ratio: 16 / 10;
-      min-height: 220px;
+      max-width: min(100%, 580px);
+      margin-left: auto;
+      margin-right: auto;
+      aspect-ratio: 16 / 9;
       border-radius: 14px;
       background: #ececec;
-      margin: 0.7rem 0 0.75rem;
+      margin-top: 0.7rem;
+      margin-bottom: 0.75rem;
       overflow: hidden;
       position: relative;
     }
@@ -233,8 +238,7 @@
         padding: 1.4rem 1rem 1.55rem;
       }
       .about-image-slot {
-        min-height: 260px;
-        aspect-ratio: 16 / 9;
+        max-width: min(100%, 680px);
       }
       .about-desc {
         font-size: 1.02rem;
@@ -262,16 +266,20 @@
     </p>
 
     <div class="about-image-slot" aria-label="About slideshow">
-      <img class="about-slide is-active" src="https://images.unsplash.com/photo-1442512595331-e89e73853f31?auto=format&fit=crop&w=1200&q=70" alt="Coffee beans photo 1" loading="lazy" referrerpolicy="no-referrer">
-      <img class="about-slide" src="https://images.unsplash.com/photo-1459755486867-b55449bb39ff?auto=format&fit=crop&w=1200&q=70" alt="Coffee beans photo 2" loading="lazy" referrerpolicy="no-referrer">
-      <img class="about-slide" src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=1200&q=70" alt="Coffee beans photo 3" loading="lazy" referrerpolicy="no-referrer">
-      <img class="about-slide" src="https://images.unsplash.com/photo-1512568400610-62da28bc8a13?auto=format&fit=crop&w=1200&q=70" alt="Coffee beans photo 4" loading="lazy" referrerpolicy="no-referrer">
+      <img class="about-slide is-active" src="about/about-slide-1.png" alt="Espresso cup on a wooden table" width="900" height="1200" loading="lazy" decoding="async">
+      <img class="about-slide" src="about/about-slide-2.png" alt="Authentic Lipa Liberica coffee sacks and packaged beans" width="900" height="1200" loading="lazy" decoding="async">
+      <img class="about-slide" src="about/about-slide-3.png" alt="Hand picking ripe coffee cherries on the tree" width="900" height="1200" loading="lazy" decoding="async">
+      <img class="about-slide" src="about/about-slide-4.png" alt="Unroasted coffee beans spread on a woven mat" width="900" height="1200" loading="lazy" decoding="async">
+      <img class="about-slide" src="about/about-slide-5.png" alt="Roasted and unroasted coffee beans" width="900" height="1200" loading="lazy" decoding="async">
+      <img class="about-slide" src="about/about-slide-6.png" alt="Farmer harvesting coffee in the plantation" width="900" height="1200" loading="lazy" decoding="async">
     </div>
     <div class="about-dots" aria-hidden="true">
-      <span class="about-dot" data-slide-dot="0"></span>
-      <span class="about-dot active" data-slide-dot="1"></span>
+      <span class="about-dot active" data-slide-dot="0"></span>
+      <span class="about-dot" data-slide-dot="1"></span>
       <span class="about-dot" data-slide-dot="2"></span>
       <span class="about-dot" data-slide-dot="3"></span>
+      <span class="about-dot" data-slide-dot="4"></span>
+      <span class="about-dot" data-slide-dot="5"></span>
     </div>
 
     <p class="about-desc">

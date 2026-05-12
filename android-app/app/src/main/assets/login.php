@@ -4,8 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#143d22" />
+  <script>window.__BEANTHENTIC_SESSION_GATE__ = 'guest';</script>
+  <script src="js/beanthentic_session_gate.js"></script>
   <script>
-    // Guest-only page guard: if already signed in, never stay on login page.
     (function () {
       function parseUser(raw) {
         if (!raw) return null;
@@ -16,32 +17,18 @@
         return null;
       }
       try {
-        var localUser = parseUser(localStorage.getItem('beanthentic_user'));
-        var sessionUser = parseUser(sessionStorage.getItem('beanthentic_user'));
-        var user = localUser || sessionUser;
-        if (user) {
-          try {
-            localStorage.setItem('beanthentic_user', JSON.stringify(user));
-            sessionStorage.setItem('beanthentic_user', JSON.stringify(user));
-          } catch (_syncErr) {}
-          window.location.replace('account.php');
-          return;
-        }
-        var hasLang = false;
-        try {
-          hasLang = !!(
-            localStorage.getItem('beanthentic_app_lang') ||
-            sessionStorage.getItem('beanthentic_app_lang')
-          );
-        } catch (_langRead) {
-          hasLang = true;
-        }
+        var u =
+          parseUser(localStorage.getItem('beanthentic_user')) ||
+          parseUser(sessionStorage.getItem('beanthentic_user'));
+        if (u) return;
+        var hasLang = !!(
+          localStorage.getItem('beanthentic_app_lang') ||
+          sessionStorage.getItem('beanthentic_app_lang')
+        );
         if (!hasLang) {
           window.location.replace('choose_language.html?next=login.php');
         }
-      } catch (_e) {
-        /* stay on page if storage is unavailable */
-      }
+      } catch (_e) {}
     })();
   </script>
   <title>Sign in · Beanthentic Coffee</title>
@@ -323,27 +310,60 @@
       function canUseServerAuth() {
         return typeof location !== 'undefined' && (location.protocol === 'http:' || location.protocol === 'https:');
       }
+      /** Same folder / LAN / XAMPP path guesses for api/login.php / api/signup.php (inline so it works even if /js/ is missing). */
+      function beanthenticPhpApiUrlCandidates(apiScript) {
+        var out = [];
+        var apiPath = 'api/' + apiScript;
+        function pushU(u) {
+          var s = String(u || '').trim();
+          if (!s) return;
+          if (out.indexOf(s) < 0) out.push(s);
+        }
+        var o = '';
+        try {
+          o = (location.origin || '').replace(/\/+$/, '');
+        } catch (_o) {}
+        var p = '';
+        try {
+          p = location.pathname || '';
+        } catch (_p2) {}
+        try {
+          var custom = localStorage.getItem('beanthentic_api_base') || sessionStorage.getItem('beanthentic_api_base');
+          if (custom && String(custom).trim()) {
+            var b = String(custom).trim().replace(/\/+$/, '');
+            if (/\/api$/i.test(b)) b = b.replace(/\/api$/i, '');
+            if (b) pushU(b + '/' + apiPath);
+          }
+        } catch (_c) {}
+        try {
+          pushU(new URL(apiPath, location.href).href);
+        } catch (_e0) {}
+        try {
+          var dir = new URL('.', location.href).href.replace(/\/+$/, '');
+          if (dir) pushU(dir + '/' + apiPath);
+        } catch (_e1) {}
+        var pl = p.toLowerCase();
+        ['/android-app/app/src/main/assets/', '/beanthentic-app/android-app/app/src/main/assets/', '/app/src/main/assets/', '/src/main/assets/'].forEach(function (key) {
+          var ix = pl.indexOf(key);
+          if (ix >= 0) pushU(o + p.substring(0, ix + key.length - 1) + '/' + apiPath);
+        });
+        var ixA = pl.lastIndexOf('/assets/');
+        if (ixA >= 0) pushU(o + p.substring(0, ixA + '/assets'.length) + '/' + apiPath);
+        ['android-app/app/src/main/assets', 'Beanthentic-App/android-app/app/src/main/assets', 'beanthentic-app/android-app/app/src/main/assets', 'main/assets', 'app/src/main/assets', 'assets'].forEach(function (rel) {
+          try {
+            pushU(new URL(rel + '/' + apiPath, o + '/').href);
+          } catch (_x) {}
+        });
+        try {
+          pushU(o + '/' + apiPath);
+        } catch (_y) {}
+        pushU('http://localhost/Beanthentic-App/android-app/app/src/main/assets/' + apiPath);
+        pushU('http://127.0.0.1/Beanthentic-App/android-app/app/src/main/assets/' + apiPath);
+        return out;
+      }
       function loginApiCandidates() {
         if (!canUseServerAuth()) return [];
-        var candidates = [];
-        function pushUrl(v) {
-          var s = String(v || '').trim();
-          if (!s) return;
-          if (candidates.indexOf(s) < 0) candidates.push(s);
-        }
-        try {
-          var customBase = localStorage.getItem('beanthentic_api_base') || sessionStorage.getItem('beanthentic_api_base');
-          if (customBase && String(customBase).trim()) {
-            var b = String(customBase).replace(/\/$/, '');
-            pushUrl(b + '/login.php');
-          }
-        } catch (_e0) {}
-        try { pushUrl(new URL('api/login.php', location.href).href); } catch (_e1) {}
-        try { pushUrl((location.origin || '').replace(/\/$/, '') + '/api/login.php'); } catch (_e2) {}
-        // Common XAMPP path if project is under htdocs/Beanthentic-App
-        pushUrl('http://localhost/Beanthentic-App/android-app/app/src/main/assets/api/login.php');
-        pushUrl('http://127.0.0.1/Beanthentic-App/android-app/app/src/main/assets/api/login.php');
-        return candidates;
+        return beanthenticPhpApiUrlCandidates('login.php');
       }
       function postJson(url, payload) {
         return fetch(url, {
@@ -455,7 +475,8 @@
           var rememberEl = document.getElementById('login-remember');
           var remember = rememberEl ? !!rememberEl.checked : true;
 
-          function finishLogin(nameFromRecord) {
+          function finishLogin(nameFromRecord, apiUser) {
+            apiUser = apiUser || {};
             var savedName = getKnownUserName(loginId);
             var name = String(nameFromRecord || '').trim() || savedName;
             if (!name) {
@@ -472,6 +493,9 @@
             try {
               var user = {
                 email: loginId,
+                phone_number: String(apiUser.phone_number || (loginId.indexOf('@') < 0 ? loginId : '') || ''),
+                user_id: apiUser.user_id != null ? apiUser.user_id : undefined,
+                farmer_id: apiUser.farmer_id != null ? apiUser.farmer_id : undefined,
                 name: isNewUser ? '' : name,
                 needs_registration: isNewUser ? true : false,
                 signedInAt: Date.now()
@@ -481,6 +505,11 @@
               sessionStorage.setItem('beanthentic_user', payload);
               if (remember) localStorage.setItem('beanthentic_user', payload);
               else localStorage.removeItem('beanthentic_user');
+              try {
+                var apiRoot = new URL('.', location.href).href.replace(/\/+$/, '');
+                localStorage.setItem('beanthentic_api_base', apiRoot);
+                sessionStorage.setItem('beanthentic_api_base', apiRoot);
+              } catch (_apiRoot) {}
             } catch (_set) {}
             var isRegistered = hasRegisteredFarmFor(loginId);
             var nextDest = isRegistered ? 'index.php#home' : 'tutorial.php?new_user=1';
@@ -506,17 +535,14 @@
           if (canUseServerAuth()) {
             loginViaApi(loginId, pwVal).then(function (out) {
               if (out && out.skipped) {
-                // Fallback for non-PHP servers (e.g., Flask static serving).
-                var localRecord = getRegisteredRecord(loginId);
-                if (!localRecord) {
-                  showLoginNotice('This account is not registered yet. Please sign up first before logging in.');
-                  return;
-                }
-                if (pwVal !== localRecord.password) {
-                  showLoginNotice('Incorrect password. Please try again.');
-                  return;
-                }
-                finishLogin('');
+                var locHint = '';
+                try {
+                  locHint = ' Current URL: ' + String(location.href || '').split('?')[0];
+                } catch (_lh) {}
+                showLoginNotice(
+                  'Cannot reach the login API (PHP). Use the same host/path as this page (e.g. .../assets/api/login.php), start Apache + MySQL, and import the Beanthentic database.' +
+                    locHint
+                );
                 return;
               }
               if (!out || !out.ok) {
@@ -525,7 +551,7 @@
                 return;
               }
               var apiName = out.user && out.user.name ? String(out.user.name) : '';
-              finishLogin(apiName);
+              finishLogin(apiName, out.user || {});
             });
             return;
           }
@@ -539,7 +565,7 @@
             showLoginNotice('Incorrect password. Please try again.');
             return;
           }
-          finishLogin('');
+          finishLogin('', {});
         });
       });
     })();

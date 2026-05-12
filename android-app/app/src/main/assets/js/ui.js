@@ -443,7 +443,7 @@ class UIController {
     window.addEventListener('popstate', syncAppBottomNavActive);
     window.addEventListener('beanthentic-auth-changed', syncAuthNavigationLinks);
     window.addEventListener('storage', (e) => {
-      if (e && e.key === BEANTHENTIC_FARMER_ID_KEY) syncRegisterNavIconState();
+      if (e && (e.key === BEANTHENTIC_FARMER_ID_KEY || e.key === 'beanthentic_farmer_id_map')) syncRegisterNavIconState();
     });
   }
 

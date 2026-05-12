@@ -9,11 +9,9 @@
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/responsive.css">
+  <script id="beanthentic-fixed-topbar-js" src="js/beanthentic_fixed_topbar.js" defer></script>
   <style>
     .privacy-page header {
-      position: sticky;
-      top: 0;
-      z-index: 30;
       background: linear-gradient(180deg, #1d7a2a 0%, #145e1e 100%);
       border-bottom: none;
       border-radius: 0 0 16px 16px;
@@ -51,8 +49,8 @@
       text-align: center;
       white-space: nowrap;
     }
-    .privacy-nav-title .privacy-part { color: #c8f5c9; }
-    .privacy-nav-title .notice-part { color: #f5e6d8; }
+    .privacy-nav-title .privacy-part { color: #ffffff; }
+    .privacy-nav-title .notice-part { color: #ffffff; }
   </style>
 </head>
 <body class="has-app-bottom-nav privacy-page">

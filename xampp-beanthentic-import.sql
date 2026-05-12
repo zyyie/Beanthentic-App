@@ -23,17 +23,20 @@ DROP TABLE IF EXISTS farmers;
 DROP TABLE IF EXISTS users;
 SET FOREIGN_KEY_CHECKS = 1;
 
+-- Login/signup use: phone_number (E.164 +639…), optional email, username = display full name.
 CREATE TABLE users (
   user_id            BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  username           VARCHAR(100) NULL,
-  email              VARCHAR(191) NULL UNIQUE,
-  phone_number       VARCHAR(20) NOT NULL UNIQUE,
+  phone_number       VARCHAR(32) NOT NULL COMMENT 'E.164 e.g. +639XXXXXXXXX',
+  email              VARCHAR(191) NULL DEFAULT NULL,
+  username           VARCHAR(150) NULL COMMENT 'Display / full name',
   password_hash      VARCHAR(255) NOT NULL,
   role               ENUM('farmer','client') NOT NULL DEFAULT 'farmer',
   is_active          TINYINT(1) NOT NULL DEFAULT 1,
   last_login_at      DATETIME NULL,
   created_at         DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at         DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  updated_at         DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_users_phone (phone_number),
+  UNIQUE KEY uq_users_email (email)
 ) ENGINE=InnoDB;
 
 CREATE TABLE farmers (

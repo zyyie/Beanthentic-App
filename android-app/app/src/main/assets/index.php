@@ -4,37 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#25671E" />
-  <script>
-    // Auth gate: redirect guests before homepage renders (prevents flicker).
-    (function () {
-      function parseUser(raw) {
-        if (!raw) return null;
-        try {
-          var u = JSON.parse(raw);
-          return (u && u.email) ? u : null;
-        } catch (_err) {
-          return null;
-        }
-      }
-      try {
-        var localUser = parseUser(localStorage.getItem('beanthentic_user'));
-        if (localUser) {
-          try { sessionStorage.setItem('beanthentic_user', JSON.stringify(localUser)); } catch (_err2) {}
-          return;
-        }
-        var sessionUser = parseUser(sessionStorage.getItem('beanthentic_user'));
-        if (sessionUser) {
-          try { localStorage.setItem('beanthentic_user', JSON.stringify(sessionUser)); } catch (_err3) {}
-          return;
-        }
-        if (!sessionUser) {
-          window.location.replace('login.php');
-        }
-      } catch (e) {
-        window.location.replace('login.php');
-      }
-    })();
-  </script>
+  <script>window.__BEANTHENTIC_SESSION_GATE__ = 'protected';</script>
+  <script src="js/beanthentic_session_gate.js"></script>
   <title>Beanthentic Coffee</title>
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">
@@ -51,18 +22,21 @@
       animation: coffeeJump 0.9s ease-in-out infinite;
       transform-origin: center;
     }
-    /* Homepage top bar format */
+    /* Homepage top bar format — compact bar (logo drives height); keep notch inset */
     .home-page header {
       background: linear-gradient(165deg, #0f5f16 0%, #0b4d12 100%);
       border-radius: 0 0 22px 22px;
-      padding: 0.28rem 0.95rem 0.22rem;
+      padding: calc(env(safe-area-inset-top, 0px) + 0.14rem) max(0.75rem, env(safe-area-inset-right, 0px)) 0.12rem
+        max(0.75rem, env(safe-area-inset-left, 0px));
       box-shadow: 0 8px 18px rgba(15, 77, 18, 0.24);
     }
     .home-page .nav {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 0.8rem;
+      gap: 0.65rem;
+      padding: 0;
+      min-height: 0;
     }
     .home-page .nav-logo-wrap { margin: 0; }
     .home-page .logo {
@@ -73,12 +47,14 @@
       color: #fff;
     }
     .home-page .logo-mark {
-      width: 108px;
-      height: 108px;
+      width: 96px;
+      height: 96px;
       border-radius: 0;
       background: transparent;
       object-fit: contain;
       padding: 0;
+      transform: none !important;
+      animation: none;
     }
     .home-page .home-brand-text {
       font-size: 2.25rem;
@@ -96,8 +72,8 @@
     }
     .home-page .header-notifications-btn,
     .home-page .home-account-btn {
-      width: 40px;
-      height: 40px;
+      width: 36px;
+      height: 36px;
       border-radius: 999px;
       border: none;
       background: #ffffff;
@@ -110,8 +86,8 @@
     }
     .home-page .header-notifications-icon,
     .home-page .home-account-btn svg {
-      width: 20px;
-      height: 20px;
+      width: 18px;
+      height: 18px;
     }
     .home-page .home-top-meta {
       max-width: 980px;
@@ -302,9 +278,9 @@
         <circle cx="12" cy="10" r="2.5"></circle>
       </svg>
       <span>CITY OF LIPA, BATANGAS</span>
-    </div>
+              </div>
     <div class="home-top-meta-date" id="homeTopMetaDate">Sat - May 23, 2026 · 08:00 AM</div>
-  </div>
+              </div>
 
   <main class="home-mobile-layout">
     <section id="home" class="home-mobile-shell">
@@ -406,7 +382,7 @@
           </span>
           <span>Messages</span>
         </a>
-      </div>
+            </div>
 
       <section class="home-mobile-story">
         <h1 class="home-mobile-story-title">The Story Behind <span>Beanthentic</span></h1>

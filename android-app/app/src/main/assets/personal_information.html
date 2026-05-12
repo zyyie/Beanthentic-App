@@ -9,12 +9,10 @@
   <link rel="stylesheet" href="css/layout.css" />
   <link rel="stylesheet" href="css/components.css" />
   <link rel="stylesheet" href="css/responsive.css" />
+  <script id="beanthentic-fixed-topbar-js" src="js/beanthentic_fixed_topbar.js" defer></script>
   <style>
     body.pi-page { margin: 0; background: #f3f8ff; }
     .pi-page header {
-      position: sticky;
-      top: 0;
-      z-index: 30;
       background: linear-gradient(180deg, #1d7a2a 0%, #145e1e 100%);
       border-radius: 0 0 16px 16px;
       padding-top: env(safe-area-inset-top);
@@ -67,6 +65,39 @@
       padding: 0.68rem 1rem;
       min-height: 430px;
     }
+    .pi-avatar-wrap {
+      display: flex;
+      justify-content: center;
+      padding: 0.35rem 0 0.85rem;
+    }
+    .pi-avatar {
+      width: 112px;
+      height: 112px;
+      border-radius: 999px;
+      background: #d4d4d4;
+      display: grid;
+      place-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .pi-avatar-photo {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 999px;
+      z-index: 1;
+    }
+    .pi-avatar-initials {
+      font-size: 2rem;
+      font-weight: 800;
+      color: rgba(17, 24, 39, 0.45);
+      letter-spacing: 0.03em;
+    }
+    .pi-avatar.has-photo .pi-avatar-initials {
+      opacity: 0;
+    }
     .pi-row { padding: 1.05rem 0.2rem 1rem; border-bottom: 1px solid rgba(17, 24, 39, 0.12); }
     .pi-row:last-child { border-bottom: none; }
     .pi-label { margin: 0 0 0.22rem; color: #4b5563; font-size: 0.95rem; line-height: 1.22; }
@@ -85,6 +116,12 @@
 
   <main class="pi-main">
     <section class="pi-card" aria-label="Personal Information Details">
+      <div class="pi-avatar-wrap">
+        <div class="pi-avatar" id="pi-avatar" aria-hidden="true">
+          <img id="pi-photo" class="pi-avatar-photo" alt="" width="112" height="112" hidden decoding="async" />
+          <span id="pi-initials" class="pi-avatar-initials">—</span>
+        </div>
+      </div>
       <div class="pi-row">
         <p class="pi-label">Full Name</p>
         <p class="pi-value" id="pi-full-name">—</p>
@@ -123,7 +160,35 @@
           return map && typeof map[cleanEmail] === 'string' ? String(map[cleanEmail]).trim() : '';
         } catch (_err) { return ''; }
       }
-      function getFarmerProfile() {
+      function keyVariants(v) {
+        var out = [];
+        var k = String(v || '').trim().toLowerCase();
+        if (!k) return out;
+        out.push(k);
+        var d = k.replace(/\D/g, '');
+        if (d) {
+          if (d.indexOf('63') === 0 && d.length >= 12) out.push('0' + d.slice(2));
+          if (d.indexOf('0') === 0 && d.length >= 11) out.push('+63' + d.slice(1));
+          if (d.length === 10 && d.charAt(0) === '9') {
+            out.push('0' + d);
+            out.push('+63' + d);
+          }
+        }
+        return Array.from(new Set(out));
+      }
+      function pickFarmerProfile() {
+        try {
+          var u = getUser();
+          var key = u && u.email ? String(u.email).trim().toLowerCase() : '';
+          var rawMap = localStorage.getItem('beanthentic_farmer_profile_map') || sessionStorage.getItem('beanthentic_farmer_profile_map');
+          var map = rawMap ? JSON.parse(rawMap) : null;
+          if (key && map && typeof map === 'object') {
+            var keys = keyVariants(key);
+            for (var i = 0; i < keys.length; i += 1) {
+              if (map[keys[i]] && typeof map[keys[i]] === 'object') return map[keys[i]];
+            }
+          }
+        } catch (_e0) {}
         try {
           var raw = localStorage.getItem('beanthentic_farmer_profile') || sessionStorage.getItem('beanthentic_farmer_profile');
           if (!raw) return null;
@@ -140,9 +205,15 @@
         if (s.startsWith('09') && s.length === 11) return '+63' + s.slice(1);
         return s;
       }
+      function initialsFromName(name) {
+        var parts = String(name || '').trim().split(/\s+/).filter(Boolean);
+        if (parts.length >= 2) return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+        if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+        return '—';
+      }
       function render() {
         var u = getUser() || {};
-        var p = getFarmerProfile() || {};
+        var p = pickFarmerProfile() || {};
         var email = String(u.email || '').trim();
         var fullFromFarmer = String(p.name || '').trim();
         if (!fullFromFarmer) {
@@ -157,13 +228,36 @@
           var maybe = email.split('@')[0] || '';
           if (/^\+?\d{10,14}$/.test(maybe) || /^09\d{9}$/.test(maybe)) phone = formatPhone(maybe);
         }
-        var address = String(p.address || p.current_address || p.location || p.barangay || u.address || u.current_address || u.location || '').trim() || '—';
+        var address = String(p.address || p.current_address || p.location || '').trim();
+        if (!address && (p.barangay || p.municipality || p.province)) {
+          address = [String(p.barangay || '').trim(), String(p.municipality || '').trim(), String(p.province || '').trim()]
+            .filter(Boolean)
+            .join(', ');
+        }
+        if (!address) address = String(u.address || u.current_address || u.location || '').trim() || '—';
         var elName = document.getElementById('pi-full-name');
         var elPhone = document.getElementById('pi-phone');
         var elAddress = document.getElementById('pi-address');
         if (elName) elName.textContent = name;
         if (elPhone) elPhone.textContent = phone || '—';
         if (elAddress) elAddress.textContent = address;
+
+        var iniEl = document.getElementById('pi-initials');
+        var photoEl = document.getElementById('pi-photo');
+        var avEl = document.getElementById('pi-avatar');
+        if (iniEl) iniEl.textContent = initialsFromName(name);
+        var photoRaw = String((p.profile_photo_data || '')).trim();
+        if (photoEl && avEl) {
+          if (/^data:image\//i.test(photoRaw) || /^https?:\/\//i.test(photoRaw)) {
+            photoEl.src = photoRaw;
+            photoEl.removeAttribute('hidden');
+            avEl.classList.add('has-photo');
+          } else {
+            try { photoEl.removeAttribute('src'); } catch (_r) {}
+            photoEl.setAttribute('hidden', '');
+            avEl.classList.remove('has-photo');
+          }
+        }
       }
       var backBtn = document.getElementById('pi-header-back');
       if (backBtn) {

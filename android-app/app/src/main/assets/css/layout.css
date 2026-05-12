@@ -13,12 +13,47 @@
 }
 
 header {
-  position: sticky;
+  position: fixed;
   top: 0;
-  z-index: 30;
+  left: 0;
+  right: 0;
+  inset-inline: 0;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  box-sizing: border-box;
+  z-index: 1200;
   background: linear-gradient(180deg, var(--navbar-bg) 0%, var(--navbar-bg-shade) 100%);
   border-bottom: 1px solid var(--navbar-border);
   padding-top: env(safe-area-inset-top);
+  padding-left: 0;
+  padding-right: 0;
+  /* Stable compositing layer — avoids subpixel “nudge” on some WebViews while scrolling */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* js/beanthentic_fixed_topbar.js sets --beanthentic-fixed-topbar-h and these classes */
+html.beanthentic-fixed-topbar-active {
+  scroll-padding-top: var(--beanthentic-fixed-topbar-h, 0px);
+}
+
+body.beanthentic-fixed-topbar-active {
+  padding-top: var(--beanthentic-fixed-topbar-h, 0px);
+}
+
+/* Keep vertical document scroll working in WebView: avoid overflow-x on html (breaks some Android WebViews). */
+html {
+  max-width: 100%;
+  overscroll-behavior: none;
+}
+
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: none;
 }
 
 .nav {
@@ -477,7 +512,7 @@ body.beanthentic-about-only .about-topic[id] {
 
 .home-sidebar {
   position: sticky;
-  top: 52px;
+  top: var(--beanthentic-fixed-topbar-h, 52px);
   width: auto;
   transform: none;
   pointer-events: auto;
@@ -1483,6 +1518,17 @@ body.has-app-bottom-nav {
 
 #nav-register.is-register-complete .app-bottom-nav-register-svg--complete {
   display: block !important;
+  stroke: #ffffff !important;
+}
+
+/* Registered: green featured button + white shield/check */
+#nav-register.is-register-complete .app-bottom-nav-icon-wrap {
+  background: linear-gradient(165deg, #2f9f3a 0%, #1c5216 100%) !important;
+  box-shadow: 0 6px 16px rgba(20, 94, 30, 0.42);
+}
+
+#nav-register.is-register-complete .app-bottom-nav-register-svg--complete path {
+  stroke: #ffffff !important;
 }
 
 .app-bottom-nav-link--featured .app-bottom-nav-icon {

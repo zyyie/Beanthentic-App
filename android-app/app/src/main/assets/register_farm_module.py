@@ -110,6 +110,20 @@ def _plant_area_to_hectares(amount, unit):
     return amount
 
 
+def _sanitize_profile_photo_data(data):
+    """Persist registration photo as a data URL in SQLite (bounded size)."""
+    if not isinstance(data, dict):
+        return ""
+    raw = (data.get("profile_photo_data") or "").strip()
+    if not raw:
+        return ""
+    if len(raw) > 2_500_000:
+        raw = raw[:2_500_000]
+    if raw.startswith("data:image/"):
+        return raw
+    return ""
+
+
 def validate_farmer_payload(data):
     errors = {}
     if not isinstance(data, dict):
@@ -196,6 +210,7 @@ def validate_farmer_payload(data):
             "plant_area_unit": "",
             "trees_json": "{}",
             "production_json": "{}",
+            "profile_photo_data": "",
         }, {}
 
     last_name = (data.get("last_name") or "").strip()
@@ -364,6 +379,7 @@ def validate_farmer_payload(data):
         "plant_area_unit": plant_area_unit,
         "trees_json": trees_json,
         "production_json": production_json,
+        "profile_photo_data": _sanitize_profile_photo_data(data),
     }, {}
 
 
@@ -523,6 +539,7 @@ class RegisterFarmModule:
                     plant_area_unit TEXT NOT NULL DEFAULT '',
                     trees_json TEXT NOT NULL DEFAULT '{}',
                     production_json TEXT NOT NULL DEFAULT '{}',
+                    profile_photo_data TEXT NOT NULL DEFAULT '',
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
@@ -604,6 +621,7 @@ class RegisterFarmModule:
                 ("plant_area_unit", "TEXT NOT NULL DEFAULT ''"),
                 ("trees_json", "TEXT NOT NULL DEFAULT '{}'"),
                 ("production_json", "TEXT NOT NULL DEFAULT '{}'"),
+                ("profile_photo_data", "TEXT NOT NULL DEFAULT ''"),
             ]
             for cn, decl in extra_cols:
                 if cn not in cols:
@@ -613,49 +631,6 @@ class RegisterFarmModule:
     
     def setup_routes(self):
         """Setup API routes for Register Farm module"""
-        
-        @self.app.route('/api/register-farm/farmers', methods=['POST'])
-        def register_farmer():
-            data = request.get_json(silent=True)
-            cleaned, errs = validate_farmer_payload(data)
-            if errs:
-                return jsonify({'success': False, 'errors': errs}), 400
-            try:
-                conn = sqlite3.connect(REGISTER_DB_PATH)
-                cursor = conn.cursor()
-                cursor.execute('''
-                    INSERT INTO farmers (
-                        name, email, phone, region, province, municipality, barangay, farm_address, farm_size,
-                        first_name, last_name, federation, association, rsbsa_registered, rsbsa_number,
-                        ownership_status, plant_area_value, plant_area_unit, trees_json, production_json
-                    )
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                ''', (
-                    cleaned['name'], cleaned['email'], cleaned['phone'],
-                    cleaned['region'], cleaned['province'], cleaned['municipality'],
-                    cleaned['barangay'],
-                    cleaned['farm_address'], cleaned['farm_size'],
-                    cleaned['first_name'], cleaned['last_name'],
-                    cleaned['federation'], cleaned['association'],
-                    cleaned['rsbsa_registered'], cleaned['rsbsa_number'],
-                    cleaned['ownership_status'], cleaned['plant_area_value'],
-                    cleaned['plant_area_unit'], cleaned['trees_json'], cleaned['production_json'],
-                ))
-                farmer_id = cursor.lastrowid
-                conn.commit()
-                conn.close()
-                return jsonify({
-                    'success': True,
-                    'farmer_id': farmer_id,
-                    'message': 'Farmer registered successfully',
-                })
-            except sqlite3.IntegrityError:
-                return jsonify({
-                    'success': False,
-                    'errors': {'email': 'This email is already registered.'},
-                }), 400
-            except Exception as e:
-                return jsonify({'success': False, 'errors': {'_error': str(e)}}), 400
         
         @self.app.route('/api/register-farm/applications', methods=['POST'])
         def submit_gi_application():
@@ -815,6 +790,10 @@ class RegisterFarmModule:
 
                 trees = _safe_json(row['trees_json'], {})
                 production = _safe_json(row['production_json'], {})
+                try:
+                    photo_raw = (row['profile_photo_data'] or '').strip()
+                except (KeyError, IndexError):
+                    photo_raw = ''
                 profile = {
                     'id': row['id'],
                     'name': row['name'] or '',
@@ -838,6 +817,7 @@ class RegisterFarmModule:
                     'tree_counts': trees if isinstance(trees, dict) else {},
                     'production': production if isinstance(production, dict) else {},
                     'production_year': '2026',
+                    'profile_photo_data': photo_raw,
                 }
                 return jsonify({'success': True, 'found': True, 'profile': profile})
             except Exception as e:
@@ -865,6 +845,7 @@ class RegisterFarmModule:
     <link rel="stylesheet" href="/css/layout.css">
     <link rel="stylesheet" href="/css/components.css">
     <link rel="stylesheet" href="/css/responsive.css">
+    <script id="beanthentic-fixed-topbar-js" src="/js/beanthentic_fixed_topbar.js" defer></script>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
     <style>
         * {
@@ -892,8 +873,10 @@ class RegisterFarmModule:
             display: block;
             overflow-y: auto;
             overflow-x: hidden;
-            /* Flush green header to top of viewport (safe area handled inside .fr-reg-hero) */
             padding-top: 0 !important;
+        }
+        body.register-farm-flow.beanthentic-fixed-topbar-active {
+            padding-top: var(--beanthentic-fixed-topbar-h, 0px) !important;
         }
         body.register-farm-flow.has-app-bottom-nav {
             padding-bottom: 0 !important;
@@ -933,7 +916,6 @@ class RegisterFarmModule:
             color: #fff;
             box-shadow: 0 8px 24px rgba(20, 82, 24, 0.22);
             flex-shrink: 0;
-            position: relative;
             z-index: 8;
             width: 100%;
         }
@@ -1643,6 +1625,71 @@ class RegisterFarmModule:
             margin: 2.1rem 0 1.05rem;
             letter-spacing: -0.01em;
         }
+        /* Profile preview on step 1 — mirrors photo chosen on Profile Picture step */
+        .fr-hero-avatar-wrap {
+            display: flex;
+            justify-content: center;
+            padding: 0.15rem 0 0.35rem;
+        }
+        .fr-hero-avatar-btn {
+            border: 0;
+            padding: 0;
+            margin: 0;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 999px;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .fr-hero-avatar-btn:focus-visible {
+            outline: 2px solid #1b5e20;
+            outline-offset: 3px;
+        }
+        .fr-hero-avatar-btn:active .fr-hero-avatar {
+            transform: scale(0.97);
+        }
+        .fr-hero-avatar {
+            width: min(28vw, 112px);
+            height: min(28vw, 112px);
+            border-radius: 999px;
+            background: #e5e7eb;
+            border: 1px solid #d1d5db;
+            display: grid;
+            place-items: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 1px 4px rgba(15, 23, 42, 0.08);
+            transition: transform 0.15s ease;
+        }
+        .fr-hero-avatar-img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 999px;
+            z-index: 1;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .fr-hero-avatar.has-photo .fr-hero-avatar-img {
+            opacity: 1;
+            visibility: visible;
+        }
+        .fr-hero-avatar-placeholder {
+            color: #9ca3af;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.2s ease;
+        }
+        .fr-hero-avatar-placeholder svg {
+            width: 52px;
+            height: 52px;
+        }
+        .fr-hero-avatar.has-photo .fr-hero-avatar-placeholder {
+            opacity: 0;
+        }
         /* First section (e.g. Personal Information): extra space below green header */
         .fr-section-title:first-of-type {
             margin-top: 0.35rem;
@@ -1952,6 +1999,21 @@ class RegisterFarmModule:
             font-size: 0.82rem;
             color: #6b7280;
         }
+        /* display:none breaks programmatic input.click() → file/camera sheet in Chrome/Edge/Safari */
+        .fr-visually-hidden-file {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 1px;
+            height: 1px;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+            opacity: 0.01;
+        }
         .fr-camera-modal {
             position: fixed;
             inset: 0;
@@ -2036,18 +2098,21 @@ class RegisterFarmModule:
             color: #111827;
         }
         .fr-loading-bean {
-            width: 62px;
-            height: 62px;
-            border-radius: 999px;
-            background: #ffffff;
+            width: 96px;
+            height: 96px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
         }
-        .fr-loading-bean svg {
-            width: 40px;
-            height: 40px;
-            color: #4a2a17;
+        .fr-loading-bean img {
+            width: 96px;
+            height: 96px;
+            object-fit: contain;
+            animation: fr-loading-bean-bounce 1s ease-in-out infinite;
+        }
+        @keyframes fr-loading-bean-bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
         .fr-loading-text {
             font-size: 0.88rem;
@@ -2256,6 +2321,14 @@ class RegisterFarmModule:
                     <input type="hidden" id="farmerPhone" name="phone" value="">
 
                     <div id="frStep1" class="fr-step is-active" data-fr-step="1">
+                        <div class="fr-hero-avatar-wrap">
+                            <button type="button" class="fr-hero-avatar-btn" id="frHeroPickPhotoBtn" aria-label="Add profile photo — camera or gallery" title="Tap: camera or gallery">
+                                <div class="fr-hero-avatar" id="frHeroAvatar">
+                                    <img id="frHeroProfilePhoto" class="fr-hero-avatar-img" alt="" width="112" height="112" decoding="async" />
+                                    <span class="fr-hero-avatar-placeholder"><i data-lucide="user"></i></span>
+                                </div>
+                            </button>
+                        </div>
                         <p class="fr-section-title">Personal Information</p>
                         <div class="fr-row2">
                             <div class="fr-field">
@@ -2501,8 +2574,8 @@ class RegisterFarmModule:
                                 <button type="button" class="btn-fr-photo take" id="frTakePictureBtn">Take Picture</button>
                                 <button type="button" class="btn-fr-photo upload" id="frUploadPictureBtn">Upload Picture</button>
                         </div>
-                            <input type="file" id="frTakePictureInput" accept="image/*" capture="environment" style="display:none;">
-                            <input type="file" id="frUploadPictureInput" accept="image/*" style="display:none;">
+                            <input type="file" id="frTakePictureInput" accept="image/*" class="fr-visually-hidden-file" aria-hidden="true" tabindex="-1">
+                            <input type="file" id="frUploadPictureInput" accept="image/*" class="fr-visually-hidden-file" aria-hidden="true" tabindex="-1">
                             <input type="hidden" id="frPhotoData" name="profile_photo_data">
                             <p class="fr-photo-hint">Use camera or gallery to add your profile photo.</p>
                             <span class="field-error" data-error-for="profile_photo_data" role="alert"></span>
@@ -2557,7 +2630,7 @@ class RegisterFarmModule:
                 </form>
                 <div class="fr-submit-overlay loading" id="frLoadingOverlay" aria-hidden="true">
                     <div class="fr-loading-card">
-                        <span class="fr-loading-bean" aria-hidden="true"><i data-lucide="bean"></i></span>
+                        <span class="fr-loading-bean" aria-hidden="true"><img src="coffee_bean_loading.png" alt="" /></span>
                         <span class="fr-loading-text">Please wait for a moment</span>
                     </div>
                         </div>
@@ -2767,20 +2840,20 @@ class RegisterFarmModule:
         const REGISTER_FARM_REG_OK = 'register_farm_registration_ok';
         const REGISTER_FARM_FARMER_ID = 'register_farm_farmer_id';
 
-        function flaskBase() {
+        function phpApiBase() {
             try {
-                var s = localStorage.getItem('beanthentic_flask_base');
-                if (s && String(s).replace(/\s/g, '')) {
-                    s = String(s).replace(/\/$/, '');
-                    return s;
+                var s = localStorage.getItem('beanthentic_api_base') || sessionStorage.getItem('beanthentic_api_base');
+                if (s && String(s).replace(/\\s/g, '')) {
+                    return String(s).replace(/\\/$/, '');
                 }
             } catch (_e) {}
             try {
                 if (typeof location !== 'undefined' && (location.protocol === 'http:' || location.protocol === 'https:')) {
-                    return (location.origin || '').replace(/\/$/, '');
+                    var base = new URL('.', location.href).href;
+                    return String(base || '').replace(/\\/+$/, '');
                 }
             } catch (_e2) {}
-            return 'http://10.0.2.2:5000';
+            return '';
         }
 
         function syncRegisterNavIconFromStorage() {
@@ -2788,9 +2861,54 @@ class RegisterFarmModule:
             if (!nav) return;
             var done = false;
             try {
-                var id = localStorage.getItem('beanthentic_farmer_id');
-                done = !!(id && String(id).trim());
+                function parseUser(raw) {
+                    if (!raw) return null;
+                    try {
+                        var u = JSON.parse(raw);
+                        return (u && u.email) ? u : null;
+                    } catch (_e) {
+                        return null;
+                    }
+                }
+                function keyVariants(v) {
+                    var out = [];
+                    var k = String(v || '').trim().toLowerCase();
+                    if (!k) return out;
+                    out.push(k);
+                    var d = k.replace(/\\D/g, '');
+                    if (d) {
+                        if (d.indexOf('63') === 0 && d.length >= 12) out.push('0' + d.slice(2));
+                        if (d.indexOf('0') === 0 && d.length >= 11) out.push('+63' + d.slice(1));
+                        if (d.length === 10 && d.charAt(0) === '9') {
+                            out.push('0' + d);
+                            out.push('+63' + d);
+                        }
+                    }
+                    return Array.from(new Set(out));
+                }
+                var u = parseUser(localStorage.getItem('beanthentic_user')) || parseUser(sessionStorage.getItem('beanthentic_user'));
+                var key = u && u.email ? String(u.email).trim().toLowerCase() : '';
+                if (key) {
+                    var rawMap = localStorage.getItem('beanthentic_farmer_id_map') || sessionStorage.getItem('beanthentic_farmer_id_map');
+                    var map = rawMap ? JSON.parse(rawMap) : null;
+                    if (map && typeof map === 'object') {
+                        var keys = keyVariants(key);
+                        for (var i = 0; i < keys.length; i += 1) {
+                            var idv = map[keys[i]];
+                            if (idv != null && String(idv).trim() !== '') {
+                                done = true;
+                                break;
+                            }
+                        }
+                    }
+                }
             } catch (_e) {}
+            if (!done) {
+                try {
+                    var id = localStorage.getItem('beanthentic_farmer_id');
+                    done = !!(id && String(id).trim());
+                } catch (_e2) {}
+            }
             nav.classList.toggle('is-register-complete', done);
         }
         window.beanthenticSyncRegisterNavIcon = syncRegisterNavIconFromStorage;
@@ -2939,6 +3057,9 @@ class RegisterFarmModule:
         const frUploadPictureInput = document.getElementById('frUploadPictureInput');
         const frProfilePreview = document.getElementById('frProfilePreview');
         const frPhotoData = document.getElementById('frPhotoData');
+        const frHeroProfilePhoto = document.getElementById('frHeroProfilePhoto');
+        const frHeroAvatar = document.getElementById('frHeroAvatar');
+        const frHeroPickPhotoBtn = document.getElementById('frHeroPickPhotoBtn');
         const frCameraModal = document.getElementById('frCameraModal');
         const frCameraVideo = document.getElementById('frCameraVideo');
         const frCameraCanvas = document.getElementById('frCameraCanvas');
@@ -3013,15 +3134,48 @@ class RegisterFarmModule:
             }
         }
 
-        function openTakePictureInputFallback() {
+        function ensureGetUserMediaPolyfill() {
+            try {
+                if (typeof navigator === 'undefined') return;
+                if (!navigator.mediaDevices) {
+                    navigator.mediaDevices = {};
+                }
+                if (navigator.mediaDevices.getUserMedia) return;
+                var legacy = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+                if (!legacy) return;
+                navigator.mediaDevices.getUserMedia = function (constraints) {
+                    return new Promise(function (resolve, reject) {
+                        legacy.call(navigator, constraints, resolve, reject);
+                    });
+                };
+            } catch (_p) {}
+        }
+
+        function isLikelyMobileOrTablet() {
+            try {
+                var ua = String((navigator && navigator.userAgent) || '');
+                if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua)) return true;
+                if (navigator.maxTouchPoints > 1 && /Macintosh/i.test(ua)) return true;
+                if (navigator.maxTouchPoints > 0 && window.matchMedia && window.matchMedia('(pointer: coarse)').matches) return true;
+            } catch (_m) {}
+            return false;
+        }
+
+        /**
+         * captureMode: 'environment' (back), 'user' (front), 'file' (no capture — gallery/files only)
+         * Must run in the same synchronous user gesture as the button tap (no await before this).
+         */
+        function openTakePictureFilePicker(captureMode) {
             if (!frTakePictureInput) return false;
             try { frTakePictureInput.value = ''; } catch (_e0) {}
             try {
-                if (typeof frTakePictureInput.showPicker === 'function') {
-                    frTakePictureInput.showPicker();
-                    return true;
+                frTakePictureInput.removeAttribute('capture');
+                if (captureMode === 'environment') {
+                    frTakePictureInput.setAttribute('capture', 'environment');
+                } else if (captureMode === 'user') {
+                    frTakePictureInput.setAttribute('capture', 'user');
                 }
-            } catch (_e1) {}
+            } catch (_attr) {}
             try {
                 frTakePictureInput.click();
                 return true;
@@ -3030,76 +3184,113 @@ class RegisterFarmModule:
             }
         }
 
-        async function openDeviceCamera() {
+        function openTakePictureInputFallback() {
+            var mobile = isLikelyMobileOrTablet();
+            if (mobile) {
+                if (openTakePictureFilePicker('environment')) return true;
+                if (openTakePictureFilePicker('user')) return true;
+            }
+            if (openTakePictureFilePicker('file')) return true;
+            return false;
+        }
+
+        /** Live preview only when secure context; uses promises (no async on button handler). */
+        function startLiveCameraPreview() {
             if (!frCameraModal || !frCameraVideo) {
-                showPhotoToast('Camera UI is not available. Please use Upload Picture.', 'error');
                 openTakePictureInputFallback();
                 return;
             }
-            // Laptop browsers require a secure context for getUserMedia.
-            // If user opened the app on a LAN IP (http://192.x.x.x), auto-switch to localhost.
-            try {
-                const ua = String((navigator && navigator.userAgent) || '').toLowerCase();
-                const isAndroid = ua.indexOf('android') >= 0;
-                if (!isAndroid && typeof window !== 'undefined' && window.isSecureContext === false) {
-                    const h = String((location && location.hostname) || '').toLowerCase();
-                    if (h && h !== 'localhost' && h !== '127.0.0.1') {
-                        const port = (location && location.port) ? (':' + location.port) : '';
-                        const next = 'http://localhost' + port + (location.pathname || '') + (location.search || '') + (location.hash || '');
-                        showPhotoToast('Switching to localhost so the laptop camera can open…', 'success');
-                        setTimeout(function () {
-                            try { location.replace(next); } catch (_r) { location.href = next; }
-                        }, 350);
-                        return;
-                    }
-                }
-            } catch (_redir) {}
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                if (openTakePictureInputFallback()) {
-                    showPhotoToast('Direct camera preview is unavailable here. Opened camera/gallery picker instead.', 'success');
-                } else {
-                    showPhotoToast('This browser cannot open the laptop camera directly. Please use Upload Picture.', 'error');
-                }
+            if (!navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== 'function') {
+                openTakePictureInputFallback();
                 return;
             }
+            var tries = [
+                { video: true, audio: false },
+                { video: { facingMode: 'user' }, audio: false },
+                { video: { facingMode: 'environment' }, audio: false },
+                { video: { facingMode: { ideal: 'user' } }, audio: false },
+                { video: { facingMode: { ideal: 'environment' } }, audio: false }
+            ];
+            function attempt(idx) {
+                if (idx >= tries.length) {
+                    requestAnimationFrame(function () {
+                        showPhotoToast('Live preview unavailable — use Upload Picture or try again.', 'error');
+                    });
+                    return;
+                }
+                navigator.mediaDevices.getUserMedia(tries[idx]).then(function (stream) {
+                    frCameraStream = stream;
+                    frCameraVideo.srcObject = stream;
+                    frCameraModal.classList.add('is-open');
+                    frCameraModal.setAttribute('aria-hidden', 'false');
+                    var p = frCameraVideo.play();
+                    if (p && typeof p.then === 'function') {
+                        p.catch(function () {});
+                    }
+                }).catch(function () {
+                    attempt(idx + 1);
+                });
+            }
+            attempt(0);
+        }
+
+        /**
+         * SYNCHRONOUS entry: opens native camera/file sheet in the same gesture as the click.
+         * Browsers block delayed input.click() after await / microtasks without a fresh tap.
+         */
+        function openDeviceCamera() {
+            ensureGetUserMediaPolyfill();
+
+            var mobile = isLikelyMobileOrTablet();
+            var insecure = false;
             try {
-                let stream = null;
-                const tries = [
-                    { video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false },
-                    { video: { facingMode: { ideal: 'user' }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false },
-                    { video: true, audio: false }
-                ];
-                for (const opts of tries) {
-                    try {
-                        stream = await navigator.mediaDevices.getUserMedia(opts);
-                        if (stream) break;
-                    } catch (_e) {}
+                insecure = typeof window !== 'undefined' && window.isSecureContext === false;
+            } catch (_s) {}
+
+            if (!frCameraModal || !frCameraVideo) {
+                openTakePictureInputFallback();
+                return;
+            }
+
+            if (mobile) {
+                if (openTakePictureFilePicker('environment') || openTakePictureFilePicker('user')) {
+                    return;
                 }
-                if (!stream) throw new Error('no-camera-stream');
-                frCameraStream = stream;
-                frCameraVideo.srcObject = stream;
-                frCameraModal.classList.add('is-open');
-                frCameraModal.setAttribute('aria-hidden', 'false');
-                try { await frCameraVideo.play(); } catch (_e2) {}
-            } catch (_err) {
-                const msg = String((_err && (_err.name || _err.message)) || '').toLowerCase();
-                if (msg.indexOf('notallowed') >= 0 || msg.indexOf('permission') >= 0) {
-                    showPhotoToast('Camera permission denied. Please allow camera access, then try again.', 'error');
-                } else if (msg.indexOf('notfound') >= 0 || msg.indexOf('overconstrained') >= 0) {
-                    showPhotoToast('No camera found. Connect a camera or use Upload Picture.', 'error');
-                } else if (msg.indexOf('security') >= 0 || msg.indexOf('secure') >= 0) {
-                    if (openTakePictureInputFallback()) {
-                        showPhotoToast('Camera preview is blocked on non-secure HTTP. Opened camera/gallery picker instead.', 'success');
-                    } else {
-                        showPhotoToast('Camera is blocked on non-secure HTTP. Open via localhost or HTTPS, or use Upload Picture.', 'error');
-                    }
-                } else {
-                    if (openTakePictureInputFallback()) {
-                        showPhotoToast('Cannot open live camera preview. Opened camera/gallery picker instead.', 'success');
-                    } else {
-                        showPhotoToast('Cannot open laptop camera. Allow permission and try again, or use Upload Picture.', 'error');
-                    }
+            }
+
+            // Laptop on http://LAN: getUserMedia is blocked — open OS picker immediately (same tap).
+            if (!mobile && insecure) {
+                if (openTakePictureFilePicker('user') || openTakePictureFilePicker('environment') || openTakePictureFilePicker('file')) {
+                    return;
                 }
+            }
+
+            // localhost / https: try in-page live preview (async inside startLiveCameraPreview, gesture only needed for gUM prompt).
+            if (!insecure && navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === 'function') {
+                startLiveCameraPreview();
+                return;
+            }
+
+            if (openTakePictureInputFallback()) {
+                return;
+            }
+            requestAnimationFrame(function () {
+                showPhotoToast('Cannot open camera. Tap Upload Picture below.', 'error');
+            });
+        }
+
+        /** Same user-gesture path as Take Picture — opens native sheet (camera + gallery on many phones). */
+        function openProfilePhotoPickerSameGesture() {
+            if (!frTakePictureInput) {
+                openDeviceCamera();
+                return;
+            }
+            try { frTakePictureInput.value = ''; } catch (_e0) {}
+            try { frTakePictureInput.removeAttribute('capture'); } catch (_e1) {}
+            try {
+                frTakePictureInput.click();
+            } catch (_e2) {
+                openDeviceCamera();
             }
         }
 
@@ -3121,12 +3312,41 @@ class RegisterFarmModule:
             }
         }
 
+        function looksLikeImageFile(file) {
+            if (!file) return false;
+            const t = String(file.type || '').toLowerCase();
+            if (t.indexOf('image/') === 0) return true;
+            const n = String(file.name || '').toLowerCase();
+            if (/\\.(jpe?g|png|gif|webp|heic|heif|bmp)$/i.test(n)) return true;
+            const sz = Number(file.size || 0);
+            if (!t && sz > 512 && sz < 30 * 1024 * 1024) return true;
+            return false;
+        }
+
+        function syncProfilePhotoToPreviews(dataUrl) {
+            const url = String(dataUrl || '').trim();
+            if (!url) return;
+            if (!/^data:image\\//i.test(url) && !/^https?:\\/\\//i.test(url)) return;
+            if (frPhotoData) frPhotoData.value = url;
+            if (frProfilePreview) {
+                frProfilePreview.src = url;
+                frProfilePreview.style.display = 'block';
+            }
+            if (frHeroProfilePhoto && frHeroAvatar) {
+                frHeroProfilePhoto.src = url;
+                frHeroProfilePhoto.style.opacity = '1';
+                frHeroProfilePhoto.style.visibility = 'visible';
+                frHeroAvatar.classList.add('has-photo');
+            }
+            setFieldError('profile_photo_data', '');
+        }
+
         function bindProfilePhotoInput(inputEl) {
             if (!inputEl) return;
             inputEl.addEventListener('change', function () {
                 const file = this.files && this.files[0];
                 if (!file) return;
-                if (!/^image\\//i.test(file.type || '')) {
+                if (!looksLikeImageFile(file)) {
                     setFieldError('profile_photo_data', 'Please select an image file.');
                     return;
                 }
@@ -3134,12 +3354,7 @@ class RegisterFarmModule:
                 reader.onload = function (ev) {
                     const result = String((ev && ev.target && ev.target.result) || '');
                     if (!result) return;
-                    if (frPhotoData) frPhotoData.value = result;
-                    if (frProfilePreview) {
-                        frProfilePreview.src = result;
-                        frProfilePreview.style.display = 'block';
-                    }
-                    setFieldError('profile_photo_data', '');
+                    syncProfilePhotoToPreviews(result);
                 };
                 reader.readAsDataURL(file);
                 this.value = '';
@@ -3148,6 +3363,7 @@ class RegisterFarmModule:
 
         if (frTakePictureBtn) frTakePictureBtn.addEventListener('click', function () { openDeviceCamera(); });
         if (frTakePictureIcon) frTakePictureIcon.addEventListener('click', function () { openDeviceCamera(); });
+        if (frHeroPickPhotoBtn) frHeroPickPhotoBtn.addEventListener('click', function () { openProfilePhotoPickerSameGesture(); });
         if (frUploadPictureBtn && frUploadPictureInput) frUploadPictureBtn.addEventListener('click', function () { frUploadPictureInput.click(); });
         if (frCameraCancelBtn) frCameraCancelBtn.addEventListener('click', function () { stopCameraStream(); });
         if (frCameraCaptureBtn && frCameraVideo && frCameraCanvas) {
@@ -3161,17 +3377,19 @@ class RegisterFarmModule:
                 if (!ctx) return;
                 ctx.drawImage(frCameraVideo, 0, 0, w, h);
                 const dataUrl = frCameraCanvas.toDataURL('image/jpeg', 0.92);
-                if (frPhotoData) frPhotoData.value = dataUrl;
-                if (frProfilePreview) {
-                    frProfilePreview.src = dataUrl;
-                    frProfilePreview.style.display = 'block';
-                }
-                setFieldError('profile_photo_data', '');
+                syncProfilePhotoToPreviews(dataUrl);
                 stopCameraStream();
             });
         }
         bindProfilePhotoInput(frTakePictureInput);
         bindProfilePhotoInput(frUploadPictureInput);
+
+        (function restoreDraftProfilePhoto() {
+            try {
+                const raw = frPhotoData && frPhotoData.value ? String(frPhotoData.value).trim() : '';
+                if (raw) syncProfilePhotoToPreviews(raw);
+            } catch (_eR) {}
+        })();
 
         (function bindProductionQtyNumericOnly() {
             const qtyNames = ['liberica_prod_qty', 'robusta_prod_qty', 'excelsa_prod_qty'];
@@ -3197,7 +3415,7 @@ class RegisterFarmModule:
                     return null;
                 }
                 const u = parseUser(localStorage.getItem('beanthentic_user')) || parseUser(sessionStorage.getItem('beanthentic_user'));
-                const id = String((u && u.email) || '').trim();
+                const id = String((u && (u.phone_number || u.email)) || '').trim();
                 if (EMAIL_RE.test(id)) email = id.toLowerCase();
                 const p = normalizePhone(id);
                 if (/^09\\d{9}$/.test(p)) phone = p;
@@ -3314,6 +3532,23 @@ class RegisterFarmModule:
                 const payload = collectWizardPayload(fd);
                 const submitStartedAt = Date.now();
 
+                var apiBaseFr = phpApiBase();
+                var uidFr = 0;
+                try {
+                    var uRawFr = localStorage.getItem('beanthentic_user') || sessionStorage.getItem('beanthentic_user');
+                    var uFr = uRawFr ? JSON.parse(uRawFr) : null;
+                    uidFr = uFr && uFr.user_id ? parseInt(String(uFr.user_id), 10) : 0;
+                } catch (_eUidFr) {}
+                if (!apiBaseFr) {
+                    showAlert('Registration saves to MySQL. Use http:// or https:// on the same machine where MySQL runs (e.g. this app URL), start MySQL, and import the Beanthentic schema.', 'error');
+                    return;
+                }
+                if (!(uidFr > 0)) {
+                    showAlert('Please sign in again (account id missing for registration).', 'error');
+                    return;
+                }
+                var payloadWithUser = Object.assign({}, payload, { user_id: uidFr });
+
             const lockRegistrationFields = () => {
                     this.querySelectorAll('input, select, textarea').forEach(function (el) {
                         if (el.type === 'hidden') return;
@@ -3350,10 +3585,10 @@ class RegisterFarmModule:
                     if (ctrl) ctrl.abort();
                 }, 20000);
 
-            fetch(flaskBase() + '/api/register-farm/farmers', {
+            fetch(apiBaseFr + '/api/register_farm_farmer.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload),
+                    body: JSON.stringify(payloadWithUser),
                     signal: ctrl ? ctrl.signal : undefined
             })
             .then(function (r) {
@@ -3362,7 +3597,7 @@ class RegisterFarmModule:
                     try {
                         j = JSON.parse(t);
                     } catch (_parseErr) {
-                        var hint = (t && t.indexOf('<!') === 0) ? ' (server returned a web page instead of JSON — check Flask is running.)' : '';
+                        var hint = (t && t.indexOf('<!') === 0) ? ' (server returned HTML instead of JSON — check XAMPP Apache and api/register_farm_farmer.php.)' : '';
                         throw new Error('Invalid response' + hint);
                     }
                     return { ok: r.ok, body: j };
@@ -3441,7 +3676,8 @@ class RegisterFarmModule:
                                     qty: Number(payload.excelsa_prod_qty || 0) || 0,
                                     unit: String(payload.excelsa_prod_unit || 'kg').trim().toLowerCase()
                                 }
-                            }
+                            },
+                            profile_photo_data: String(payload.profile_photo_data || '').trim(),
                         };
                         localStorage.setItem('beanthentic_farmer_profile', JSON.stringify(farmerProfile));
                         sessionStorage.setItem('beanthentic_farmer_profile', JSON.stringify(farmerProfile));
@@ -3696,7 +3932,7 @@ class RegisterFarmModule:
             window.addEventListener('storage', function (e) {
                 if (!e) return;
                 if (e.key === 'beanthentic_user') syncBottomNavAccount();
-                if (e.key === 'beanthentic_farmer_id' && typeof syncRegisterNavIconFromStorage === 'function') {
+                if ((e.key === 'beanthentic_farmer_id' || e.key === 'beanthentic_farmer_id_map') && typeof syncRegisterNavIconFromStorage === 'function') {
                     syncRegisterNavIconFromStorage();
                 }
             });

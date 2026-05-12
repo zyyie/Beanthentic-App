@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="css/layout.css" />
   <link rel="stylesheet" href="css/components.css" />
   <link rel="stylesheet" href="css/responsive.css" />
+  <script id="beanthentic-fixed-topbar-js" src="js/beanthentic_fixed_topbar.js" defer></script>
   <style>
     body.account-settings-page {
       margin: 0;
@@ -16,10 +17,48 @@
       font-family: "Poppins", "Segoe UI", Arial, sans-serif;
       color: #111827;
     }
+    .account-settings-topbar {
+      background: linear-gradient(180deg, #1d7a2a 0%, #145e1e 100%);
+      border-bottom: none;
+      border-radius: 0 0 16px 16px;
+      padding-top: env(safe-area-inset-top);
+    }
+    .account-settings-topbar .nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      min-height: 4.3rem;
+      padding: 0.62rem max(1rem, env(safe-area-inset-left, 0px)) 0.66rem
+        max(1rem, env(safe-area-inset-right, 0px));
+    }
+    .account-settings-nav-back {
+      position: absolute;
+      left: max(0.7rem, env(safe-area-inset-left, 0px));
+      top: 50%;
+      transform: translateY(-50%);
+      color: #ffffff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      padding: 8px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .account-settings-nav-back svg { width: 20px; height: 20px; }
+    .account-settings-nav-title {
+      margin: 0;
+      color: #ffffff;
+      font-size: clamp(1.15rem, 4.1vw, 1.5rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: 0.01em;
+      text-align: center;
+    }
     .account-settings-main {
       width: min(100%, 420px);
       margin: 0 auto;
-      padding: 1.05rem 0.55rem 2.25rem;
+      padding: 1rem 0.55rem 2.25rem;
       box-sizing: border-box;
     }
     .account-settings-profile {
@@ -34,6 +73,20 @@
       background: #d4d4d4;
       display: grid;
       place-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .account-settings-avatar-photo {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 999px;
+      z-index: 1;
+    }
+    .account-settings-avatar.has-photo .account-settings-avatar-initials {
+      opacity: 0;
     }
     .account-settings-avatar-initials {
       font-size: 2.05rem;
@@ -125,9 +178,26 @@
   </style>
 </head>
 <body class="account-settings-page">
+  <header class="account-settings-topbar">
+    <div class="nav" role="presentation">
+      <a
+        class="account-settings-nav-back"
+        href="account.php"
+        aria-label="Back"
+        onclick="if(window.history.length > 1){ event.preventDefault(); window.history.back(); }"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </a>
+      <h1 class="account-settings-nav-title">Account Settings</h1>
+    </div>
+  </header>
+
   <main class="account-settings-main">
     <section class="account-settings-profile" aria-label="Profile summary">
       <div class="account-settings-avatar" aria-hidden="true">
+        <img id="account-settings-photo" class="account-settings-avatar-photo" alt="" width="124" height="124" hidden decoding="async" />
         <span id="account-settings-initials" class="account-settings-avatar-initials">BA</span>
       </div>
       <h1 id="account-settings-name" class="account-settings-name">Nyco Jimmy Joe Doe</h1>
@@ -212,14 +282,35 @@
         try { session = parseUser(sessionStorage.getItem('beanthentic_user')); } catch (_e2) {}
         return local || session || null;
       }
+      function keyVariants(v) {
+        var out = [];
+        var k = String(v || '').trim().toLowerCase();
+        if (!k) return out;
+        out.push(k);
+        var d = k.replace(/\D/g, '');
+        if (d) {
+          if (d.indexOf('63') === 0 && d.length >= 12) out.push('0' + d.slice(2));
+          if (d.indexOf('0') === 0 && d.length >= 11) out.push('+63' + d.slice(1));
+          if (d.length === 10 && d.charAt(0) === '9') {
+            out.push('0' + d);
+            out.push('+63' + d);
+          }
+        }
+        return Array.from(new Set(out));
+      }
       function getFarmerProfile(email) {
         var cleanEmail = String(email || '').trim().toLowerCase();
         if (cleanEmail) {
           try {
             var rawMap = localStorage.getItem('beanthentic_farmer_profile_map') || sessionStorage.getItem('beanthentic_farmer_profile_map');
             var map = rawMap ? JSON.parse(rawMap) : null;
-            var per = map && typeof map === 'object' ? map[cleanEmail] : null;
-            if (per && typeof per === 'object') return per;
+            if (map && typeof map === 'object') {
+              var keys = keyVariants(cleanEmail);
+              for (var i = 0; i < keys.length; i += 1) {
+                var per = map[keys[i]];
+                if (per && typeof per === 'object') return per;
+              }
+            }
           } catch (_e0) {}
         }
         var raw = null;
@@ -261,6 +352,21 @@
       if (nameEl) nameEl.textContent = name;
       if (phoneEl) phoneEl.textContent = formatPhone(phone);
       if (iniEl) iniEl.textContent = initials(name);
+
+      var photoRaw = String((p.profile_photo_data || '')).trim();
+      var photoEl = document.getElementById('account-settings-photo');
+      var avWrap = document.querySelector('.account-settings-avatar');
+      if (photoEl && avWrap) {
+        if (/^data:image\//i.test(photoRaw) || /^https?:\/\//i.test(photoRaw)) {
+          photoEl.src = photoRaw;
+          photoEl.removeAttribute('hidden');
+          avWrap.classList.add('has-photo');
+        } else {
+          try { photoEl.removeAttribute('src'); } catch (_rs) {}
+          photoEl.setAttribute('hidden', '');
+          avWrap.classList.remove('has-photo');
+        }
+      }
 
       var logoutBtn = document.getElementById('account-settings-logout');
       if (logoutBtn) {

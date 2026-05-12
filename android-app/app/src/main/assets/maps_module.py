@@ -1993,9 +1993,54 @@ class MapsModule:
                 if (!nav) return;
                 var done = false;
                 try {
-                    var id = localStorage.getItem('beanthentic_farmer_id');
-                    done = !!(id && String(id).trim());
+                    function parseUser(raw) {
+                        if (!raw) return null;
+                        try {
+                            var u = JSON.parse(raw);
+                            return (u && u.email) ? u : null;
+                        } catch (_e) {
+                            return null;
+                        }
+                    }
+                    function keyVariants(v) {
+                        var out = [];
+                        var k = String(v || '').trim().toLowerCase();
+                        if (!k) return out;
+                        out.push(k);
+                        var d = k.replace(/\\D/g, '');
+                        if (d) {
+                            if (d.indexOf('63') === 0 && d.length >= 12) out.push('0' + d.slice(2));
+                            if (d.indexOf('0') === 0 && d.length >= 11) out.push('+63' + d.slice(1));
+                            if (d.length === 10 && d.charAt(0) === '9') {
+                                out.push('0' + d);
+                                out.push('+63' + d);
+                            }
+                        }
+                        return Array.from(new Set(out));
+                    }
+                    var u = parseUser(localStorage.getItem('beanthentic_user')) || parseUser(sessionStorage.getItem('beanthentic_user'));
+                    var key = u && u.email ? String(u.email).trim().toLowerCase() : '';
+                    if (key) {
+                        var rawMap = localStorage.getItem('beanthentic_farmer_id_map') || sessionStorage.getItem('beanthentic_farmer_id_map');
+                        var map = rawMap ? JSON.parse(rawMap) : null;
+                        if (map && typeof map === 'object') {
+                            var keys = keyVariants(key);
+                            for (var i = 0; i < keys.length; i += 1) {
+                                var idv = map[keys[i]];
+                                if (idv != null && String(idv).trim() !== '') {
+                                    done = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
                 } catch (_e) {}
+                if (!done) {
+                    try {
+                        var id = localStorage.getItem('beanthentic_farmer_id');
+                        done = !!(id && String(id).trim());
+                    } catch (_e2) {}
+                }
                 nav.classList.toggle('is-register-complete', done);
             }
             window.beanthenticSyncRegisterNavIcon = syncRegisterNavIconFromStorage;
@@ -2048,7 +2093,7 @@ class MapsModule:
             window.addEventListener('storage', function (e) {
                 if (!e) return;
                 if (e.key === 'beanthentic_user') syncBottomNavAccount();
-                if (e.key === 'beanthentic_farmer_id') syncRegisterNavIconFromStorage();
+                if (e.key === 'beanthentic_farmer_id' || e.key === 'beanthentic_farmer_id_map') syncRegisterNavIconFromStorage();
             });
             window.addEventListener('beanthentic-auth-changed', syncBottomNavAccount);
 

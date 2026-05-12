@@ -4,27 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#ffffff" />
-  <script>
-    (function () {
-      function parseUser(raw) {
-        if (!raw) return null;
-        try {
-          var u = JSON.parse(raw);
-          if (u && u.email) return u;
-        } catch (_err) {}
-        return null;
-      }
-      try {
-        var user =
-          parseUser(localStorage.getItem('beanthentic_user')) ||
-          parseUser(sessionStorage.getItem('beanthentic_user'));
-        if (user) return;
-        window.location.replace('login.php');
-      } catch (_e) {
-        window.location.replace('login.php');
-      }
-    })();
-  </script>
+  <script>window.__BEANTHENTIC_SESSION_GATE__ = 'protected';</script>
+  <script src="js/beanthentic_session_gate.js"></script>
   <title>Tutorial · Beanthentic</title>
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">

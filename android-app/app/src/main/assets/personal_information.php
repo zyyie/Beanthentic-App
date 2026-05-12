@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#25671E" />
+  <script>window.__BEANTHENTIC_SESSION_GATE__ = 'protected';</script>
+  <script src="js/beanthentic_session_gate.js"></script>
   <title>Personal Information · Beanthentic Coffee</title>
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">
@@ -15,9 +17,6 @@
       background: #f3f8ff;
     }
     .pi-page header {
-      position: sticky;
-      top: 0;
-      z-index: 30;
       background: linear-gradient(180deg, #1d7a2a 0%, #145e1e 100%);
       border-bottom: none;
       border-radius: 0 0 16px 16px;

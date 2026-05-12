@@ -23,6 +23,10 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.os.Message
+import android.app.DownloadManager
+import android.content.Context
+import android.webkit.URLUtil
+import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.PermissionRequest
 import android.webkit.WebResourceError
@@ -30,10 +34,12 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import android.content.pm.PackageManager
 import androidx.activity.OnBackPressedCallback
+import android.app.Activity
 import android.net.Uri
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -42,6 +48,22 @@ class MainActivity : AppCompatActivity() {
     private lateinit var webView: WebView
     private var exitDialog: AlertDialog? = null
     private var pendingWebPermissionRequest: PermissionRequest? = null
+
+    /** Required for WebView file inputs; without this, camera/gallery never opens. */
+    private var webFilePathCallback: ValueCallback<Array<Uri>>? = null
+
+    private val fileChooserLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val cb = webFilePathCallback ?: return@registerForActivityResult
+        webFilePathCallback = null
+        if (result.resultCode != Activity.RESULT_OK) {
+            cb.onReceiveValue(null)
+            return@registerForActivityResult
+        }
+        val uris = WebChromeClient.FileChooserParams.parseResult(result.resultCode, result.data)
+        cb.onReceiveValue(uris)
+    }
 
     private val WEBRTC_PERMISSION_REQ_CODE = 2201
 
@@ -203,6 +225,34 @@ class MainActivity : AppCompatActivity() {
             allowUniversalAccessFromFileURLs = true
         }
 
+        // Stops edge glow / rubber-band overscroll so fixed navbars don’t appear to shift sideways or bounce.
+        webView.overScrollMode = View.OVER_SCROLL_NEVER
+
+        // Enable file downloads triggered by <a href="..."> clicks (e.g., Download QR Code).
+        // Android WebView often ignores the HTML download attribute; DownloadManager is reliable.
+        webView.setDownloadListener { url, userAgent, contentDisposition, mimeType, _ ->
+            try {
+                val u = url ?: return@setDownloadListener
+                val request = DownloadManager.Request(Uri.parse(u))
+                request.setMimeType(mimeType)
+                request.addRequestHeader("User-Agent", userAgent)
+                request.setDescription("Downloading file…")
+
+                val fileName = URLUtil.guessFileName(u, contentDisposition, mimeType)
+                request.setTitle(fileName)
+                request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                request.setDestinationInExternalPublicDir(android.os.Environment.DIRECTORY_DOWNLOADS, fileName)
+                request.setAllowedOverMetered(true)
+                request.setAllowedOverRoaming(true)
+
+                val dm = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+                dm.enqueue(request)
+            } catch (_e: Throwable) {
+                // If DownloadManager fails, fall back to external browser.
+                tryOpenExternalView(Uri.parse(url))
+            }
+        }
+
         var loadStartTimeMs = 0L
         var hideScheduled = false
         // Minimum time the native loading overlay stays visible.
@@ -322,7 +372,9 @@ class MainActivity : AppCompatActivity() {
                 resultMsg: Message?
             ): Boolean {
                 val transport = resultMsg?.obj as? WebView.WebViewTransport ?: return false
-                val temp = WebView(this@MainActivity)
+                val temp = WebView(this@MainActivity).apply {
+                    overScrollMode = View.OVER_SCROLL_NEVER
+                }
                 temp.webViewClient = object : WebViewClient() {
                     override fun shouldOverrideUrlLoading(
                         v: WebView?,
@@ -369,6 +421,33 @@ class MainActivity : AppCompatActivity() {
                     needPerms.toTypedArray(),
                     WEBRTC_PERMISSION_REQ_CODE
                 )
+            }
+
+            override fun onShowFileChooser(
+                webView: WebView?,
+                filePathCallback: ValueCallback<Array<Uri>>?,
+                fileChooserParams: WebChromeClient.FileChooserParams?
+            ): Boolean {
+                webFilePathCallback?.onReceiveValue(null)
+                webFilePathCallback = filePathCallback
+
+                val intent = try {
+                    fileChooserParams?.createIntent()
+                } catch (_e: Exception) {
+                    null
+                } ?: Intent(Intent.ACTION_GET_CONTENT).apply {
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    type = "image/*"
+                }
+
+                return try {
+                    fileChooserLauncher.launch(intent)
+                    true
+                } catch (_e: ActivityNotFoundException) {
+                    webFilePathCallback?.onReceiveValue(null)
+                    webFilePathCallback = null
+                    false
+                }
             }
         }
 
@@ -512,6 +591,15 @@ class MainActivity : AppCompatActivity() {
                                     flaskBase = flaskDefaultBase
                                 }
                                 .show()
+                        }
+                    }
+
+                    // Packaged pages: start at top so users are not scrolled down after navigation.
+                    // Pages with URL fragments handle their own scroll target.
+                    val finishedUrl = url.orEmpty()
+                    if (!finishedUrl.contains('#')) {
+                        view?.post {
+                            view.scrollTo(0, 0)
                         }
                     }
                     super.onPageFinished(view, url)

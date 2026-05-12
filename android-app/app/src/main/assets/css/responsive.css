@@ -39,10 +39,6 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
-  header {
-    position: static;
-  }
-
   .about-split {
     grid-template-columns: minmax(0, 1fr);
   }

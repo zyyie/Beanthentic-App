@@ -40,3 +40,46 @@ function json_fail(string $message, int $status = 400): void {
     exit;
 }
 
+/** Normalize PH mobile to E.164 +639XXXXXXXXX (10 digits after country code). */
+function beanthentic_normalize_phone(string $raw): string {
+    $s = trim($raw);
+    if ($s === '') {
+        return '';
+    }
+    if (strpos($s, '@') !== false) {
+        return '';
+    }
+    $digits = preg_replace('/\D+/', '', $s);
+    if ($digits === '') {
+        return '';
+    }
+    if (strlen($digits) > 0 && $digits[0] === '0') {
+        $digits = substr($digits, 1);
+    }
+    if (strlen($digits) >= 2 && substr($digits, 0, 2) === '63') {
+        $digits = substr($digits, 2);
+    }
+    if (strlen($digits) === 10 && $digits[0] === '9') {
+        return '+63' . $digits;
+    }
+    return $s;
+}
+
+/**
+ * @return array{type: 'email'|'phone'|'empty', email: string, phone: string}
+ */
+function beanthentic_parse_login_identifier(string $raw): array {
+    $t = trim($raw);
+    if ($t === '') {
+        return ['type' => 'empty', 'email' => '', 'phone' => ''];
+    }
+    if (strpos($t, '@') !== false) {
+        return ['type' => 'email', 'email' => strtolower($t), 'phone' => ''];
+    }
+    $ph = beanthentic_normalize_phone($t);
+    if ($ph !== '' && strpos($ph, '+63') === 0) {
+        return ['type' => 'phone', 'email' => '', 'phone' => $ph];
+    }
+    return ['type' => 'phone', 'email' => '', 'phone' => $ph];
+}
+

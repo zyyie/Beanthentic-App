@@ -4,6 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#25671E" />
+  <script>window.__BEANTHENTIC_SESSION_GATE__ = 'protected';</script>
+  <script src="js/beanthentic_session_gate.js"></script>
   <title>Register Farm Updates · Beanthentic Coffee</title>
   <link rel="stylesheet" href="css/base.css" />
   <link rel="stylesheet" href="css/layout.css" />
@@ -409,7 +411,7 @@
       <a href="index.php#home" class="updates-topbar" aria-label="Back to home">
         <svg class="updates-topbar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <polyline points="15 18 9 12 15 6"/>
-        </svg>
+            </svg>
         <p class="updates-topbar-title">Beanthentic GI Updates</p>
           </a>
     </div>
@@ -453,9 +455,9 @@
           <div class="gi-mail-from-main">
             <p class="gi-mail-from-name" id="gi-mail-sender-name">Juan Dela Cruz</p>
             <p class="gi-mail-from-sub">to me</p>
-          </div>
+    </div>
           <div class="gi-mail-time" id="gi-mail-time">—</div>
-        </div>
+  </div>
 
         <p class="gi-mail-body">
           Submitted complete documentation for geographical indication certification including farm ownership papers and coffee variety verification...
@@ -486,10 +488,10 @@
 
           <div class="gi-attachments-grid" id="gi-attachments-grid" aria-label="Attachments preview">
             <!-- tiles injected by JS -->
-          </div>
+        </div>
           <p id="updates-upload-status" class="updates-upload-status" hidden></p>
         </form>
-      </div>
+    </div>
     </section>
   </main>
 

@@ -82,7 +82,7 @@
       <span class="app-bottom-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M21 12a8.5 8.5 0 0 1-8.5 8.5H6l-3 3V12A8.5 8.5 0 1 1 21 12z"/></svg></span>
       <span class="app-bottom-nav-label">Message</span>
     </a>
-    <a href="notification_settings.php" id="nav-notif" class="app-bottom-nav-link">
+    <a href="settings.php?section=notifications" id="nav-notif" class="app-bottom-nav-link">
       <span class="app-bottom-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></span>
       <span class="app-bottom-nav-label">Notification</span>
     </a>

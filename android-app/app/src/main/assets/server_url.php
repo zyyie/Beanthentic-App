@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#143d22" />
+  <script src="js/beanthentic_theme.js?v=20260527-9"></script>
   <title>Server URL · Beanthentic</title>
   <link rel="stylesheet" href="css/base.css" />
   <link rel="stylesheet" href="css/layout.css" />
@@ -110,12 +111,16 @@
       </p>
 
       <label for="api-base">PHP assets base (dapat may folder na <code>api/</code>)</label>
-      <input id="api-base" type="text" placeholder="http://192.168.18.115:8080/.../android-app/app/src/main/assets" autocomplete="off" />
+      <input id="api-base" type="text" placeholder="http://192.168.0.100:8080/.../android-app/app/src/main/assets" autocomplete="off" />
       <p class="hint">Halimbawa: hanggang <code>.../main/assets</code> (walang slash sa dulo). Hindi dapat tumatapos sa <code>/api</code> — awtomatikong aayusin.</p>
 
       <label for="flask-base">Flask dev server (opsyonal)</label>
-      <input id="flask-base" type="text" placeholder="http://192.168.18.115:5000" autocomplete="off" />
+      <input id="flask-base" type="text" placeholder="http://192.168.0.100:8080" autocomplete="off" />
       <p class="hint">Para sa <code>/maps</code> at <code>/register-farm</code> kapag tumatakbo ang <code>app.py</code> sa PC.</p>
+
+      <label for="client-web-base">Client Web (QR code — port 5001)</label>
+      <input id="client-web-base" type="text" placeholder="http://192.168.0.100:5001" autocomplete="off" />
+      <p class="hint">Dapat <strong>LAN IP</strong> ng PC (hindi <code>127.0.0.1</code>) para gumana ang QR sa phone. Hal.: <code>http://192.168.100.249:5001</code></p>
 
       <div class="server-url-actions">
         <button type="button" class="btn-secondary" id="btn-from-page">Kunin sa page na ito</button>
@@ -129,8 +134,12 @@
   </div>
   <script>
     (function () {
+      var DEVICE_HOST_IP = '192.168.0.100';
+      var DEFAULT_API_BASE = 'http://' + DEVICE_HOST_IP + ':8080';
+      var DEFAULT_CLIENT_WEB = 'http://' + DEVICE_HOST_IP + ':5001';
       var apiEl = document.getElementById('api-base');
       var flaskEl = document.getElementById('flask-base');
+      var clientWebEl = document.getElementById('client-web-base');
       var statusEl = document.getElementById('status');
 
       function showStatus(msg, ok) {
@@ -157,6 +166,25 @@
         return s;
       }
 
+      function isLoopbackUrl(raw) {
+        try {
+          var h = new URL(String(raw || '').trim()).hostname.toLowerCase();
+          return h === 'localhost' || h === '127.0.0.1';
+        } catch (_e) {
+          return false;
+        }
+      }
+
+      function defaultClientWebFromPage() {
+        try {
+          var u = new URL(location.href);
+          if (u.hostname === 'localhost' || u.hostname === '127.0.0.1') return '';
+          return u.protocol + '//' + u.hostname + ':5001';
+        } catch (_e2) {
+          return '';
+        }
+      }
+
       function defaultFromCurrentPage() {
         try {
           var u = new URL(location.href);
@@ -174,17 +202,27 @@
             localStorage.getItem('beanthentic_api_base') ||
             sessionStorage.getItem('beanthentic_api_base') ||
             defaultFromCurrentPage() ||
-            '';
+            DEFAULT_API_BASE;
         } catch (e) {
-          apiEl.value = defaultFromCurrentPage() || '';
+          apiEl.value = defaultFromCurrentPage() || DEFAULT_API_BASE;
         }
         try {
           flaskEl.value =
             localStorage.getItem('beanthentic_flask_base') ||
             sessionStorage.getItem('beanthentic_flask_base') ||
-            '';
+            DEFAULT_API_BASE;
         } catch (e2) {
-          flaskEl.value = '';
+          flaskEl.value = DEFAULT_API_BASE;
+        }
+        try {
+          var cw =
+            localStorage.getItem('beanthentic_client_web_base') ||
+            sessionStorage.getItem('beanthentic_client_web_base') ||
+            defaultClientWebFromPage() ||
+            DEFAULT_CLIENT_WEB;
+          if (clientWebEl) clientWebEl.value = isLoopbackUrl(cw) ? (defaultClientWebFromPage() || DEFAULT_CLIENT_WEB) : cw;
+        } catch (e3) {
+          if (clientWebEl) clientWebEl.value = defaultClientWebFromPage() || DEFAULT_CLIENT_WEB;
         }
       }
 
@@ -203,9 +241,11 @@
 
       document.getElementById('btn-from-page').addEventListener('click', function () {
         var d = defaultFromCurrentPage();
+        var cw = defaultClientWebFromPage();
         if (d) {
           apiEl.value = d;
-          showStatus('Na-fill ang PHP base mula sa kasalukuyang URL.', true);
+          if (clientWebEl && cw) clientWebEl.value = cw;
+          showStatus('Na-fill ang PHP base' + (cw ? ' at Client Web (QR)' : '') + ' mula sa kasalukuyang URL.', true);
         } else {
           showStatus('Hindi makuha ang URL (file:// o unsupported).', false);
         }
@@ -215,8 +255,13 @@
         hideStatus();
         var api = normalizeApiBase(apiEl.value);
         var fb = normalizeFlaskBase(flaskEl.value);
+        var cw = normalizeFlaskBase(clientWebEl ? clientWebEl.value : '');
         if (!api) {
           showStatus('Invalid ang PHP base: dapat full http:// o https:// URL (folder ng assets, may api/).', false);
+          return;
+        }
+        if (cw && isLoopbackUrl(cw)) {
+          showStatus('Client Web URL: huwag gumamit ng 127.0.0.1 — ilagay ang LAN IP ng PC (hal. http://192.168.100.249:5001).', false);
           return;
         }
         try {
@@ -235,7 +280,14 @@
             sessionStorage.removeItem('beanthentic_flask_base');
           }
         } catch (e2) {}
-        showStatus('Na-save. Puwede ka nang mag-sign in / mag-register gamit ang bagong URL.', true);
+        try {
+          var cwSave = cw || defaultClientWebFromPage();
+          if (cwSave && !isLoopbackUrl(cwSave)) {
+            localStorage.setItem('beanthentic_client_web_base', cwSave);
+            sessionStorage.setItem('beanthentic_client_web_base', cwSave);
+          }
+        } catch (e4) {}
+        showStatus('Na-save. I-refresh ang Account page para makita ang bagong QR URL.', true);
       });
 
       document.getElementById('btn-clear').addEventListener('click', function () {
@@ -244,9 +296,12 @@
           sessionStorage.removeItem('beanthentic_api_base');
           localStorage.removeItem('beanthentic_flask_base');
           sessionStorage.removeItem('beanthentic_flask_base');
+          localStorage.removeItem('beanthentic_client_web_base');
+          sessionStorage.removeItem('beanthentic_client_web_base');
         } catch (e) {}
         apiEl.value = '';
         flaskEl.value = '';
+        if (clientWebEl) clientWebEl.value = '';
         showStatus('Na-clear ang naka-save na server URLs.', true);
       });
 

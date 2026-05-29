@@ -5,14 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#25671E" />
   <script>window.__BEANTHENTIC_SESSION_GATE__ = 'protected';</script>
-  <script src="js/beanthentic_session_gate.js"></script>
+  <script src="js/beanthentic_api_urls.js?v=20260515-7"></script>
+  <script src="js/beanthentic_session_gate.js?v=20260515-4"></script>
   <title>Registration Summary · Beanthentic Coffee</title>
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/responsive.css">
   <style>
-    body { margin: 0; background: #eef6ff; }
+    body.reg-summary-page {
+      margin: 0;
+      background: #eef6ff;
+    }
     .reg-hero {
       background: linear-gradient(165deg, #0f5f16 0%, #0b4d12 100%);
       border-radius: 0 0 22px 22px;
@@ -60,7 +64,7 @@
     .reg-main {
       width: min(100%, 720px);
       margin: 0 auto;
-      padding: 0.9rem 0.9rem calc(5.8rem + env(safe-area-inset-bottom, 0px));
+      padding: 1rem 0.9rem calc(5.8rem + env(safe-area-inset-bottom, 0px));
       box-sizing: border-box;
     }
     .reg-card {
@@ -127,6 +131,9 @@
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 0.55rem;
     }
+    .reg-grid-affiliation {
+      margin-bottom: 0.15rem;
+    }
     .reg-grid-3 {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -163,8 +170,9 @@
       .reg-grid-2 { grid-template-columns: 1fr; }
     }
   </style>
+  <script id="beanthentic-fixed-topbar-js" src="js/beanthentic_fixed_topbar.js"></script>
 </head>
-<body class="has-app-bottom-nav">
+<body class="has-app-bottom-nav reg-summary-page beanthentic-fixed-topbar-active">
   <header class="reg-hero">
     <div class="reg-hero-row">
       <a class="reg-nav-back" href="index.php#home" aria-label="Back">
@@ -200,6 +208,11 @@
         </div>
       </div>
       <div style="height:0.55rem"></div>
+      <div class="reg-field">
+        <label>Birthday</label>
+        <input id="rs-birthday" readonly placeholder="—" />
+      </div>
+      <div style="height:0.55rem"></div>
       <div class="reg-grid-3">
         <div class="reg-field">
           <label>Province</label>
@@ -216,18 +229,11 @@
       </div>
 
       <h2 class="reg-section-title">Affiliation</h2>
-      <div class="reg-grid-2">
+      <div class="reg-grid-2 reg-grid-affiliation">
         <div class="reg-field">
-          <label>Federation Association</label>
+          <label>Affiliation Role</label>
           <input id="rs-federation" readonly placeholder="—" />
         </div>
-        <div class="reg-field">
-          <label>Association Name</label>
-          <input id="rs-association" readonly placeholder="—" />
-        </div>
-      </div>
-      <div style="height:0.55rem"></div>
-      <div class="reg-grid-2">
         <div class="reg-field">
           <label>NCFRS</label>
           <input id="rs-ncfrs" readonly placeholder="—" />
@@ -236,16 +242,13 @@
           <label>RSBSA Registered</label>
           <input id="rs-rsbsa" readonly placeholder="—" />
         </div>
-      </div>
-      <div style="height:0.55rem"></div>
-      <div class="reg-grid-2">
         <div class="reg-field">
           <label>RSBSA Registered Number</label>
           <input id="rs-rsbsa-number" readonly placeholder="—" />
         </div>
         <div class="reg-field">
-          <label></label>
-          <input readonly placeholder="—" style="opacity:0; pointer-events:none;" />
+          <label>RSBSA Status</label>
+          <input id="rs-rsbsa-status" readonly placeholder="—" />
         </div>
       </div>
 
@@ -341,11 +344,11 @@
         </span>
         <span class="app-bottom-nav-label">Home</span>
       </a>
-      <a href="qr.php" id="nav-qr" class="app-bottom-nav-link">
+      <a href="records.php" id="nav-qr" class="app-bottom-nav-link">
         <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
-          <svg class="app-bottom-nav-icon app-bottom-nav-icon--transaction" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6 7.25h9v2H6z"/><path fill="currentColor" d="M15 6 19 8.25 15 10.5z"/><path fill="currentColor" d="M9 14.25h9v2H9z"/><path fill="currentColor" d="M9 13.25 5 15.25 9 17.25z"/></svg>
+          <svg class="app-bottom-nav-icon app-bottom-nav-icon--record" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 2h6v2H9z"/><path d="M9 12h6"/><path d="M9 16h6"/><path d="M9 20h4"/></svg>
         </span>
-        <span class="app-bottom-nav-label">Transaction</span>
+        <span class="app-bottom-nav-label">Record</span>
       </a>
       <a href="register_summary.php" id="nav-register" class="app-bottom-nav-link app-bottom-nav-link--featured">
         <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
@@ -380,14 +383,28 @@
           return null;
         }
       }
-      function getSignedInKey() {
+      function getSessionUser() {
         try {
           var raw = localStorage.getItem('beanthentic_user') || sessionStorage.getItem('beanthentic_user');
-          var u = raw ? JSON.parse(raw) : null;
-          return (u && u.email) ? String(u.email).trim().toLowerCase() : '';
+          return raw ? JSON.parse(raw) : null;
         } catch (_e) {
-          return '';
+          return null;
         }
+      }
+      function getSignedInKey() {
+        var u = getSessionUser();
+        if (!u) return '';
+        if (u.email != null && String(u.email).trim()) return String(u.email).trim().toLowerCase();
+        if (u.phone_number != null && String(u.phone_number).trim()) return String(u.phone_number).trim();
+        if (u.login != null && String(u.login).trim()) return String(u.login).trim();
+        return '';
+      }
+      function formatBirthdayDisplay(raw) {
+        var s = String(raw == null ? '' : raw).trim();
+        if (!s) return '';
+        var m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+        if (m) return m[2] + '/' + m[3] + '/' + m[1];
+        return s;
       }
       function keyVariants(v) {
         var out = [];
@@ -436,7 +453,7 @@
           for (var i = 0; i < keys.length; i += 1) {
             var kk = keys[i];
             var prev = map[kk];
-            var merged = Object.assign({}, profile);
+            var merged = Object.assign({}, prev || {}, profile);
             if (prev && typeof prev === 'object' && String(prev.profile_photo_data || '').trim()) {
               var incoming = String(merged.profile_photo_data || '').trim();
               if (!incoming) merged.profile_photo_data = prev.profile_photo_data;
@@ -456,30 +473,109 @@
           if (window.location && /^https?:$/i.test(window.location.protocol) && window.location.origin) out.push(window.location.origin);
         } catch (_e) {}
         try {
+          // Primary: the same base used by login/signup/register APIs.
+          var api = localStorage.getItem('beanthentic_api_base') || sessionStorage.getItem('beanthentic_api_base');
+          if (api) out.push(String(api).trim().replace(/\/+$/, ''));
+        } catch (_eApi) {}
+        try {
           var saved = localStorage.getItem('beanthentic_flask_base') || sessionStorage.getItem('beanthentic_flask_base');
           if (saved) out.push(String(saved).trim().replace(/\/+$/, ''));
         } catch (_e2) {}
         out.push('');
         return Array.from(new Set(out.filter(Boolean).concat([''])));
       }
+      function profileQueryParams() {
+        var u = getSessionUser();
+        var loginKey = getSignedInKey();
+        var q = [];
+        if (loginKey) q.push('login_id=' + encodeURIComponent(loginKey));
+        if (u && u.user_id > 0) q.push('user_id=' + encodeURIComponent(String(u.user_id)));
+        if (u && u.farmer_id > 0) q.push('farmer_id=' + encodeURIComponent(String(u.farmer_id)));
+        return q.length ? ('?' + q.join('&')) : '';
+      }
       async function fetchProfileFromApi() {
         var loginKey = getSignedInKey();
-        if (!loginKey) return null;
+        var u = getSessionUser();
+        if (!loginKey && !(u && u.user_id > 0)) {
+          try {
+            var note0 = document.getElementById('rs-note');
+            if (note0) {
+              note0.hidden = false;
+              note0.textContent = 'Cannot load profile: missing signed-in user (beanthentic_user). Please login again.';
+            }
+          } catch (_n0) {}
+          return null;
+        }
+        var qs = profileQueryParams();
+        var lastErr = '';
+        if (window.BeanthenticApiUrls && window.BeanthenticApiUrls.phpApiUrlCandidates) {
+          var urls = window.BeanthenticApiUrls.phpApiUrlCandidates('register-farm/farmer-profile' + qs);
+          for (var j = 0; j < Math.min(urls.length, 3); j += 1) {
+            try {
+              var resA = await fetch(urls[j], { method: 'GET', credentials: 'same-origin' });
+              if (!resA.ok) { lastErr = 'HTTP ' + resA.status; continue; }
+              var dataA = await resA.json();
+              if (dataA && dataA.success && dataA.found && dataA.profile) {
+                cacheProfileForSignedInUser(dataA.profile);
+                return dataA.profile;
+              }
+              if (dataA && dataA.success && dataA.found === false) lastErr = 'Not found in MySQL';
+            } catch (errA) {
+              lastErr = (errA && errA.message) ? String(errA.message) : 'Network error';
+            }
+          }
+        }
         var bases = apiBases();
         for (var i = 0; i < bases.length; i += 1) {
           var base = bases[i];
-          var url = (base ? base : '') + '/api/register-farm/farmer-profile?login_id=' + encodeURIComponent(loginKey);
+          var url = (base ? base : '') + '/api/register-farm/farmer-profile' + qs;
           try {
             var res = await fetch(url, { method: 'GET', credentials: 'same-origin' });
-            if (!res.ok) continue;
+            if (!res.ok) { lastErr = 'HTTP ' + res.status + ' @ ' + url; continue; }
             var data = await res.json();
             if (data && data.success && data.found && data.profile) {
               cacheProfileForSignedInUser(data.profile);
               return data.profile;
             }
-          } catch (_err) {}
+            if (data && data.success && data.found === false) {
+              lastErr = 'Not found in DB';
+            }
+          } catch (err) {
+            try {
+              lastErr = (err && err.message ? String(err.message) : String(err)) + ' @ ' + url;
+            } catch (_e3) {
+              lastErr = 'Network error @ ' + url;
+            }
+          }
         }
+        try {
+          var note = document.getElementById('rs-note');
+          if (note && lastErr) {
+            note.hidden = false;
+            note.textContent = 'Cannot load profile from server: ' + lastErr;
+          }
+        } catch (_n) {}
         return null;
+      }
+      function mergeProfiles(local, api) {
+        var out = Object.assign({}, local || {}, api || {});
+        function pick(field) {
+          var a = api && api[field];
+          var b = local && local[field];
+          if (a !== null && a !== undefined && String(a).trim() !== '') return a;
+          if (b !== null && b !== undefined && String(b).trim() !== '') return b;
+          return '';
+        }
+        out.birthday = pick('birthday') || pick('birth_date') || pick('date_of_birth');
+        out.first_name = pick('first_name');
+        out.last_name = pick('last_name');
+        out.barangay = pick('barangay');
+        out.province = pick('province') || 'Batangas';
+        out.municipality = pick('municipality') || 'Lipa City';
+        var photoLocal = local && String(local.profile_photo_data || local.profile_photo || '').trim();
+        var photoApi = api && String(api.profile_photo_data || api.profile_photo || '').trim();
+        out.profile_photo_data = photoApi || photoLocal || '';
+        return out;
       }
       function normalizeProfilePhotoData(raw) {
         var s = String(raw || '').trim();
@@ -513,6 +609,38 @@
           return;
         }
         el.value = displayCapitalize(String(value));
+      }
+      function setBirthday(value) {
+        var el = document.getElementById('rs-birthday');
+        if (!el) return;
+        var formatted = formatBirthdayDisplay(value);
+        el.value = formatted ? formatted : '—';
+      }
+      function formatOwnershipDisplay(raw) {
+        var s = String(raw == null ? '' : raw).trim().toLowerCase();
+        if (!s) return '';
+        var map = {
+          landowner: 'Landowner',
+          cloa_holder: 'CLOA holder',
+          list_holder: 'LIST holder',
+          sessional_farm_worker: 'Seasonal farm worker',
+          others: 'Others',
+          owner: 'Landowner',
+          tenant: 'Seasonal farm worker',
+          'co-owner': 'CLOA holder',
+          co_owner: 'CLOA holder',
+          coowner: 'CLOA holder',
+          other: 'Others'
+        };
+        var label = map[s];
+        if (label) return label;
+        return displayCapitalize(String(raw).trim());
+      }
+      function setOwnershipField(id, raw) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        var txt = formatOwnershipDisplay(raw);
+        el.value = txt ? txt : '—';
       }
       function prod(p, key) {
         var obj = (p && p.production && typeof p.production === 'object') ? p.production : {};
@@ -551,13 +679,13 @@
         }
         set('rs-first-name', first);
         set('rs-last-name', last);
+        setBirthday(p.birthday || p.birth_date || p.date_of_birth || '');
 
         set('rs-province', p.province || 'Batangas');
         set('rs-municipality', p.municipality || 'Lipa City');
         set('rs-barangay', p.barangay || '');
 
         set('rs-federation', p.federation || '—');
-        set('rs-association', p.association || '—');
         var ncfrsText = String(p.ncfrs || '').trim().toLowerCase();
         if (ncfrsText === 'yes') ncfrsText = 'Yes';
         else if (ncfrsText === 'no') ncfrsText = 'No';
@@ -567,8 +695,14 @@
         if (typeof p.rsbsa_registered === 'string' && p.rsbsa_registered.trim()) rsbsaText = p.rsbsa_registered.trim();
         set('rs-rsbsa', rsbsaText);
         set('rs-rsbsa-number', p.rsbsa_number || '');
+        var rsbsaStatusText = '—';
+        var rsbSt = String(p.rsbsa_status || '').trim().toLowerCase();
+        if (rsbSt === 'not_yet_applied') rsbsaStatusText = 'Not Yet Applied';
+        else if (rsbSt === 'pending_rsbsa') rsbsaStatusText = 'Pending RSBSA';
+        else if (p.rsbsa_status && String(p.rsbsa_status).trim()) rsbsaStatusText = String(p.rsbsa_status).trim();
+        set('rs-rsbsa-status', rsbsaStatusText);
 
-        set('rs-ownership', p.ownership_status || '');
+        setOwnershipField('rs-ownership', p.ownership_status || '');
         var area = '';
         if ((p.plant_area_value != null && String(p.plant_area_value).trim() !== '') || (p.plant_area_unit && String(p.plant_area_unit).trim())) {
           area = String(p.plant_area_value || '').trim() + (p.plant_area_unit ? (' ' + String(p.plant_area_unit).trim()) : '');
@@ -617,12 +751,8 @@
         try {
           pApi = await fetchProfileFromApi();
         } catch (_ea) {}
-        var p = pLocal || pApi;
-        if (pLocal && pApi) {
-          p = Object.assign({}, pApi, pLocal);
-          var keepPhoto = String(pLocal.profile_photo_data || '').trim();
-          if (keepPhoto) p.profile_photo_data = keepPhoto;
-        }
+        var p = mergeProfiles(pLocal, pApi) || pLocal || pApi;
+        if (p) cacheProfileForSignedInUser(p);
         renderProfile(p);
         try {
           if (typeof window.beanthenticSyncRegisterNavIcon === 'function') {

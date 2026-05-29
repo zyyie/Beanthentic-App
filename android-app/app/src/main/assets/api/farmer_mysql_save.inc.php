@@ -6,6 +6,8 @@ declare(strict_types=1);
  * Included by register_farm_farmer.php and farmer_register.php — do not emit output here.
  */
 
+require_once __DIR__ . '/farmer_profile_photo.inc.php';
+
 if (!function_exists('beanthentic_lipa_barangays')) {
     function beanthentic_lipa_barangays(): array
     {
@@ -37,35 +39,114 @@ if (!function_exists('fr_qty_to_kg')) {
 }
 
 if (!function_exists('fr_map_ownership_wizard')) {
-    /** Maps wizard ownership_status to farm_information ENUM (owner|tenant|co-owner|other). */
+    /**
+     * Normalize ownership_status to register-farm wizard values stored in farm_information
+     * (landowner | cloa_holder | list_holder | sessional_farm_worker | others).
+     * Maps legacy ENUM values for backward compatibility.
+     */
     function fr_map_ownership_wizard(string $raw): string
     {
         $s = strtolower(trim($raw));
-        $map = [
-            'landowner' => 'owner',
-            'cloa_holder' => 'owner',
-            'list_holder' => 'other',
-            'sessional_farm_worker' => 'tenant',
-            'others' => 'other',
-            'owned' => 'owner',
-            'owner' => 'owner',
-            'tenant' => 'tenant',
-            'lessee' => 'tenant',
-            'co-owner' => 'co-owner',
-            'co_owner' => 'co-owner',
-            'coowner' => 'co-owner',
-            'usufruct' => 'other',
-            'other' => 'other',
+        $wizard = ['landowner', 'cloa_holder', 'list_holder', 'sessional_farm_worker', 'others'];
+        if (in_array($s, $wizard, true)) {
+            return $s;
+        }
+        $legacy = [
+            'owner' => 'landowner',
+            'owned' => 'landowner',
+            'tenant' => 'sessional_farm_worker',
+            'lessee' => 'sessional_farm_worker',
+            'co-owner' => 'cloa_holder',
+            'co_owner' => 'cloa_holder',
+            'coowner' => 'cloa_holder',
+            'other' => 'others',
+            'usufruct' => 'others',
         ];
-        return $map[$s] ?? 'other';
+
+        return $legacy[$s] ?? 'others';
     }
 }
 
-if (!function_exists('fr_rsbsa_tiny')) {
-    function fr_rsbsa_tiny(string $raw): int
+if (!function_exists('fr_ncfrs_tiny')) {
+    /** NCFRS yes/no → 1/0 */
+    function fr_ncfrs_tiny(string $raw): int
+    {
+        return strtolower(trim($raw)) === 'yes' ? 1 : 0;
+    }
+}
+
+if (!function_exists('fr_rsbsa_code')) {
+    /** yes | no | pending → 1 | 0 | 2 */
+    function fr_rsbsa_code(string $raw): int
     {
         $s = strtolower(trim($raw));
-        return $s === 'yes' ? 1 : 0;
+        if ($s === 'yes') {
+            return 1;
+        }
+        if ($s === 'pending') {
+            return 2;
+        }
+
+        return 0;
+    }
+}
+
+if (!function_exists('fr_rsbsa_status_value')) {
+    /** not_yet_applied | pending_rsbsa */
+    function fr_rsbsa_status_value(string $raw): ?string
+    {
+        $s = strtolower(trim($raw));
+        if ($s === 'not_yet_applied' || $s === 'pending_rsbsa') {
+            return $s;
+        }
+
+        return null;
+    }
+}
+
+if (!function_exists('beanthentic_resolve_user_id_from_payload')) {
+    /**
+     * @param array<string,mixed> $body
+     */
+    function beanthentic_resolve_user_id_from_payload(PDO $pdo, array $body): int
+    {
+        try {
+            $uid = (int)($body['user_id'] ?? 0);
+        } catch (Throwable $e) {
+            $uid = 0;
+        }
+        if ($uid > 0) {
+            return $uid;
+        }
+        $phone = trim((string)($body['phone'] ?? ''));
+        if ($phone !== '') {
+            $parsed = beanthentic_parse_login_identifier($phone);
+            if ($parsed['type'] === 'phone' && $parsed['phone'] !== '') {
+                $stmt = $pdo->prepare(
+                    'SELECT user_id FROM users WHERE phone_number = ? AND is_active = 1 LIMIT 1'
+                );
+                $stmt->execute([$parsed['phone']]);
+                $row = $stmt->fetch();
+                if ($row) {
+                    return (int)$row['user_id'];
+                }
+            }
+        }
+        $email = trim((string)($body['email'] ?? ''));
+        if ($email !== '') {
+            $parsed = beanthentic_parse_login_identifier($email);
+            if ($parsed['type'] === 'email' && $parsed['email'] !== '') {
+                $stmt = $pdo->prepare(
+                    'SELECT user_id FROM users WHERE LOWER(TRIM(COALESCE(email, \'\'))) = ? AND is_active = 1 LIMIT 1'
+                );
+                $stmt->execute([strtolower($parsed['email'])]);
+                $row = $stmt->fetch();
+                if ($row) {
+                    return (int)$row['user_id'];
+                }
+            }
+        }
+        return 0;
     }
 }
 
@@ -77,7 +158,7 @@ if (!function_exists('beanthentic_validate_farmer_payload')) {
     {
         $err = [];
         if ($userId <= 0) {
-            $err['user_id'] = 'Missing account. Log in again via XAMPP.';
+            $err['user_id'] = 'Missing account. Log in again, then return to Register Farm.';
         }
         $first = trim((string)($d['first_name'] ?? ''));
         $last = trim((string)($d['last_name'] ?? ''));
@@ -86,6 +167,20 @@ if (!function_exists('beanthentic_validate_farmer_payload')) {
         }
         if (strlen($last) < 2) {
             $err['last_name'] = 'Enter your last name.';
+        }
+        $birthday = trim((string)($d['birthday'] ?? ''));
+        if ($birthday === '') {
+            $err['birthday'] = 'Enter your birthday.';
+        } else {
+            $dob = DateTime::createFromFormat('Y-m-d', substr($birthday, 0, 10));
+            $dobErrors = DateTime::getLastErrors();
+            if (!$dob || ($dobErrors['warning_count'] ?? 0) > 0 || ($dobErrors['error_count'] ?? 0) > 0) {
+                $err['birthday'] = 'Enter a valid date (YYYY-MM-DD).';
+            } elseif ($dob > new DateTime('today')) {
+                $err['birthday'] = 'Birthday cannot be in the future.';
+            } elseif ((int)$dob->format('Y') < 1900) {
+                $err['birthday'] = 'Enter a valid birthday.';
+            }
         }
         $barangay = trim((string)($d['barangay'] ?? ''));
         if ($barangay === '') {
@@ -103,12 +198,18 @@ if (!function_exists('beanthentic_validate_farmer_payload')) {
             $err['ncfrs'] = 'Select NCFRS (Yes or No).';
         }
         $rsb = strtolower(trim((string)($d['rsbsa_registered'] ?? '')));
-        if (!in_array($rsb, ['yes', 'no', 'pending'], true)) {
-            $err['rsbsa_registered'] = 'Select RSBSA registration status.';
+        if (!in_array($rsb, ['yes', 'no'], true)) {
+            $err['rsbsa_registered'] = 'Select RSBSA Registered (Yes or No).';
         }
         $rsbNum = trim((string)($d['rsbsa_number'] ?? ''));
+        $rsbStatus = strtolower(trim((string)($d['rsbsa_status'] ?? '')));
         if ($rsb === 'yes' && strlen($rsbNum) < 4) {
             $err['rsbsa_number'] = 'Enter your RSBSA number.';
+        }
+        if ($rsb === 'no') {
+            if (!in_array($rsbStatus, ['not_yet_applied', 'pending_rsbsa'], true)) {
+                $err['rsbsa_status'] = 'Select RSBSA Status.';
+            }
         }
 
         $own = strtolower(trim((string)($d['ownership_status'] ?? '')));
@@ -172,11 +273,23 @@ if (!function_exists('beanthentic_farmer_mysql_save')) {
 
         $first = trim((string)($body['first_name'] ?? ''));
         $last = trim((string)($body['last_name'] ?? ''));
+        $birthday = trim((string)($body['birthday'] ?? ''));
+        if ($birthday === '') {
+            $birthday = null;
+        }
         $phone = beanthentic_normalize_phone(trim((string)($body['phone'] ?? '')));
         if ($phone === '') {
             $phone = null;
         }
         $barangay = trim((string)($body['barangay'] ?? ''));
+        $province = trim((string)($body['province'] ?? ''));
+        if ($province === '') {
+            $province = 'Batangas';
+        }
+        $municipality = trim((string)($body['municipality'] ?? ''));
+        if ($municipality === '') {
+            $municipality = 'Lipa City';
+        }
         $farmAddr = trim((string)($body['farm_address'] ?? ''));
         $ownership = fr_map_ownership_wizard((string)($body['ownership_status'] ?? ''));
         $plantVal = $body['plant_area_value'] ?? null;
@@ -206,6 +319,12 @@ if (!function_exists('beanthentic_farmer_mysql_save')) {
         $assoc = trim((string)($body['association'] ?? ''));
         $rsb = (string)($body['rsbsa_registered'] ?? '');
         $rsbNo = trim((string)($body['rsbsa_number'] ?? ''));
+        $rsbStatus = fr_rsbsa_status_value((string)($body['rsbsa_status'] ?? ''));
+        if (strtolower(trim($rsb)) === 'no') {
+            $rsbNo = 'N/A';
+        } else {
+            $rsbStatus = null;
+        }
 
         $pdo->beginTransaction();
 
@@ -226,26 +345,32 @@ if (!function_exists('beanthentic_farmer_mysql_save')) {
         $piSel->execute([$farmerId]);
         if ($piSel->fetch()) {
             $pdo->prepare(
-                'UPDATE personal_information SET first_name = ?, last_name = ?, contact_number = COALESCE(?, contact_number),
-                 barangay = ?, current_address = COALESCE(?, current_address) WHERE farmer_id = ?'
+                'UPDATE personal_information SET first_name = ?, last_name = ?, birthday = ?, contact_number = COALESCE(?, contact_number),
+                 barangay = ?, province = ?, municipality = ?, current_address = COALESCE(?, current_address) WHERE farmer_id = ?'
             )->execute([
                 $first !== '' ? $first : null,
                 $last !== '' ? $last : null,
+                $birthday,
                 $phone,
                 $barangay !== '' ? $barangay : null,
+                $province,
+                $municipality,
                 $addrLine,
                 $farmerId,
             ]);
         } else {
             $pdo->prepare(
-                'INSERT INTO personal_information (farmer_id, first_name, last_name, contact_number, barangay, current_address)
-                 VALUES (?, ?, ?, ?, ?, ?)'
+                'INSERT INTO personal_information (farmer_id, first_name, last_name, birthday, contact_number, barangay, province, municipality, current_address)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
             )->execute([
                 $farmerId,
                 $first !== '' ? $first : null,
                 $last !== '' ? $last : null,
+                $birthday,
                 $phone,
                 $barangay !== '' ? $barangay : null,
+                $province,
+                $municipality,
                 $addrLine,
             ]);
         }
@@ -254,26 +379,26 @@ if (!function_exists('beanthentic_farmer_mysql_save')) {
         $fiSel->execute([$farmerId]);
         if ($fiSel->fetch()) {
             $pdo->prepare(
-                'UPDATE farm_information SET ownership_status = ?, farm_address = COALESCE(?, farm_address), barangay = COALESCE(?, barangay), farm_size_ha = COALESCE(?, farm_size_ha) WHERE farmer_id = ?'
-            )->execute([$ownership, $addrLine, $barangay !== '' ? $barangay : null, $plantHa, $farmerId]);
+                'UPDATE farm_information SET ownership_status = ?, farm_address = COALESCE(?, farm_address), barangay = COALESCE(?, barangay), farm_size_ha = COALESCE(?, farm_size_ha), province = ?, municipality = ? WHERE farmer_id = ?'
+            )->execute([$ownership, $addrLine, $barangay !== '' ? $barangay : null, $plantHa, $province, $municipality, $farmerId]);
         } else {
             $pdo->prepare(
-                'INSERT INTO farm_information (farmer_id, ownership_status, farm_address, barangay, farm_size_ha)
-                 VALUES (?, ?, ?, ?, ?)'
-            )->execute([$farmerId, $ownership, $addrLine, $barangay !== '' ? $barangay : null, $plantHa]);
+                'INSERT INTO farm_information (farmer_id, ownership_status, farm_address, barangay, farm_size_ha, province, municipality)
+                 VALUES (?, ?, ?, ?, ?, ?, ?)'
+            )->execute([$farmerId, $ownership, $addrLine, $barangay !== '' ? $barangay : null, $plantHa, $province, $municipality]);
         }
 
         $affSel = $pdo->prepare('SELECT affiliation_info_id FROM affiliation_information WHERE farmer_id = ? LIMIT 1');
         $affSel->execute([$farmerId]);
         if ($affSel->fetch()) {
             $pdo->prepare(
-                'UPDATE affiliation_information SET federation_assoc = ?, coop_name = ?, rsbsa_registered = ?, rsbsa_number = ? WHERE farmer_id = ?'
-            )->execute([$fed !== '' ? $fed : null, $assoc !== '' ? $assoc : null, fr_rsbsa_tiny($rsb), $rsbNo !== '' ? $rsbNo : null, $farmerId]);
+                'UPDATE affiliation_information SET federation_assoc = ?, coop_name = ?, ncfrs = ?, rsbsa_registered = ?, rsbsa_number = ?, rsbsa_status = ? WHERE farmer_id = ?'
+            )->execute([$fed !== '' ? $fed : null, $assoc !== '' ? $assoc : null, fr_ncfrs_tiny((string)($body['ncfrs'] ?? '')), fr_rsbsa_code($rsb), $rsbNo !== '' ? $rsbNo : null, $rsbStatus, $farmerId]);
         } else {
             $pdo->prepare(
-                'INSERT INTO affiliation_information (farmer_id, federation_assoc, coop_name, rsbsa_registered, rsbsa_number)
-                 VALUES (?, ?, ?, ?, ?)'
-            )->execute([$farmerId, $fed !== '' ? $fed : null, $assoc !== '' ? $assoc : null, fr_rsbsa_tiny($rsb), $rsbNo !== '' ? $rsbNo : null]);
+                'INSERT INTO affiliation_information (farmer_id, federation_assoc, coop_name, ncfrs, rsbsa_registered, rsbsa_number, rsbsa_status)
+                 VALUES (?, ?, ?, ?, ?, ?, ?)'
+            )->execute([$farmerId, $fed !== '' ? $fed : null, $assoc !== '' ? $assoc : null, fr_ncfrs_tiny((string)($body['ncfrs'] ?? '')), fr_rsbsa_code($rsb), $rsbNo !== '' ? $rsbNo : null, $rsbStatus]);
         }
 
         $rb = (int)($body['robusta_bearing'] ?? 0);
@@ -308,6 +433,14 @@ if (!function_exists('beanthentic_farmer_mysql_save')) {
                 'INSERT INTO production_information (farmer_id, production_year, robusta_qty_kg, liberica_qty_kg, excelsa_qty_kg, beans_remaining_kg)
                  VALUES (?, ?, ?, ?, ?, ?)'
             )->execute([$farmerId, $year, $robKg, $libKg, $excKg, $totalKg]);
+        }
+
+        $photoPath = fr_mysql_save_profile_photo_file(
+            $farmerId,
+            trim((string)($body['profile_photo_data'] ?? ''))
+        );
+        if ($photoPath) {
+            $pdo->prepare('UPDATE farmers SET profile_photo = ? WHERE farmer_id = ?')->execute([$photoPath, $farmerId]);
         }
 
         $pdo->commit();

@@ -4,12 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#25671E" />
+  <script src="js/beanthentic_theme.js?v=20260527-9"></script>
   <title>About · Beanthentic Coffee</title>
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/responsive.css">
-  <script id="beanthentic-fixed-topbar-js" src="js/beanthentic_fixed_topbar.js" defer></script>
+  <script id="beanthentic-fixed-topbar-js" src="js/beanthentic_fixed_topbar.js"></script>
   <style>
     body {
       background: #fff;
@@ -184,52 +185,45 @@
       font-style: normal;
       text-align: center;
       line-height: 1.1;
-      transition: color 0.18s ease, text-shadow 0.18s ease;
+      color: #1f7a2e;
+      transition: color 0.18s ease;
     }
 
-    /* Whole card (icon + label): soft highlight */
+    /* Whole card (icon + label): solid green on hover */
     .about-link-card:hover,
     .about-link-card:focus-visible {
       transform: translateY(-2px);
-      background: rgba(31, 122, 46, 0.08);
-      border-color: rgba(31, 122, 46, 0.32);
-      box-shadow:
-        0 12px 22px rgba(17, 24, 39, 0.08),
-        0 0 0 3px rgba(31, 122, 46, 0.18);
+      background: #0d521d;
+      border-color: #0d521d;
+      box-shadow: 0 10px 20px rgba(13, 82, 29, 0.28);
     }
     .about-link-card:hover .about-link-icon,
     .about-link-card:focus-visible .about-link-icon {
-      color: #1c6f20;
+      color: #0d521d;
       transform: scale(1.04);
-      border-color: rgba(28, 111, 32, 0.45);
-      box-shadow: 0 4px 12px rgba(27, 94, 32, 0.18);
-      background: #f4faf4;
+      border-color: rgba(255, 255, 255, 0.65);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.14);
+      background: #ffffff;
     }
     .about-link-card:hover .about-link-text,
     .about-link-card:focus-visible .about-link-text {
-      color: #1c6f20;
-      text-shadow: 0 0 14px rgba(31, 122, 46, 0.28);
+      color: #ffffff;
     }
 
-    /* Click / press: stronger glow — damay ang buong box kasama ang text */
     .about-link-card:active {
       transform: translateY(0) scale(0.985);
-      background: rgba(31, 122, 46, 0.14);
-      border-color: rgba(31, 122, 46, 0.55);
-      box-shadow:
-        0 8px 20px rgba(17, 24, 39, 0.10),
-        0 0 0 4px rgba(31, 122, 46, 0.42),
-        0 0 26px rgba(31, 122, 46, 0.32);
+      background: #0a4618;
+      border-color: #0a4618;
+      box-shadow: 0 6px 16px rgba(10, 70, 24, 0.32);
     }
     .about-link-card:active .about-link-icon {
-      color: #155724;
+      color: #0a4618;
       transform: scale(1.02);
-      border-color: rgba(21, 87, 36, 0.55);
-      background: #eaf6eb;
+      border-color: rgba(255, 255, 255, 0.55);
+      background: #ffffff;
     }
     .about-link-card:active .about-link-text {
-      color: #155724;
-      text-shadow: 0 0 18px rgba(31, 122, 46, 0.45);
+      color: #ffffff;
     }
 
     @media (min-width: 700px) {
@@ -336,11 +330,11 @@
         </span>
         <span class="app-bottom-nav-label">Home</span>
       </a>
-      <a href="qr.php" id="nav-qr" class="app-bottom-nav-link">
+      <a href="records.php" id="nav-qr" class="app-bottom-nav-link">
         <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
-          <svg class="app-bottom-nav-icon app-bottom-nav-icon--transaction" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6 7.25h9v2H6z"/><path fill="currentColor" d="M15 6 19 8.25 15 10.5z"/><path fill="currentColor" d="M9 14.25h9v2H9z"/><path fill="currentColor" d="M9 13.25 5 15.25 9 17.25z"/></svg>
+          <svg class="app-bottom-nav-icon app-bottom-nav-icon--record" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 2h6v2H9z"/><path d="M9 12h6"/><path d="M9 16h6"/><path d="M9 20h4"/></svg>
         </span>
-        <span class="app-bottom-nav-label">Transaction</span>
+        <span class="app-bottom-nav-label">Record</span>
       </a>
       <a href="register_summary.php" id="nav-register" class="app-bottom-nav-link app-bottom-nav-link--featured">
         <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
@@ -366,22 +360,23 @@
 
   <script>
     (function () {
+      function aboutBackTarget() {
+        try {
+          var params = new URLSearchParams(window.location.search || '');
+          var from = params.get('from');
+          if (from === 'account_settings') return 'account_settings.html';
+          if (from === 'home') return 'index.php#home';
+        } catch (_e) {}
+        return 'account.php';
+      }
+
       var backBtn = document.querySelector('.about-nav-back');
       if (backBtn) {
+        var backTarget = aboutBackTarget();
+        backBtn.setAttribute('href', backTarget);
         backBtn.addEventListener('click', function (event) {
           event.preventDefault();
-          try {
-            if (window.history && window.history.length > 1) {
-              window.history.back();
-              return;
-            }
-          } catch (_e) {}
-          var fallback = 'account.php';
-          try {
-            var params = new URLSearchParams(window.location.search || '');
-            if (params.get('from') === 'account_settings') fallback = 'account_settings.html';
-          } catch (_err) {}
-          window.location.href = fallback;
+          window.location.href = backTarget;
         });
       }
 

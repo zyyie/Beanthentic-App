@@ -1,30 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#25671E" />
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('beanthentic_app_theme') || sessionStorage.getItem('beanthentic_app_theme') || 'light';
+        var eff = t === 'dark' ? 'dark' : (t === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-beanthentic-theme', t);
+        document.documentElement.setAttribute('data-beanthentic-theme-effective', eff);
+      } catch (_boot) { }
+    })();
+  </script>
+  <script src="js/beanthentic_theme.js?v=20260527-9"></script>
   <title>Help · Beanthentic Coffee</title>
   <link rel="stylesheet" href="css/base.css" />
   <link rel="stylesheet" href="css/layout.css" />
   <link rel="stylesheet" href="css/components.css" />
   <link rel="stylesheet" href="css/responsive.css" />
-  <script id="beanthentic-fixed-topbar-js" src="js/beanthentic_fixed_topbar.js" defer></script>
+  <link rel="stylesheet" href="css/theme.css?v=20260527-2" />
+  <script id="beanthentic-fixed-topbar-js" src="js/beanthentic_fixed_topbar.js"></script>
   <style>
-    body.help-page { margin: 0; background: #e9edf3; }
+    body.help-page {
+      margin: 0;
+      background: #e9edf3;
+    }
+
     .help-page header {
       background: linear-gradient(180deg, #1d7a2a 0%, #145e1e 100%);
       border-radius: 0 0 16px 16px;
       padding-top: env(safe-area-inset-top);
     }
+
     .help-page .nav {
       display: flex;
       align-items: center;
       justify-content: center;
       position: relative;
-      min-height: 4.4rem;
-      padding: 0.6rem max(1rem, env(safe-area-inset-left, 0px)) 0.7rem max(1rem, env(safe-area-inset-right, 0px));
+      min-height: 6.1rem;
+      padding: 1rem max(1rem, env(safe-area-inset-left, 0px)) 1.1rem max(1rem, env(safe-area-inset-right, 0px));
     }
+
     .help-header-back {
       position: absolute;
       left: max(0.9rem, env(safe-area-inset-left, 0px));
@@ -40,93 +59,377 @@
       cursor: pointer;
       line-height: 0;
     }
-    .help-header-back svg { width: 24px; height: 24px; }
+
+    .help-header-back svg {
+      width: 32px;
+      height: 32px;
+    }
+
     .help-header-title {
       margin: 0;
       color: #ffffff;
-      font-size: 1.45rem;
-      line-height: 1;
+      font-size: 2.25rem;
+      line-height: 1.05;
       font-weight: 800;
       letter-spacing: -0.01em;
       text-align: center;
     }
+
     .help-main {
-      width: min(100%, 620px);
+      width: min(96vw, 720px);
+      max-width: 720px;
       margin: 0 auto;
-      padding: 1.15rem 1.05rem 2.5rem;
+      padding: 1.15rem 0.75rem 2.5rem;
       box-sizing: border-box;
     }
+
+    @media (min-width: 768px) {
+      .help-main {
+        width: min(92vw, 840px);
+        max-width: 840px;
+        padding-left: 1.25rem;
+        padding-right: 1.25rem;
+      }
+    }
+
     .help-card {
+      width: 100%;
+      box-sizing: border-box;
       background: #ffffff;
       border: 1px solid rgba(17, 24, 39, 0.06);
       border-radius: 16px;
       box-shadow: 0 10px 24px rgba(17, 24, 39, 0.06);
-      padding: 1.1rem 1.05rem 1.2rem;
+      padding: 1.4rem 1.5rem 1.3rem;
+      margin-bottom: 0.85rem;
     }
+
+    .help-card:not(.help-more) {
+      min-height: 14.5rem;
+    }
+
+    .help-card.help-more {
+      padding: 0.85rem 1.15rem 0.95rem;
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+
     .help-card h2 {
-      margin: 0 0 0.65rem;
-      font-size: 1.05rem;
+      margin: 0 0 0.5rem;
+      font-size: 1.18rem;
       font-weight: 800;
-      color: #111827;
+      color: #145e1e;
     }
-    .help-card p {
-      margin: 0 0 0.85rem;
-      font-size: 0.92rem;
-      line-height: 1.45;
-      color: #374151;
-    }
-    .help-links {
-      list-style: none;
+
+    .help-guide-list {
       margin: 0;
       padding: 0;
-      display: grid;
-      gap: 0;
+      list-style: none;
     }
-    .help-links li { border-bottom: 1px solid rgba(17, 24, 39, 0.08); }
-    .help-links li:last-child { border-bottom: none; }
-    .help-links a {
+
+    .help-guide-item {
+      border-bottom: 1px solid rgba(17, 24, 39, 0.08);
+    }
+
+    .help-guide-item:last-child {
+      border-bottom: none;
+    }
+
+    .help-guide-toggle {
+      width: 100%;
+      border: none;
+      background: transparent;
+      display: grid;
+      grid-template-columns: 1fr 26px;
+      gap: 0.5rem;
+      align-items: center;
+      text-align: left;
+      padding: 1rem 0;
+      font-family: inherit;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #111827;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .help-guide-toggle:focus-visible {
+      outline: 2px solid #2273eb;
+      outline-offset: 2px;
+      border-radius: 6px;
+    }
+
+    .help-guide-chevron {
+      width: 13px;
+      height: 13px;
+      border-right: 2.5px solid #145e1e;
+      border-bottom: 2.5px solid #145e1e;
+      transform: rotate(45deg);
+      justify-self: center;
+      transition: transform 0.18s ease;
+    }
+
+    .help-guide-toggle[aria-expanded="true"] .help-guide-chevron {
+      transform: rotate(-135deg);
+      margin-top: 0.2rem;
+    }
+
+    .help-guide-body {
+      display: none;
+      padding: 0 0 1.15rem;
+      font-size: 0.98rem;
+      line-height: 1.5;
+      color: #374151;
+    }
+
+    .help-guide-body.is-open {
       display: block;
-      padding: 0.68rem 0.15rem;
+    }
+
+    .help-guide-body p {
+      margin: 0 0 0.55rem;
+    }
+
+    .help-guide-body p:last-child {
+      margin-bottom: 0;
+    }
+
+    .help-steps {
+      margin: 0.35rem 0 0.65rem;
+      padding-left: 1.15rem;
+    }
+
+    .help-steps li {
+      margin-bottom: 0.35rem;
+    }
+
+    .help-tip {
+      margin: 0.5rem 0 0;
+      padding: 0.55rem 0.7rem;
+      border-radius: 10px;
+      background: #ecfdf5;
+      border: 1px solid rgba(20, 94, 30, 0.15);
+      font-size: 0.84rem;
+      color: #145e1e;
+    }
+
+    .help-more h3 {
+      margin: 0 0 0.45rem;
       font-size: 0.92rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #6b7280;
+    }
+
+    .help-more-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+    }
+
+    .help-more-links a {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.5rem 0.88rem;
+      border-radius: 999px;
+      background: #f3f4f6;
+      border: 1px solid rgba(17, 24, 39, 0.08);
+      font-size: 0.9rem;
       font-weight: 600;
       color: #145e1e;
       text-decoration: none;
     }
-    .help-links a:active { opacity: 0.85; }
+
     .help-muted {
-      margin: 0.85rem 0 0;
-      font-size: 0.86rem !important;
-      color: #6b7280 !important;
+      margin: 0.75rem 0 0;
+      font-size: 0.86rem;
+      color: #6b7280;
       font-style: italic;
+      line-height: 1.45;
+    }
+
+    html[data-beanthentic-theme-effective='dark'] body.help-page {
+      background: #0d1117 !important;
+    }
+
+    html[data-beanthentic-theme-effective='dark'] body.help-page .help-guide-body {
+      color: #9ca8b8;
+    }
+
+    html[data-beanthentic-theme-effective='dark'] body.help-page .help-card {
+      background: #1a222c !important;
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    html[data-beanthentic-theme-effective='dark'] body.help-page .help-card h2 {
+      color: #6ee78a;
+    }
+
+    html[data-beanthentic-theme-effective='dark'] body.help-page .help-guide-toggle {
+      color: #e8edf2;
+    }
+
+    html[data-beanthentic-theme-effective='dark'] body.help-page .help-guide-item {
+      border-bottom-color: rgba(255, 255, 255, 0.08);
+    }
+
+    html[data-beanthentic-theme-effective='dark'] body.help-page .help-tip {
+      background: rgba(30, 126, 52, 0.2);
+      border-color: rgba(110, 231, 138, 0.25);
+      color: #b8f0c4;
+    }
+
+    html[data-beanthentic-theme-effective='dark'] body.help-page .help-more-links a {
+      background: #252f3c;
+      border-color: rgba(255, 255, 255, 0.1);
+      color: #6ee78a;
+    }
+
+    html[data-beanthentic-theme-effective='dark'] body.help-page .help-muted {
+      color: #9ca8b8;
     }
   </style>
 </head>
+
 <body class="help-page">
   <header>
     <div class="nav">
       <button type="button" id="help-header-back" class="help-header-back" aria-label="Back">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18 9 12l6-6"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+          stroke-linejoin="round" aria-hidden="true">
+          <path d="M15 18 9 12l6-6" />
+        </svg>
       </button>
       <h1 class="help-header-title">Help</h1>
     </div>
   </header>
 
   <main class="help-main">
-    <section class="help-card" aria-label="Help resources">
-      <h2>Get started</h2>
-      <p>
-        Answers to common questions and quick links around the Beanthentic app are below.
-      </p>
-      <ul class="help-links">
-        <li><a href="faq.html?from=account_settings">Frequently Asked Questions</a></li>
-        <li><a href="tutorial.php">Tutorial walkthrough</a></li>
-        <li><a href="register_summary.php">Farm registration summary</a></li>
-        <li><a href="settings.php">Account Security &amp; settings</a></li>
-        <li><a href="privacy.php?from=account_settings">Privacy Notice</a></li>
+    <section class="help-card" aria-label="Help guides">
+      <h2>Guides for farmers</h2>
+      <ul class="help-guide-list">
+        <li class="help-guide-item">
+          <button type="button" class="help-guide-toggle" aria-expanded="false" aria-controls="help-guide-app">
+            <span>How to use the app</span>
+            <span class="help-guide-chevron" aria-hidden="true"></span>
+          </button>
+          <div id="help-guide-app" class="help-guide-body" hidden>
+            <p>Beanthentic helps Lipa coffee farmers register farms, keep records, and support Kapeng Barako
+              traceability.</p>
+            <ol class="help-steps">
+              <li><strong>Home</strong> — news, shortcuts, and quick access to messages.</li>
+              <li><strong>Record</strong> — view and manage your farmer records.</li>
+              <li><strong>Register</strong> — add or update farm registration details.</li>
+              <li><strong>History</strong> — see past transactions and activity.</li>
+              <li><strong>Account</strong> — your profile, settings, and this Help page.</li>
+            </ol>
+            <p class="help-tip">Tip: Use the bottom menu on every screen to move between these areas quickly.</p>
+          </div>
+        </li>
+
+        <li class="help-guide-item">
+          <button type="button" class="help-guide-toggle" aria-expanded="false" aria-controls="help-guide-farm">
+            <span>How to register your farm</span>
+            <span class="help-guide-chevron" aria-hidden="true"></span>
+          </button>
+          <div id="help-guide-farm" class="help-guide-body" hidden>
+            <p>Complete registration so your farm appears in Beanthentic and can be verified for GI readiness.</p>
+            <ol class="help-steps">
+              <li>Tap <strong>Register</strong> on the bottom menu (or open Register from Home).</li>
+              <li>Fill in farm details: location, variety (e.g. Barako), area, and other required fields.</li>
+              <li>Upload clear photos of documents or farm proof when asked.</li>
+              <li>Review everything, then tap <strong>Submit</strong>.</li>
+              <li>Wait for confirmation — you can check status under Register or your registration summary.</li>
+            </ol>
+            <p class="help-tip">Tip: Good internet is needed when submitting. If upload fails, try again on a stronger
+              connection.</p>
+          </div>
+        </li>
+
+        <li class="help-guide-item">
+          <button type="button" class="help-guide-toggle" aria-expanded="false" aria-controls="help-guide-records">
+            <span>Records, QR codes &amp; history</span>
+            <span class="help-guide-chevron" aria-hidden="true"></span>
+          </button>
+          <div id="help-guide-records" class="help-guide-body" hidden>
+            <p>Your data stays organized so buyers and partners can trust your coffee origin.</p>
+            <ol class="help-steps">
+              <li>Open <strong>Record</strong> to see your farmer profile and linked farm data.</li>
+              <li>Each registered farmer can have a <strong>QR code</strong> for quick access during field visits or
+                sales.</li>
+              <li>Use <strong>History</strong> to review transactions and past updates.</li>
+              <li>Keep records accurate — update registration if your farm details change.</li>
+            </ol>
+            <p class="help-tip">Tip: Do not share your login. Only share QR or public profile details when you intend
+              to.</p>
+          </div>
+        </li>
+
+        <li class="help-guide-item">
+          <button type="button" class="help-guide-toggle" aria-expanded="false" aria-controls="help-guide-security">
+            <span>Account security &amp; settings</span>
+            <span class="help-guide-chevron" aria-hidden="true"></span>
+          </button>
+          <div id="help-guide-security" class="help-guide-body" hidden>
+            <p>Protect your account and control how the app works on your phone.</p>
+            <ol class="help-steps">
+              <li>Go to <strong>Account → Account Settings → Settings</strong>.</li>
+              <li><strong>Security</strong> — change your password; use a strong password you do not share.</li>
+              <li><strong>Notifications</strong> — turn alerts on or off (login, security, app updates).</li>
+              <li><strong>General</strong> — language, light/dark theme, and app version info.</li>
+              <li>Update your profile photo and personal info under Account Settings when needed.</li>
+            </ol>
+            <p class="help-tip">Tip: Forgot your password? On the login screen, use the help link, or change password in
+              Settings after signing in.</p>
+          </div>
+        </li>
+
+        <li class="help-guide-item">
+          <button type="button" class="help-guide-toggle" aria-expanded="false" aria-controls="help-guide-privacy">
+            <span>Your data &amp; privacy</span>
+            <span class="help-guide-chevron" aria-hidden="true"></span>
+          </button>
+          <div id="help-guide-privacy" class="help-guide-body" hidden>
+            <p>Beanthentic collects farm and account information to support registration and traceability under
+              Philippine data privacy rules.</p>
+            <ul class="help-steps">
+              <li>We use your data to manage your farmer profile, registration, and app features.</li>
+              <li>Do not give your password to anyone — staff will not ask for it.</li>
+              <li>You can read the full Privacy Notice from Account Settings when you need legal details.</li>
+            </ul>
+            <p class="help-tip">Tip: Only enter true farm information. Wrong data can delay verification.</p>
+          </div>
+        </li>
+
+        <li class="help-guide-item">
+          <button type="button" class="help-guide-toggle" aria-expanded="false" aria-controls="help-guide-trouble">
+            <span>Something is not working</span>
+            <span class="help-guide-chevron" aria-hidden="true"></span>
+          </button>
+          <div id="help-guide-trouble" class="help-guide-body" hidden>
+            <p>Try these steps before asking for support:</p>
+            <ol class="help-steps">
+              <li>Check your <strong>internet connection</strong> (Wi‑Fi or mobile data).</li>
+              <li><strong>Refresh</strong> the page or close and reopen the app.</li>
+              <li><strong>Sign out</strong>, then sign in again with the correct account.</li>
+              <li>Make sure the app has permission for <strong>camera/storage</strong> if uploading photos.</li>
+              <li>If registration is pending, wait for admin review — status may update later.</li>
+            </ol>
+            <p class="help-muted" style="margin-top:0.65rem;font-style:normal;">
+              Still stuck? Use <strong>Contact Us</strong> or ask your Beanthentic project administrator.
+            </p>
+          </div>
+        </li>
       </ul>
-      <p class="help-muted">
-        If something still fails, try refreshing the page or signing out and back in.
-      </p>
+    </section>
+
+    <section class="help-card help-more" aria-label="Additional resources">
+      <h3>More resources</h3>
+      <div class="help-more-links">
+        <a href="faq.html?from=help">Full FAQ list</a>
+        <a href="tutorial.php">Visual tutorial</a>
+        <a href="contact_us.html">Contact support</a>
+      </div>
     </section>
   </main>
 
@@ -135,24 +438,39 @@
   <script>
     (function () {
       var backBtn = document.getElementById('help-header-back');
-      if (!backBtn) return;
-      backBtn.addEventListener('click', function () {
-        try {
-          var params = new URLSearchParams(window.location.search || '');
-          if (params.get('from') === 'account_settings') {
-            window.location.href = 'account_settings.html';
-            return;
+      if (backBtn) {
+        backBtn.addEventListener('click', function () {
+          try {
+            var params = new URLSearchParams(window.location.search || '');
+            if (params.get('from') === 'account_settings') {
+              window.location.href = 'account_settings.html';
+              return;
+            }
+          } catch (_e) { }
+          try {
+            if (window.history.length > 1) {
+              window.history.back();
+              return;
+            }
+          } catch (_e2) { }
+          window.location.href = 'account_settings.html';
+        });
+      }
+
+      var toggles = document.querySelectorAll('.help-guide-toggle');
+      toggles.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var expanded = btn.getAttribute('aria-expanded') === 'true';
+          var panel = document.getElementById(btn.getAttribute('aria-controls'));
+          btn.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+          if (panel) {
+            panel.classList.toggle('is-open', !expanded);
+            panel.hidden = expanded;
           }
-        } catch (_e) {}
-        try {
-          if (window.history.length > 1) {
-            window.history.back();
-            return;
-          }
-        } catch (_e2) {}
-        window.location.href = 'account_settings.html';
+        });
       });
     })();
   </script>
 </body>
+
 </html>

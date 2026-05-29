@@ -34,12 +34,39 @@ header {
 }
 
 /* js/beanthentic_fixed_topbar.js sets --beanthentic-fixed-topbar-h and these classes */
+:root {
+  --beanthentic-fixed-topbar-h: calc(env(safe-area-inset-top, 0px) + 5.5rem);
+}
+
 html.beanthentic-fixed-topbar-active {
-  scroll-padding-top: var(--beanthentic-fixed-topbar-h, 0px);
+  scroll-padding-top: var(--beanthentic-fixed-topbar-h);
 }
 
 body.beanthentic-fixed-topbar-active {
-  padding-top: var(--beanthentic-fixed-topbar-h, 0px);
+  padding-top: var(--beanthentic-fixed-topbar-h);
+}
+
+/* Reserve space under fixed header on first paint (before topbar JS measures) */
+body.has-app-bottom-nav,
+body.pi-page,
+body.help-page,
+body.contact-page,
+body.account-settings-page,
+body.reg-summary-page,
+body:has(header.msg-top),
+body:has(header.hist-hero),
+body:has(header.about-hero),
+body:has(header.mv-hero),
+body:has(header.fr-reg-hero) {
+  padding-top: var(--beanthentic-fixed-topbar-h);
+}
+
+body.login-page,
+body.signup-page,
+body.tutorial-page,
+body.choose-lang-page,
+body.server-url-page {
+  padding-top: 0 !important;
 }
 
 /* Keep vertical document scroll working in WebView: avoid overflow-x on html (breaks some Android WebViews). */
@@ -1142,6 +1169,31 @@ body.header-drawer-open {
   height: 20px;
 }
 
+/* Global navbar size bump for all pages except homepage */
+body:not(.home-page) {
+  --beanthentic-fixed-topbar-h: calc(env(safe-area-inset-top, 0px) + 6.15rem);
+}
+
+body:not(.home-page) .nav {
+  padding: 0.5rem 1.2rem 0.5rem max(0.35rem, env(safe-area-inset-left, 0px));
+}
+
+body:not(.home-page) .logo-mark {
+  width: 148px;
+  height: 126px;
+}
+
+body:not(.home-page) .header-notifications-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+}
+
+body:not(.home-page) .header-notifications-btn .header-notifications-icon {
+  width: 22px;
+  height: 22px;
+}
+
 /* Toast from header notifications (ui.js) */
 .notification {
   position: fixed;
@@ -1193,7 +1245,7 @@ body.has-app-bottom-nav {
 }
 
 .app-bottom-nav-inner {
-  max-width: 1100px;
+  max-width: var(--bt-app-content-max, 1100px);
   margin: 0 auto;
   display: flex;
   align-items: flex-end;
@@ -1364,7 +1416,7 @@ body.has-app-bottom-nav {
 }
 
 /* Outer tabs: keep tappable on narrow screens */
-.app-bottom-nav-inner > a.app-bottom-nav-link {
+.app-bottom-nav-inner>a.app-bottom-nav-link {
   min-width: 2.85rem;
 }
 
@@ -1397,10 +1449,10 @@ body.has-app-bottom-nav {
   transition: opacity 0.18s ease;
 }
 
-/* Transaction: larger glyph centered in the shared slot */
+/* Record (QR): slightly smaller than previous oversized glyph */
 #nav-qr .app-bottom-nav-icon {
-  width: 32px;
-  height: 32px;
+  width: 26px;
+  height: 26px;
 }
 
 #nav-signin .app-bottom-nav-icon--account {
@@ -1432,6 +1484,30 @@ body.has-app-bottom-nav {
     opacity: 1;
     stroke-width: 2.25px;
   }
+}
+
+/* Current page — keep the same look as hover after navigation */
+.app-bottom-nav-link[aria-current="page"]:not(.app-bottom-nav-link--featured) {
+  background: #e8f5e9;
+  color: var(--beanthentic-green) !important;
+  border-color: rgba(46, 111, 28, 0.22);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+  border-radius: 16px;
+  transform: translateY(-0.5px);
+}
+
+.app-bottom-nav-link[aria-current="page"]:not(.app-bottom-nav-link--featured) .app-bottom-nav-icon {
+  opacity: 1;
+  stroke-width: 2.25px;
+}
+
+.app-bottom-nav-link--featured[aria-current="page"] .app-bottom-nav-icon-wrap {
+  filter: brightness(1.08);
+  box-shadow:
+    0 12px 26px rgba(99, 60, 180, 0.42),
+    0 8px 18px rgba(20, 61, 34, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    0 0 0 3px rgba(46, 111, 28, 0.35);
 }
 
 .app-bottom-nav-link:active:not(.app-bottom-nav-link--featured),

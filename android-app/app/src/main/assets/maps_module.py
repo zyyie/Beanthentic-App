@@ -1940,11 +1940,11 @@ class MapsModule:
                 </span>
                 <span class="app-bottom-nav-label">Home</span>
             </a>
-            <a href="/qr.php" id="nav-qr" class="app-bottom-nav-link">
+            <a href="/records.php" id="nav-qr" class="app-bottom-nav-link">
                 <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
-                    <svg class="app-bottom-nav-icon app-bottom-nav-icon--transaction" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6 7.25h9v2H6z"/><path fill="currentColor" d="M15 6 19 8.25 15 10.5z"/><path fill="currentColor" d="M9 14.25h9v2H9z"/><path fill="currentColor" d="M9 13.25 5 15.25 9 17.25z"/></svg>
+                    <svg class="app-bottom-nav-icon app-bottom-nav-icon--record" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 2h6v2H9z"/><path d="M9 12h6"/><path d="M9 16h6"/><path d="M9 20h4"/></svg>
                 </span>
-                <span class="app-bottom-nav-label">Transaction</span>
+                <span class="app-bottom-nav-label">Record</span>
             </a>
             <a href="/register_summary.php" id="nav-register" class="app-bottom-nav-link app-bottom-nav-link--featured">
                 <span class="app-bottom-nav-icon-wrap" aria-hidden="true">

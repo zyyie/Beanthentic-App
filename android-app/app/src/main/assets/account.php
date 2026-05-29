@@ -6,6 +6,9 @@
   <meta name="theme-color" content="#25671E" />
   <script>window.__BEANTHENTIC_SESSION_GATE__ = 'protected';</script>
   <script src="js/beanthentic_session_gate.js"></script>
+  <script src="js/beanthentic_api_urls.js"></script>
+  <script src="js/vendor/qrcode.min.js"></script>
+  <script src="js/beanthentic_client_web.js"></script>
   <title>Account · Beanthentic Coffee</title>
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">
@@ -256,6 +259,21 @@
       margin-top: 1rem;
       text-align: center;
     }
+    .account-qr-farmer-id {
+      margin: 0 0 6px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #2f7d1a;
+      text-align: center;
+    }
+    .account-qr-url {
+      margin: 0 0 10px;
+      font-size: 0.72rem;
+      line-height: 1.35;
+      color: #4a5d42;
+      word-break: break-all;
+      text-align: center;
+    }
     .account-qr-note {
       margin: 0 0 0.7rem;
       color: #7b7b7b;
@@ -398,7 +416,9 @@
       </section>
 
       <div class="account-qr-section">
-        <p class="account-qr-note">Scan this QR code with the farmer's application to share this website.</p>
+        <p class="account-qr-note">Scan to open <strong>your</strong> profile on Client Web.</p>
+        <p class="account-qr-farmer-id" id="account-qr-farmer-id">Loading farmer ID…</p>
+        <p class="account-qr-url" id="account-qr-profile-url" hidden></p>
         <button type="button" id="account-qr-enlarge" class="account-qr-enlarge" aria-label="Enlarge QR" aria-expanded="false" aria-controls="account-qr-wrap">
           <span id="account-qr-enlarge-label">Enlarge QR</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -413,7 +433,7 @@
           </svg>
         </button>
         <div class="account-qr-wrap" id="account-qr-wrap" hidden>
-          <img id="account-qr-img" class="account-qr-img" alt="Account QR code" />
+          <img id="account-qr-img" class="account-qr-img" alt="Account QR code" hidden />
         </div>
         <a id="account-qr-download" class="account-qr-download" aria-label="Download QR code" href="#" hidden>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -435,11 +455,11 @@
         </span>
         <span class="app-bottom-nav-label">Home</span>
       </a>
-      <a href="qr.php" id="nav-qr" class="app-bottom-nav-link">
+      <a href="records.php" id="nav-qr" class="app-bottom-nav-link">
         <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
-          <svg class="app-bottom-nav-icon app-bottom-nav-icon--transaction" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6 7.25h9v2H6z"/><path fill="currentColor" d="M15 6 19 8.25 15 10.5z"/><path fill="currentColor" d="M9 14.25h9v2H9z"/><path fill="currentColor" d="M9 13.25 5 15.25 9 17.25z"/></svg>
+          <svg class="app-bottom-nav-icon app-bottom-nav-icon--record" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 2h6v2H9z"/><path d="M9 12h6"/><path d="M9 16h6"/><path d="M9 20h4"/></svg>
         </span>
-        <span class="app-bottom-nav-label">Transaction</span>
+        <span class="app-bottom-nav-label">Record</span>
       </a>
       <a href="register_summary.php" id="nav-register" class="app-bottom-nav-link app-bottom-nav-link--featured">
         <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
@@ -464,6 +484,7 @@
   </nav>
 
   <script src="js/navigation.js"></script>
+  <script src="js/beanthentic_profile_store.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/txn_history_store.js"></script>
   <script>
@@ -721,6 +742,19 @@
         }
         return null;
       }
+      /** Resolve farmer avatar from registration/localStorage or DB path (/uploads/...). */
+      function farmerProfilePhotoSrc(profile) {
+        if (!profile || typeof profile !== 'object') return '';
+        var raw = String(profile.profile_photo_data || profile.profile_photo || '').trim();
+        if (!raw) return '';
+        if (/^data:image\//i.test(raw) || /^https?:\/\//i.test(raw)) return raw;
+        if (raw.charAt(0) === '/' && raw.length > 4) return raw;
+        var compact = raw.replace(/\s/g, '');
+        if (/^[A-Za-z0-9+/=]+$/.test(compact) && compact.length > 240) {
+          return 'data:image/jpeg;base64,' + compact;
+        }
+        return '';
+      }
       function renderProfile() {
         var u = getUser();
         var root = document.getElementById('account-simple-root');
@@ -730,7 +764,9 @@
           return;
         }
         var email = String(u.email || '').trim();
-        var farmerProfile = getRegisteredFarmerProfile(email);
+        /* Keep stored farmer profile for avatar even when needs_registration hides other profile-derived UI. */
+        var farmerProfileStored = getRegisteredFarmerProfile(email);
+        var farmerProfile = farmerProfileStored;
         if (u.needs_registration) farmerProfile = null;
         var normalized = normalizeLoginId(email);
         var knownName = getKnownUserName(email) || (normalized ? getKnownUserName(normalized) : '');
@@ -764,11 +800,11 @@
         var phone = formatPhoneDisplay(phoneRaw);
         var ini = document.getElementById('account-simple-initials');
         if (ini) ini.textContent = initialsFromName(displayName);
-        var photoRaw = String((farmerProfile && farmerProfile.profile_photo_data) || '').trim();
+        var photoRaw = farmerProfilePhotoSrc(farmerProfileStored);
         var photoEl = document.getElementById('account-simple-photo');
         var avWrap = document.querySelector('.account-simple-avatar');
         if (photoEl && avWrap) {
-          if (/^data:image\//i.test(photoRaw) || /^https?:\/\//i.test(photoRaw)) {
+          if (/^data:image\//i.test(photoRaw) || /^https?:\/\//i.test(photoRaw) || (photoRaw.charAt(0) === '/' && photoRaw.length > 4)) {
             photoEl.src = photoRaw;
             photoEl.removeAttribute('hidden');
             avWrap.classList.add('has-photo');
@@ -783,13 +819,13 @@
         var elPhone = document.getElementById('account-simple-phone');
         if (elPhone) elPhone.textContent = phone || '—';
         var qr = document.getElementById('account-qr-img');
-        var qrData = '';
-        if (qr) {
-          // Fixed client website URL for Farmer Account QR (scan should open this directly).
-          qrData = 'http://192.168.100.252:5001/';
-          var qrImgUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=640x640&data=' + encodeURIComponent(qrData);
+        var loginKey = String(u.email || u.phone_number || u.phone || email || '').trim();
+        if (qr && window.BeanthenticClientWeb && typeof window.BeanthenticClientWeb.refreshAccountQrFromUser === 'function') {
+          window.BeanthenticClientWeb.refreshAccountQrFromUser(u, loginKey);
+        } else if (qr) {
+          var fallbackUrl = 'http://192.168.100.249:5001/';
+          var qrImgUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=640x640&data=' + encodeURIComponent(fallbackUrl);
           qr.src = qrImgUrl;
-          // Force real file download (WebView can display PNG, so we use download=1).
           try { qr.dataset.downloadUrl = qrImgUrl + '&download=1'; } catch (_d) {}
         }
         var enlargeBtn = document.getElementById('account-qr-enlarge');
@@ -802,6 +838,11 @@
           var expanded = !!isExpanded;
           try { if (qrWrap) qrWrap.hidden = !expanded; } catch (_h2) {}
           try { if (qrDownload) qrDownload.hidden = !expanded; } catch (_h3) {}
+          try {
+            if (expanded && qr && qr.src && qr.src.indexOf('http') === 0) {
+              qr.removeAttribute('hidden');
+            }
+          } catch (_qh) {}
           try {
             if (enlargeBtn) {
               enlargeBtn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
@@ -818,8 +859,13 @@
           enlargeBtn.addEventListener('click', function () {
             var isExpanded = false;
             try { isExpanded = enlargeBtn.getAttribute('aria-expanded') === 'true'; } catch (_r) {}
-            setQrExpanded(!isExpanded);
-            if (!isExpanded) {
+            var willExpand = !isExpanded;
+            setQrExpanded(willExpand);
+            if (willExpand) {
+              if (qr && (!qr.src || qr.src === window.location.href) && window.BeanthenticClientWeb) {
+                var lk = String(u.email || u.phone_number || u.phone || '').trim();
+                window.BeanthenticClientWeb.refreshAccountQrFromUser(u, lk);
+              }
               try { (qrWrap || qr || enlargeBtn).scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (_siv) {}
             }
           });
@@ -957,6 +1003,16 @@
         // default
         setActive('all');
       }
+      function refreshQrFromDatabase() {
+        var u = getUser();
+        if (!u || !window.BeanthenticClientWeb) return;
+        var loginKey = String(u.email || u.phone_number || u.phone || '').trim();
+        window.BeanthenticClientWeb.refreshAccountQrFromUser(u, loginKey).then(function () {
+          var qr = document.getElementById('account-qr-img');
+          if (qr && qr.src) qr.removeAttribute('hidden');
+        });
+      }
+
       function init() {
         if (!getUser()) {
           redirectGuest();
@@ -964,7 +1020,23 @@
         }
         renderProfile();
         bindVarietyFilters();
+        refreshQrFromDatabase();
       }
+      window.addEventListener('pageshow', function () {
+        if (getUser()) refreshQrFromDatabase();
+      });
+      window.addEventListener('storage', function (e) {
+        if (!e || !e.key) return;
+        if (e.key === 'beanthentic_farmer_id_map' || e.key === 'beanthentic_user' || e.key === 'beanthentic_farmer_id') {
+          refreshQrFromDatabase();
+        }
+        if (e.key === 'beanthentic_farmer_profile' || e.key === 'beanthentic_farmer_profile_map') {
+          renderProfile();
+        }
+      });
+      window.addEventListener('beanthentic-profile-changed', function () {
+        renderProfile();
+      });
       if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
       else init();
       window.addEventListener('beanthentic-auth-changed', function () {

@@ -1,15 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#25671E" />
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('beanthentic_app_theme') || sessionStorage.getItem('beanthentic_app_theme') || 'light';
+        var eff = t === 'dark' ? 'dark' : (t === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-beanthentic-theme', t);
+        document.documentElement.setAttribute('data-beanthentic-theme-effective', eff);
+      } catch (_boot) { }
+    })();
+  </script>
+  <script src="js/beanthentic_theme.js?v=20260527-9"></script>
   <title>Account Settings · Beanthentic Coffee</title>
   <link rel="stylesheet" href="css/base.css" />
   <link rel="stylesheet" href="css/layout.css" />
   <link rel="stylesheet" href="css/components.css" />
   <link rel="stylesheet" href="css/responsive.css" />
-  <script id="beanthentic-fixed-topbar-js" src="js/beanthentic_fixed_topbar.js" defer></script>
+  <script id="beanthentic-fixed-topbar-js" src="js/beanthentic_fixed_topbar.js"></script>
   <style>
     body.account-settings-page {
       margin: 0;
@@ -17,21 +29,23 @@
       font-family: "Poppins", "Segoe UI", Arial, sans-serif;
       color: #111827;
     }
+
     .account-settings-topbar {
       background: linear-gradient(180deg, #1d7a2a 0%, #145e1e 100%);
       border-bottom: none;
       border-radius: 0 0 16px 16px;
       padding-top: env(safe-area-inset-top);
     }
+
     .account-settings-topbar .nav {
       display: flex;
       align-items: center;
       justify-content: center;
       position: relative;
       min-height: 4.3rem;
-      padding: 0.62rem max(1rem, env(safe-area-inset-left, 0px)) 0.66rem
-        max(1rem, env(safe-area-inset-right, 0px));
+      padding: 0.62rem max(1rem, env(safe-area-inset-left, 0px)) 0.66rem max(1rem, env(safe-area-inset-right, 0px));
     }
+
     .account-settings-nav-back {
       position: absolute;
       left: max(0.7rem, env(safe-area-inset-left, 0px));
@@ -45,7 +59,12 @@
       padding: 8px;
       -webkit-tap-highlight-color: transparent;
     }
-    .account-settings-nav-back svg { width: 20px; height: 20px; }
+
+    .account-settings-nav-back svg {
+      width: 20px;
+      height: 20px;
+    }
+
     .account-settings-nav-title {
       margin: 0;
       color: #ffffff;
@@ -55,27 +74,70 @@
       letter-spacing: 0.01em;
       text-align: center;
     }
+
     .account-settings-main {
       width: min(100%, 420px);
       margin: 0 auto;
       padding: 1rem 0.55rem 2.25rem;
       box-sizing: border-box;
     }
+
     .account-settings-profile {
       text-align: center;
       margin: 0.55rem 0 1rem;
     }
+
+    .account-settings-avatar-btn {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      margin: 0 auto 0.5rem;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .account-settings-avatar-btn:focus-visible {
+      outline: 2px solid #2273eb;
+      outline-offset: 4px;
+      border-radius: 12px;
+    }
+
     .account-settings-avatar {
       width: 124px;
       height: 124px;
       border-radius: 999px;
-      margin: 0 auto 0.68rem;
+      margin: 0;
       background: #d4d4d4;
       display: grid;
       place-items: center;
       position: relative;
       overflow: hidden;
     }
+
+    .account-settings-avatar-edit {
+      display: inline-block;
+      padding: 0.22rem 0.72rem;
+      border-radius: 999px;
+      background: #9ca3af;
+      color: #fff;
+      font-size: 0.58rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-transform: none;
+      line-height: 1.2;
+      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.12);
+      pointer-events: none;
+    }
+
+    .account-settings-avatar-btn.is-saving {
+      opacity: 0.75;
+      pointer-events: none;
+    }
+
     .account-settings-avatar-photo {
       position: absolute;
       inset: 0;
@@ -85,15 +147,18 @@
       border-radius: 999px;
       z-index: 1;
     }
+
     .account-settings-avatar.has-photo .account-settings-avatar-initials {
       opacity: 0;
     }
+
     .account-settings-avatar-initials {
       font-size: 2.05rem;
       font-weight: 800;
       color: rgba(17, 24, 39, 0.48);
       letter-spacing: 0.03em;
     }
+
     .account-settings-name {
       margin: 0;
       font-size: 2rem;
@@ -102,6 +167,7 @@
       letter-spacing: -0.01em;
       color: #0f172a;
     }
+
     .account-settings-phone {
       margin: 0.24rem 0 0;
       font-size: 0.74rem;
@@ -110,12 +176,15 @@
       color: #1f2937;
       line-height: 1.2;
     }
+
     .account-settings-card {
       background: #f7f7f7;
       border-radius: 16px;
-      padding: 0.9rem 0.82rem 1.05rem;
+      padding: 1.05rem 0.95rem 1.2rem;
+      min-height: 15.5rem;
       box-shadow: inset 0 0 0 1px rgba(17, 24, 39, 0.06);
     }
+
     .account-settings-list {
       list-style: none;
       margin: 0;
@@ -123,6 +192,7 @@
       display: grid;
       gap: 0.12rem;
     }
+
     .account-settings-item-link {
       display: flex;
       align-items: center;
@@ -130,76 +200,279 @@
       text-decoration: none;
       color: #111827;
       border-radius: 12px;
-      padding: 0.54rem 0.42rem;
+      padding: 0.68rem 0.52rem;
     }
+
     .account-settings-item-link:active {
       background: rgba(20, 94, 30, 0.08);
     }
+
+    .account-settings-item-link.is-nav-selected {
+      background: rgba(20, 94, 30, 0.14);
+      color: #0f3d14;
+      font-weight: 700;
+    }
+
+    .account-settings-item-link.is-nav-selected .account-settings-icon {
+      color: #145e1e;
+    }
+
     .account-settings-item-left {
       display: inline-flex;
       align-items: center;
-      gap: 0.7rem;
+      gap: 0.82rem;
       min-width: 0;
     }
+
     .account-settings-icon {
-      width: 22px;
-      height: 22px;
+      width: 24px;
+      height: 24px;
       color: #1f6a22;
       flex: 0 0 auto;
     }
+
     .account-settings-label {
-      font-size: 0.86rem;
+      font-size: 1.12rem;
       font-weight: 600;
       letter-spacing: 0.01em;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
+
     .account-settings-arrow {
+      width: 20px;
+      height: 20px;
+      color: #1f6a22;
+      flex: 0 0 auto;
+      transition: transform 0.2s ease;
+    }
+
+    .account-settings-dropdown-wrap {
+      position: relative;
+    }
+
+    .account-settings-dropdown-toggle {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      font: inherit;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .account-settings-dropdown-toggle:active {
+      background: rgba(20, 94, 30, 0.08);
+    }
+
+    .account-settings-submenu {
+      list-style: none;
+      margin: 0;
+      padding: 0.1rem 0 0.4rem 0.55rem;
+      display: none;
+      gap: 0.04rem;
+    }
+
+    .account-settings-dropdown-wrap.is-open .account-settings-submenu {
+      display: grid;
+    }
+
+    .account-settings-dropdown-wrap.is-open .account-settings-dropdown-toggle .account-settings-arrow {
+      transform: rotate(90deg);
+    }
+
+    .account-settings-dropdown-wrap.is-open .account-settings-dropdown-toggle {
+      color: #145e1e;
+    }
+
+    .account-settings-submenu a {
+      display: flex;
+      align-items: center;
+      gap: 0.62rem;
+      padding: 0.45rem 0.55rem;
+      border-radius: 8px;
+      color: #374151;
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-decoration: none;
+      letter-spacing: 0.01em;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .account-settings-submenu-icon {
       width: 18px;
       height: 18px;
       color: #1f6a22;
       flex: 0 0 auto;
     }
+
+    /* Selected = click only (no hover highlight — avoids two greens at once) */
+    .account-settings-submenu a.is-nav-selected {
+      background: rgba(20, 94, 30, 0.16);
+      color: #145e1e;
+      font-weight: 700;
+    }
+
+    .account-settings-submenu a.is-nav-selected .account-settings-submenu-icon {
+      color: #145e1e;
+    }
+
+    .account-settings-submenu a:hover,
+    .account-settings-submenu a:focus,
+    .account-settings-submenu a:focus-visible,
+    .account-settings-submenu a:active {
+      background: transparent;
+      color: #374151;
+      outline: none;
+    }
+
+    .account-settings-submenu a.is-nav-selected:hover,
+    .account-settings-submenu a.is-nav-selected:focus,
+    .account-settings-submenu a.is-nav-selected:focus-visible,
+    .account-settings-submenu a.is-nav-selected:active {
+      background: rgba(20, 94, 30, 0.16);
+      color: #145e1e;
+    }
+
+    .account-settings-list.has-nav-selection .account-settings-submenu a:not(.is-nav-selected) {
+      background: transparent !important;
+      color: #374151 !important;
+    }
+
+    .account-settings-nested-dropdown {
+      list-style: none;
+    }
+
+    .account-settings-nested-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      width: 100%;
+      padding: 0.45rem 0.55rem;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      font: inherit;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #374151;
+      cursor: pointer;
+      text-align: left;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .account-settings-nested-toggle-left {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.62rem;
+      min-width: 0;
+    }
+
+    .account-settings-nested-toggle .account-settings-arrow {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+
+    .account-settings-nested-dropdown.is-open .account-settings-nested-toggle .account-settings-arrow {
+      transform: rotate(90deg);
+    }
+
+    .account-settings-nested-dropdown.is-open .account-settings-submenu--nested {
+      display: grid;
+    }
+
+    .account-settings-submenu--nested {
+      list-style: none;
+      margin: 0;
+      padding: 0.05rem 0 0.2rem 1.85rem;
+      display: none;
+      gap: 0.04rem;
+    }
+
+    .account-settings-nested-toggle.is-nav-selected {
+      background: rgba(20, 94, 30, 0.16);
+      color: #145e1e;
+      font-weight: 700;
+    }
+
     .account-settings-logout {
-      margin: 0.82rem auto 0;
-      width: min(100%, 240px);
-      height: 42px;
+      margin: 0.95rem auto 0;
+      width: min(100%, 260px);
+      height: 46px;
       border: 0;
       border-radius: 11px;
       background: #b32638;
       color: #ffffff;
-      font-size: 0.93rem;
+      font-size: 1rem;
       font-weight: 800;
       letter-spacing: 0.02em;
       cursor: pointer;
       display: block;
     }
+
+    html[data-beanthentic-theme-effective='dark'] body.account-settings-page {
+      background: #0d1117 !important;
+      color: #e8edf2;
+    }
+
+    html[data-beanthentic-theme-effective='dark'] body.account-settings-page .account-settings-card {
+      background: #1a222c !important;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4);
+    }
+
+    html[data-beanthentic-theme-effective='dark'] body.account-settings-page .account-settings-name {
+      color: #e8edf2 !important;
+    }
+
+    html[data-beanthentic-theme-effective='dark'] body.account-settings-page .account-settings-phone,
+    html[data-beanthentic-theme-effective='dark'] body.account-settings-page .account-settings-label {
+      color: #9ca8b8 !important;
+    }
+
+    html[data-beanthentic-theme-effective='dark'] body.account-settings-page .account-settings-submenu a,
+    html[data-beanthentic-theme-effective='dark'] body.account-settings-page .account-settings-nested-toggle,
+    html[data-beanthentic-theme-effective='dark'] body.account-settings-page .account-settings-item-link {
+      color: #e8edf2 !important;
+    }
+
+    html[data-beanthentic-theme-effective='dark'] body.account-settings-page .account-settings-item-link.is-nav-selected,
+    html[data-beanthentic-theme-effective='dark'] body.account-settings-page .account-settings-submenu a.is-nav-selected {
+      background: rgba(30, 126, 52, 0.35) !important;
+      color: #b8f0c4 !important;
+    }
   </style>
+  <link rel="stylesheet" href="css/theme.css?v=20260527-2">
 </head>
+
 <body class="account-settings-page">
   <header class="account-settings-topbar">
     <div class="nav" role="presentation">
-      <a
-        class="account-settings-nav-back"
-        href="account.php"
-        aria-label="Back"
-        onclick="if(window.history.length > 1){ event.preventDefault(); window.history.back(); }"
-      >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <a class="account-settings-nav-back" href="index.php#home" aria-label="Back to home">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"
+          stroke-linejoin="round" aria-hidden="true">
           <polyline points="15 18 9 12 15 6"></polyline>
         </svg>
       </a>
-      <h1 class="account-settings-nav-title">Account Settings</h1>
+      <h1 class="account-settings-nav-title" data-i18n="account.pageTitle">Account Settings</h1>
     </div>
   </header>
 
   <main class="account-settings-main">
     <section class="account-settings-profile" aria-label="Profile summary">
-      <div class="account-settings-avatar" aria-hidden="true">
-        <img id="account-settings-photo" class="account-settings-avatar-photo" alt="" width="124" height="124" hidden decoding="async" />
-        <span id="account-settings-initials" class="account-settings-avatar-initials">BA</span>
-      </div>
+      <button type="button" class="account-settings-avatar-btn" id="account-settings-avatar-btn"
+        aria-label="Change profile photo">
+        <div class="account-settings-avatar" id="account-settings-avatar-wrap" aria-hidden="true">
+          <img id="account-settings-photo" class="account-settings-avatar-photo" alt="" width="124" height="124" hidden
+            decoding="async" />
+          <span id="account-settings-initials" class="account-settings-avatar-initials">BA</span>
+        </div>
+        <span class="account-settings-avatar-edit">Edit</span>
+      </button>
+      <input type="file" id="account-settings-photo-input" accept="image/jpeg,image/png,image/webp" hidden />
+      <p id="account-settings-photo-status" class="account-settings-phone" style="min-height:1rem;margin-top:0.35rem"
+        aria-live="polite"></p>
       <h1 id="account-settings-name" class="account-settings-name">Nyco Jimmy Joe Doe</h1>
       <p id="account-settings-phone" class="account-settings-phone">(+63) XXXX XXX XX</p>
     </section>
@@ -207,63 +480,169 @@
     <section class="account-settings-card" aria-label="Account setting links">
       <ul class="account-settings-list">
         <li>
-          <a class="account-settings-item-link" href="personal_information.html?from=account_settings">
+          <a class="account-settings-item-link" href="personal_information.html?from=account_settings"
+            data-nav-key="personal-information">
             <span class="account-settings-item-left">
-              <svg class="account-settings-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="7.5" r="3.2"/><rect x="5.2" y="12.2" width="13.6" height="7" rx="3.5"/></svg>
-              <span class="account-settings-label">Personal Information</span>
+              <svg class="account-settings-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <circle cx="12" cy="7.5" r="3.2" />
+                <rect x="5.2" y="12.2" width="13.6" height="7" rx="3.5" />
+              </svg>
+              <span class="account-settings-label" data-i18n="account.personalInfo">Personal Information</span>
             </span>
-            <svg class="account-settings-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+            <svg class="account-settings-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M9 18l6-6-6-6" />
+            </svg>
           </a>
         </li>
         <li>
-          <a class="account-settings-item-link" href="faq.html?from=account_settings">
+          <a class="account-settings-item-link" href="faq.html?from=account_settings" data-nav-key="faq">
             <span class="account-settings-item-left">
-              <svg class="account-settings-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="2.5" y="4.2" width="19" height="15.6" rx="2.2"/><path d="M8 10h2.7a1.9 1.9 0 1 0 0-3.8H8v1.6h2.4a.35.35 0 1 1 0 .7H8V10zm0 5.2h1.6V11.5H8v3.7zm4.1 0h1.6v-1.5h2.2v-1.5h-2.2v-.8h2.4V10h-4v5.2z"/></svg>
-              <span class="account-settings-label">Frequently Asked Questions</span>
+              <svg class="account-settings-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <rect x="2.5" y="4.2" width="19" height="15.6" rx="2.2" />
+                <path
+                  d="M8 10h2.7a1.9 1.9 0 1 0 0-3.8H8v1.6h2.4a.35.35 0 1 1 0 .7H8V10zm0 5.2h1.6V11.5H8v3.7zm4.1 0h1.6v-1.5h2.2v-1.5h-2.2v-.8h2.4V10h-4v5.2z" />
+              </svg>
+              <span class="account-settings-label" data-i18n="account.faq">Frequently Asked Questions</span>
             </span>
-            <svg class="account-settings-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+            <svg class="account-settings-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M9 18l6-6-6-6" />
+            </svg>
           </a>
         </li>
         <li>
-          <a class="account-settings-item-link" href="about.php?from=account_settings">
+          <a class="account-settings-item-link" href="about.php?from=account_settings" data-nav-key="about-us">
             <span class="account-settings-item-left">
-              <svg class="account-settings-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="9"/><rect x="11" y="10.2" width="2" height="6.2" rx="1"/><circle cx="12" cy="7.3" r="1.1"/></svg>
-              <span class="account-settings-label">About Us</span>
+              <svg class="account-settings-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <circle cx="12" cy="12" r="9" />
+                <rect x="11" y="10.2" width="2" height="6.2" rx="1" />
+                <circle cx="12" cy="7.3" r="1.1" />
+              </svg>
+              <span class="account-settings-label" data-i18n="account.aboutUs">About Us</span>
             </span>
-            <svg class="account-settings-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+            <svg class="account-settings-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M9 18l6-6-6-6" />
+            </svg>
           </a>
         </li>
         <li>
-          <a class="account-settings-item-link" href="privacy.php?from=account_settings">
+          <a class="account-settings-item-link" href="privacy.php?from=account_settings" data-nav-key="privacy-notice">
             <span class="account-settings-item-left">
-              <svg class="account-settings-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.5 3.5h7.7a2 2 0 0 1 2 2v3.2a2 2 0 0 1-2 2H6.5a2 2 0 0 1-2-2V5.5a2 2 0 0 1 2-2z"/><path d="M8.1 11.8h9.4a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H8.1a2 2 0 0 1-2-2v-4.2a2 2 0 0 1 2-2z"/></svg>
-              <span class="account-settings-label">Privacy Notice</span>
+              <svg class="account-settings-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M6.5 3.5h7.7a2 2 0 0 1 2 2v3.2a2 2 0 0 1-2 2H6.5a2 2 0 0 1-2-2V5.5a2 2 0 0 1 2-2z" />
+                <path d="M8.1 11.8h9.4a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H8.1a2 2 0 0 1-2-2v-4.2a2 2 0 0 1 2-2z" />
+              </svg>
+              <span class="account-settings-label" data-i18n="account.privacyNotice">Privacy Notice</span>
             </span>
-            <svg class="account-settings-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+            <svg class="account-settings-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M9 18l6-6-6-6" />
+            </svg>
           </a>
         </li>
-        <li>
-          <a class="account-settings-item-link" href="settings.php?from=account_settings">
+        <li class="account-settings-dropdown-wrap" id="account-settings-dropdown">
+          <button type="button" class="account-settings-item-link account-settings-dropdown-toggle"
+            id="account-settings-dropdown-btn" aria-expanded="false" aria-controls="account-settings-submenu">
             <span class="account-settings-item-left">
-              <svg class="account-settings-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M10.2 2.7h3.6l.6 2.2a7.6 7.6 0 0 1 1.6.9l2.1-1.1 2.5 2.5-1.1 2.1c.36.52.66 1.06.9 1.64l2.2.58v3.6l-2.2.58a7.6 7.6 0 0 1-.9 1.64l1.1 2.1-2.5 2.5-2.1-1.1a7.6 7.6 0 0 1-1.64.9l-.58 2.2h-3.6l-.58-2.2a7.6 7.6 0 0 1-1.64-.9l-2.1 1.1-2.5-2.5 1.1-2.1a7.6 7.6 0 0 1-.9-1.64L1.6 14v-3.6l2.2-.58c.23-.58.53-1.12.9-1.64L3.7 6.1l2.5-2.5 2.1 1.1c.52-.36 1.06-.66 1.64-.9l.58-2.2zm1.8 6a3.3 3.3 0 1 0 0 6.6 3.3 3.3 0 0 0 0-6.6z"/></svg>
-              <span class="account-settings-label">Settings</span>
+              <svg class="account-settings-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path
+                  d="M10.2 2.7h3.6l.6 2.2a7.6 7.6 0 0 1 1.6.9l2.1-1.1 2.5 2.5-1.1 2.1c.36.52.66 1.06.9 1.64l2.2.58v3.6l-2.2.58a7.6 7.6 0 0 1-.9 1.64l1.1 2.1-2.5 2.5-2.1-1.1a7.6 7.6 0 0 1-1.64.9l-.58 2.2h-3.6l-.58-2.2a7.6 7.6 0 0 1-1.64-.9l-2.1 1.1-2.5-2.5 1.1-2.1a7.6 7.6 0 0 1-.9-1.64L1.6 14v-3.6l2.2-.58c.23-.58.53-1.12.9-1.64L3.7 6.1l2.5-2.5 2.1 1.1c.52-.36 1.06-.66 1.64-.9l.58-2.2zm1.8 6a3.3 3.3 0 1 0 0 6.6 3.3 3.3 0 0 0 0-6.6z" />
+              </svg>
+              <span class="account-settings-label" data-i18n="account.settings">Settings</span>
             </span>
-            <svg class="account-settings-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
-          </a>
+            <svg class="account-settings-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M9 18l6-6-6-6" />
+            </svg>
+          </button>
+          <ul id="account-settings-submenu" class="account-settings-submenu" hidden>
+            <li class="account-settings-nested-dropdown" id="account-settings-security-dropdown">
+              <button type="button" class="account-settings-nested-toggle" id="account-settings-security-btn"
+                aria-expanded="false" aria-controls="account-settings-security-submenu">
+                <span class="account-settings-nested-toggle-left">
+                  <svg class="account-settings-submenu-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path
+                      d="M12 2 4 5.2v6.8c0 5.05 3.55 8.85 8 10 4.45-1.15 8-4.95 8-10V5.2L12 2zm-1.2 9.8V16h2.4v-4.2a1.2 1.2 0 1 0-2.4 0z" />
+                  </svg>
+                  <span data-i18n="account.security">Security</span>
+                </span>
+                <svg class="account-settings-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M9 18l6-6-6-6" />
+                </svg>
+              </button>
+              <ul id="account-settings-security-submenu"
+                class="account-settings-submenu account-settings-submenu--nested" hidden>
+                <li>
+                  <a href="settings.php?from=account_settings&amp;section=security" data-settings-section="security"
+                    data-security-item="change-password">
+                    <svg class="account-settings-submenu-icon" viewBox="0 0 24 24" fill="currentColor"
+                      aria-hidden="true">
+                      <path
+                        d="M7 10V8a5 5 0 0 1 10 0v2h1.5A1.5 1.5 0 0 1 19 11.5v8A1.5 1.5 0 0 1 17.5 21h-11A1.5 1.5 0 0 1 5 19.5v-8A1.5 1.5 0 0 1 6.5 10H7zm2 0h6V8a3 3 0 0 0-6 0v2zm3 4.2a1.2 1.2 0 1 0-2.4 0 1.2 1.2 0 0 0 2.4 0z" />
+                    </svg>
+                    <span data-i18n="account.changePassword">Change Password</span>
+                  </a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="settings.php?from=account_settings&amp;section=notifications"
+                data-settings-section="notifications">
+                <svg class="account-settings-submenu-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path
+                    d="M12 22a2.4 2.4 0 0 0 2.35-1.95h-4.7A2.4 2.4 0 0 0 12 22zm7.2-5.8V11.6c0-3.45-2.32-6.35-5.55-7.2V4a1.45 1.45 0 0 0-2.9 0v.4C7.52 5.25 5.2 8.15 5.2 11.6V16.2L3.2 18.2h17.6l-2-2z" />
+                </svg>
+                <span data-i18n="account.notifications">Notifications</span>
+              </a>
+            </li>
+            <li>
+              <a href="settings.php?from=account_settings&amp;section=privacy" data-settings-section="privacy">
+                <svg class="account-settings-submenu-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path
+                    d="M12 3c-4.2 0-7.5 2.2-9 5.5 1.2 4.8 5.2 8.2 9 10.5 3.8-2.3 7.8-5.7 9-10.5C19.5 5.2 16.2 3 12 3zm0 4.2a3.3 3.3 0 1 1 0 6.6 3.3 3.3 0 0 1 0-6.6z" />
+                </svg>
+                <span data-i18n="account.privacy">Privacy</span>
+              </a>
+            </li>
+            <li>
+              <a href="settings.php?from=account_settings&amp;section=general" data-settings-section="general">
+                <svg class="account-settings-submenu-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M4 7.1h9.8v1.7H4V7.1zm0 4.6h6.6v1.7H4v-1.7zm0 4.6h4.2v1.7H4v-1.7z" />
+                  <circle cx="17.2" cy="7.9" r="2.1" />
+                  <circle cx="15.4" cy="16.3" r="2.1" />
+                  <circle cx="19" cy="16.3" r="2.1" />
+                </svg>
+                <span data-i18n="account.general">General</span>
+              </a>
+            </li>
+          </ul>
         </li>
         <li>
-          <a class="account-settings-item-link" href="help.html?from=account_settings">
+          <a class="account-settings-item-link" href="help.html?from=account_settings" data-nav-key="help">
             <span class="account-settings-item-left">
-              <svg class="account-settings-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.7 9.2a2.5 2.5 0 1 1 4.2 2c-.8.6-1.4 1.1-1.4 2.1v.2h-1.4V13c0-1.5.9-2.2 1.6-2.8a1.1 1.1 0 1 0-1.8-.9H9.7z"/><circle cx="12" cy="16.9" r="1"/></svg>
-              <span class="account-settings-label">Help</span>
+              <svg class="account-settings-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <circle cx="12" cy="12" r="9" />
+                <path
+                  d="M9.7 9.2a2.5 2.5 0 1 1 4.2 2c-.8.6-1.4 1.1-1.4 2.1v.2h-1.4V13c0-1.5.9-2.2 1.6-2.8a1.1 1.1 0 1 0-1.8-.9H9.7z" />
+                <circle cx="12" cy="16.9" r="1" />
+              </svg>
+              <span class="account-settings-label" data-i18n="account.help">Help</span>
             </span>
-            <svg class="account-settings-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+            <svg class="account-settings-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M9 18l6-6-6-6" />
+            </svg>
           </a>
         </li>
       </ul>
       <button type="button" id="account-settings-logout" class="account-settings-logout">LOG OUT</button>
     </section>
   </main>
+  <script src="js/beanthentic_api_urls.js"></script>
+  <script src="js/beanthentic_profile_store.js"></script>
   <script>
     (function () {
       function parseUser(raw) {
@@ -278,8 +657,8 @@
       function getUser() {
         var local = null;
         var session = null;
-        try { local = parseUser(localStorage.getItem('beanthentic_user')); } catch (_e1) {}
-        try { session = parseUser(sessionStorage.getItem('beanthentic_user')); } catch (_e2) {}
+        try { local = parseUser(localStorage.getItem('beanthentic_user')); } catch (_e1) { }
+        try { session = parseUser(sessionStorage.getItem('beanthentic_user')); } catch (_e2) { }
         return local || session || null;
       }
       function keyVariants(v) {
@@ -299,29 +678,10 @@
         return Array.from(new Set(out));
       }
       function getFarmerProfile(email) {
-        var cleanEmail = String(email || '').trim().toLowerCase();
-        if (cleanEmail) {
-          try {
-            var rawMap = localStorage.getItem('beanthentic_farmer_profile_map') || sessionStorage.getItem('beanthentic_farmer_profile_map');
-            var map = rawMap ? JSON.parse(rawMap) : null;
-            if (map && typeof map === 'object') {
-              var keys = keyVariants(cleanEmail);
-              for (var i = 0; i < keys.length; i += 1) {
-                var per = map[keys[i]];
-                if (per && typeof per === 'object') return per;
-              }
-            }
-          } catch (_e0) {}
+        if (window.BeanthenticProfileStore && window.BeanthenticProfileStore.getFarmerProfile) {
+          return window.BeanthenticProfileStore.getFarmerProfile(email) || {};
         }
-        var raw = null;
-        try { raw = localStorage.getItem('beanthentic_farmer_profile') || sessionStorage.getItem('beanthentic_farmer_profile'); } catch (_e1) {}
-        if (!raw) return null;
-        try {
-          var p = JSON.parse(raw);
-          return p && typeof p === 'object' ? p : null;
-        } catch (_e2) {
-          return null;
-        }
+        return {};
       }
       function initials(name) {
         var parts = String(name || '').trim().split(/\s+/).filter(Boolean);
@@ -351,21 +711,74 @@
       var iniEl = document.getElementById('account-settings-initials');
       if (nameEl) nameEl.textContent = name;
       if (phoneEl) phoneEl.textContent = formatPhone(phone);
-      if (iniEl) iniEl.textContent = initials(name);
-
-      var photoRaw = String((p.profile_photo_data || '')).trim();
-      var photoEl = document.getElementById('account-settings-photo');
-      var avWrap = document.querySelector('.account-settings-avatar');
-      if (photoEl && avWrap) {
-        if (/^data:image\//i.test(photoRaw) || /^https?:\/\//i.test(photoRaw)) {
-          photoEl.src = photoRaw;
-          photoEl.removeAttribute('hidden');
-          avWrap.classList.add('has-photo');
-        } else {
-          try { photoEl.removeAttribute('src'); } catch (_rs) {}
-          photoEl.setAttribute('hidden', '');
-          avWrap.classList.remove('has-photo');
+      function paintProfile() {
+        var prof = getFarmerProfile(email) || {};
+        var displayName = String((prof.name || '') || [prof.first_name, prof.last_name].filter(Boolean).join(' ') || name || '').trim();
+        if (u.needs_registration) displayName = 'Member';
+        if (nameEl) nameEl.textContent = displayName;
+        if (phoneEl) phoneEl.textContent = formatPhone(String((prof.phone || '') || phone || '').trim());
+        if (window.BeanthenticProfileStore && window.BeanthenticProfileStore.applyAvatar) {
+          window.BeanthenticProfileStore.applyAvatar({
+            profile: prof,
+            imgEl: document.getElementById('account-settings-photo'),
+            wrapEl: document.getElementById('account-settings-avatar-wrap'),
+            initialsEl: iniEl,
+            name: displayName,
+          });
         }
+      }
+      paintProfile();
+
+      var avatarBtn = document.getElementById('account-settings-avatar-btn');
+      var photoInput = document.getElementById('account-settings-photo-input');
+      var photoStatus = document.getElementById('account-settings-photo-status');
+      if (avatarBtn && photoInput) {
+        avatarBtn.addEventListener('click', function () {
+          photoInput.click();
+        });
+        photoInput.addEventListener('change', function () {
+          var file = photoInput.files && photoInput.files[0];
+          photoInput.value = '';
+          if (!file || !window.BeanthenticProfileStore) return;
+          if (photoStatus) photoStatus.textContent = 'Saving photo…';
+          avatarBtn.classList.add('is-saving');
+          window.BeanthenticProfileStore.readFileAsDataUrl(file)
+            .then(function (dataUrl) {
+              return window.BeanthenticProfileStore.updateProfilePhoto(dataUrl);
+            })
+            .then(function () {
+              paintProfile();
+              if (photoStatus) photoStatus.textContent = 'Profile photo updated.';
+            })
+            .catch(function (err) {
+              if (photoStatus) {
+                photoStatus.textContent = (err && err.message) ? err.message : 'Could not update photo.';
+              }
+            })
+            .finally(function () {
+              avatarBtn.classList.remove('is-saving');
+            });
+        });
+      }
+      window.addEventListener('beanthentic-profile-changed', function () {
+        paintProfile();
+      });
+
+      var dropdownWrap = document.getElementById('account-settings-dropdown');
+      var securityWrap = document.getElementById('account-settings-security-dropdown');
+      if (dropdownWrap) {
+        document.addEventListener('click', function (e) {
+          var inSettings = dropdownWrap.contains(e.target);
+          var inSecurity = securityWrap && securityWrap.contains(e.target);
+          if (!inSettings && !inSecurity) {
+            if (typeof window.openAccountSettingsDropdown === 'function') {
+              window.openAccountSettingsDropdown(false);
+            }
+            if (typeof window.openSecurityNestedDropdown === 'function') {
+              window.openSecurityNestedDropdown(false);
+            }
+          }
+        });
       }
 
       var logoutBtn = document.getElementById('account-settings-logout');
@@ -374,7 +787,7 @@
           try {
             localStorage.removeItem('beanthentic_user');
             sessionStorage.removeItem('beanthentic_user');
-          } catch (_e) {}
+          } catch (_e) { }
           try {
             window.location.assign('index.php#home');
           } catch (_e2) {
@@ -384,5 +797,8 @@
       }
     })();
   </script>
+  <script src="js/auth_lang.js"></script>
+  <script src="js/ui.js"></script>
 </body>
+
 </html>

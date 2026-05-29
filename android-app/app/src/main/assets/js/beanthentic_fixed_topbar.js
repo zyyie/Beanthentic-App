@@ -4,6 +4,38 @@
  * Also scrolls to top on load (unless URL has a fragment) and disables automatic scroll restoration.
  */
 (function () {
+  var TOPBAR_FALLBACK = 'calc(env(safe-area-inset-top, 0px) + 5.5rem)';
+
+  function bodySkipsTopbarPadding() {
+    try {
+      if (!document.body) return false;
+      var c = document.body.classList;
+      return (
+        c.contains('login-page') ||
+        c.contains('signup-page') ||
+        c.contains('tutorial-page') ||
+        c.contains('choose-lang-page') ||
+        c.contains('server-url-page')
+      );
+    } catch (_sk) {
+      return false;
+    }
+  }
+
+  function applyTopbarFallback() {
+    try {
+      document.documentElement.style.setProperty('--beanthentic-fixed-topbar-h', TOPBAR_FALLBACK);
+      if (bodySkipsTopbarPadding()) return;
+      document.documentElement.classList.add('beanthentic-fixed-topbar-active');
+      if (document.body) document.body.classList.add('beanthentic-fixed-topbar-active');
+    } catch (_fb) {}
+  }
+
+  applyTopbarFallback();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', applyTopbarFallback);
+  }
+
   try {
     if ('scrollRestoration' in history) {
       history.scrollRestoration = 'manual';
@@ -41,8 +73,8 @@
       var h = findVisibleHeader();
       if (!h) {
         document.documentElement.classList.remove('beanthentic-fixed-topbar-active');
-        document.body.classList.remove('beanthentic-fixed-topbar-active');
-        document.documentElement.style.removeProperty('--beanthentic-fixed-topbar-h');
+        if (document.body) document.body.classList.remove('beanthentic-fixed-topbar-active');
+        document.documentElement.style.setProperty('--beanthentic-fixed-topbar-h', TOPBAR_FALLBACK);
         return;
       }
       var rect = h.getBoundingClientRect();

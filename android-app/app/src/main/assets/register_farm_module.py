@@ -6,6 +6,46 @@ import re
 import shutil
 
 EMAIL_RE = re.compile(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
+
+
+def _register_farm_client_is_server_machine() -> bool:
+    """True when the browser runs on the same PC as Flask (LAN hairpin / localhost)."""
+    try:
+        remote = (request.remote_addr or "").strip()
+        if remote in ("127.0.0.1", "::1"):
+            return True
+        host = (request.host or "").split(":")[0].strip()
+        if not host:
+            return False
+        if remote == host:
+            return True
+        if remote.startswith("::ffff:") and remote[7:] == host:
+            return True
+    except RuntimeError:
+        pass
+    return False
+
+
+def _inject_register_farm_dev_scripts(html: str) -> str:
+    """
+    Optional loopback hint for API proxy only — do NOT redirect away from 192.168.x.x
+    (redirect clears localStorage and breaks user_id after login).
+    """
+    if not _register_farm_client_is_server_machine():
+        return html
+    try:
+        port = str(request.environ.get("SERVER_PORT") or "8080")
+    except RuntimeError:
+        port = "8080"
+    origin = f"http://127.0.0.1:{port}"
+    snippet = (
+        "<script>"
+        f"window.__BEANTHENTIC_LOCAL_API_ORIGIN__={json.dumps(origin)};"
+        "</script>\n"
+    )
+    if "<head>" in html:
+        return html.replace("<head>", "<head>\n" + snippet, 1)
+    return snippet + html
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 ANDROID_APP_DIR = os.path.abspath(os.path.join(MODULE_DIR, "..", "..", "..", ".."))
 PROJECT_ROOT = os.path.abspath(os.path.join(ANDROID_APP_DIR, ".."))
@@ -205,6 +245,7 @@ def validate_farmer_payload(data):
             "association": "",
             "rsbsa_registered": "",
             "rsbsa_number": "",
+            "rsbsa_status": "",
             "ownership_status": "",
             "plant_area_value": None,
             "plant_area_unit": "",
@@ -244,6 +285,13 @@ def validate_farmer_payload(data):
     elif barangay not in _LIPA_BARANGAYS:
         errors["barangay"] = "Barangay must be within Lipa City."
 
+    pv_in = (data.get("province") or "").strip()
+    if pv_in:
+        province = pv_in[:100]
+    mun_in = (data.get("municipality") or "").strip()
+    if mun_in:
+        municipality = mun_in[:100]
+
     affiliation_role = (data.get("affiliation_role") or "").strip()
     if affiliation_role not in ("Cluster Head", "Officer", "Member"):
         errors["affiliation_role"] = "Select your role (Cluster Head, Officer, or Member)."
@@ -257,12 +305,17 @@ def validate_farmer_payload(data):
     association = ""
 
     rsbsa_registered = (data.get("rsbsa_registered") or "").strip().lower()
-    if rsbsa_registered not in ("yes", "no", "pending"):
-        errors["rsbsa_registered"] = "Select RSBSA registration status."
+    if rsbsa_registered not in ("yes", "no"):
+        errors["rsbsa_registered"] = "Select RSBSA Registered (Yes or No)."
     rsbsa_number = (data.get("rsbsa_number") or "").strip()
+    rsbsa_status = (data.get("rsbsa_status") or "").strip().lower()
     if rsbsa_registered == "yes":
         if len(rsbsa_number) < 4 or len(rsbsa_number) > 120:
             errors["rsbsa_number"] = "Enter a valid RSBSA number."
+    elif rsbsa_registered == "no":
+        rsbsa_number = "N/A"
+        if rsbsa_status not in ("not_yet_applied", "pending_rsbsa"):
+            errors["rsbsa_status"] = "Select RSBSA Status."
     elif len(rsbsa_number) > 120:
         errors["rsbsa_number"] = "RSBSA number is too long."
 
@@ -346,7 +399,8 @@ def validate_farmer_payload(data):
         f"({farm_size:.4f} ha est.). Trees: {'; '.join(tree_bits)}. "
         f"Production ({prod_year}): {', '.join(prod_bits) if prod_bits else '(not declared)'}. "
         f"Affiliation — Federation/group: {federation}; Growers assoc.: {association}. "
-        f"RSBSA: {rsbsa_registered}; RSBSA No.: {rsbsa_number if rsbsa_number else '(n/a)'}. "
+        f"NCFRS: {ncfrs}; RSBSA: {rsbsa_registered}; RSBSA No.: {rsbsa_number if rsbsa_number else '(n/a)'}; "
+        f"RSBSA Status: {rsbsa_status if rsbsa_status else '(n/a)'}. "
         f"Location: Barangay {barangay}, {municipality}, {province}."
     )
     if len(farm_address) > 3900:
@@ -370,10 +424,12 @@ def validate_farmer_payload(data):
         "farm_size": float(farm_size),
         "first_name": first_name,
         "last_name": last_name,
+        "ncfrs": ncfrs,
         "federation": federation,
         "association": association,
         "rsbsa_registered": rsbsa_registered,
         "rsbsa_number": rsbsa_number,
+        "rsbsa_status": rsbsa_status,
         "ownership_status": ownership_status,
         "plant_area_value": float(plant_area_value),
         "plant_area_unit": plant_area_unit,
@@ -528,12 +584,15 @@ class RegisterFarmModule:
                     barangay TEXT NOT NULL DEFAULT '',
                     farm_address TEXT NOT NULL,
                     farm_size REAL,
+                    birthday TEXT NOT NULL DEFAULT '',
                     first_name TEXT NOT NULL DEFAULT '',
                     last_name TEXT NOT NULL DEFAULT '',
                     federation TEXT NOT NULL DEFAULT '',
                     association TEXT NOT NULL DEFAULT '',
                     rsbsa_registered TEXT NOT NULL DEFAULT '',
                     rsbsa_number TEXT NOT NULL DEFAULT '',
+                    rsbsa_status TEXT NOT NULL DEFAULT '',
+                    ncfrs TEXT NOT NULL DEFAULT '',
                     ownership_status TEXT NOT NULL DEFAULT '',
                     plant_area_value REAL,
                     plant_area_unit TEXT NOT NULL DEFAULT '',
@@ -610,12 +669,15 @@ class RegisterFarmModule:
             if "barangay" not in cols:
                 cursor.execute("ALTER TABLE farmers ADD COLUMN barangay TEXT NOT NULL DEFAULT ''")
             extra_cols = [
+                ("birthday", "TEXT NOT NULL DEFAULT ''"),
                 ("first_name", "TEXT NOT NULL DEFAULT ''"),
                 ("last_name", "TEXT NOT NULL DEFAULT ''"),
                 ("federation", "TEXT NOT NULL DEFAULT ''"),
                 ("association", "TEXT NOT NULL DEFAULT ''"),
                 ("rsbsa_registered", "TEXT NOT NULL DEFAULT ''"),
                 ("rsbsa_number", "TEXT NOT NULL DEFAULT ''"),
+                ("rsbsa_status", "TEXT NOT NULL DEFAULT ''"),
+                ("ncfrs", "TEXT NOT NULL DEFAULT ''"),
                 ("ownership_status", "TEXT NOT NULL DEFAULT ''"),
                 ("plant_area_value", "REAL"),
                 ("plant_area_unit", "TEXT NOT NULL DEFAULT ''"),
@@ -724,109 +786,15 @@ class RegisterFarmModule:
             except Exception as e:
                 return jsonify({'success': False, 'error': str(e)}), 500
 
-        @self.app.route('/api/register-farm/farmer-profile', methods=['GET'])
-        def get_farmer_profile_by_login():
-            """Fetch saved farmer registration profile by account login id (email/phone)."""
-            try:
-                raw_login = (request.args.get('login_id') or '').strip().lower()
-                if not raw_login:
-                    return jsonify({'success': False, 'error': 'Missing login_id'}), 400
-
-                def phone_variants(v: str):
-                    s = re.sub(r'\D+', '', v or '')
-                    out = set()
-                    if not s:
-                        return out
-                    if s.startswith('63') and len(s) >= 12:
-                        out.add('0' + s[2:])
-                    if s.startswith('0') and len(s) >= 11:
-                        out.add('+63' + s[1:])
-                    if len(s) == 10 and s.startswith('9'):
-                        out.add('0' + s)
-                        out.add('+63' + s)
-                    out.add(v.strip())
-                    out.add(s)
-                    return {x.lower() for x in out if x}
-
-                variants = phone_variants(raw_login)
-                conn = sqlite3.connect(REGISTER_DB_PATH)
-                conn.row_factory = sqlite3.Row
-                cursor = conn.cursor()
-
-                row = None
-                if '@' in raw_login:
-                    cursor.execute(
-                        "SELECT * FROM farmers WHERE lower(email) = ? ORDER BY id DESC LIMIT 1",
-                        (raw_login,),
-                    )
-                    row = cursor.fetchone()
-                else:
-                    # Try phone matches first.
-                    for ph in variants:
-                        cursor.execute(
-                            "SELECT * FROM farmers WHERE lower(phone) = ? ORDER BY id DESC LIMIT 1",
-                            (ph,),
-                        )
-                        row = cursor.fetchone()
-                        if row:
-                            break
-                    # Fallback: sometimes login id may still be in email column.
-                    if not row:
-                        cursor.execute(
-                            "SELECT * FROM farmers WHERE lower(email) = ? ORDER BY id DESC LIMIT 1",
-                            (raw_login,),
-                        )
-                        row = cursor.fetchone()
-
-                conn.close()
-                if not row:
-                    return jsonify({'success': True, 'found': False, 'profile': None})
-
-                def _safe_json(raw, default):
-                    try:
-                        return json.loads(raw) if raw else default
-                    except Exception:
-                        return default
-
-                trees = _safe_json(row['trees_json'], {})
-                production = _safe_json(row['production_json'], {})
-                try:
-                    photo_raw = (row['profile_photo_data'] or '').strip()
-                except (KeyError, IndexError):
-                    photo_raw = ''
-                profile = {
-                    'id': row['id'],
-                    'name': row['name'] or '',
-                    'first_name': row['first_name'] or '',
-                    'last_name': row['last_name'] or '',
-                    'email': row['email'] or '',
-                    'phone': row['phone'] or '',
-                    'province': row['province'] or '',
-                    'municipality': row['municipality'] or '',
-                    'barangay': row['barangay'] or '',
-                    'federation': row['federation'] or '',
-                    'association': row['association'] or '',
-                    'ncfrs': 'yes' if (str(row['association'] or '').strip().lower() == 'yes') else (
-                        'no' if str(row['association'] or '').strip().lower() == 'no' else ''
-                    ),
-                    'rsbsa_registered': row['rsbsa_registered'] or '',
-                    'rsbsa_number': row['rsbsa_number'] or '',
-                    'ownership_status': row['ownership_status'] or '',
-                    'plant_area_value': row['plant_area_value'],
-                    'plant_area_unit': row['plant_area_unit'] or '',
-                    'tree_counts': trees if isinstance(trees, dict) else {},
-                    'production': production if isinstance(production, dict) else {},
-                    'production_year': '2026',
-                    'profile_photo_data': photo_raw,
-                }
-                return jsonify({'success': True, 'found': True, 'profile': profile})
-            except Exception as e:
-                return jsonify({'success': False, 'error': str(e)}), 500
-        
         @self.app.route('/register-farm')
         def register_farm_portal():
             """Serve Register Farm portal page"""
-            return render_template_string(self.get_register_farm_portal_html())
+            from flask import make_response
+            html = _inject_register_farm_dev_scripts(self.get_register_farm_portal_html())
+            resp = make_response(html)
+            resp.headers['Permissions-Policy'] = 'camera=*, microphone=*'
+            resp.headers['Cache-Control'] = 'no-store, max-age=0'
+            return resp
     
     def get_register_farm_portal_html(self):
         """Return HTML for Register Farm portal"""
@@ -845,9 +813,11 @@ class RegisterFarmModule:
     <link rel="stylesheet" href="/css/layout.css">
     <link rel="stylesheet" href="/css/components.css">
     <link rel="stylesheet" href="/css/responsive.css">
-    <script id="beanthentic-fixed-topbar-js" src="/js/beanthentic_fixed_topbar.js" defer></script>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
+    <script id="beanthentic-fixed-topbar-js" src="/js/beanthentic_fixed_topbar.js"></script>
     <style>
+        :root {
+            --fr-font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
         * {
             box-sizing: border-box;
             margin: 0;
@@ -855,7 +825,7 @@ class RegisterFarmModule:
         }
         
         body {
-            font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+            font-family: var(--fr-font);
             color: #1a1a1a;
             background: #e9eef4;
             line-height: 1.6;
@@ -871,7 +841,7 @@ class RegisterFarmModule:
         body.register-farm-flow {
             min-height: 100%;
             display: block;
-            overflow-y: auto;
+            overflow-y: hidden;
             overflow-x: hidden;
             padding-top: 0 !important;
         }
@@ -899,12 +869,14 @@ class RegisterFarmModule:
             padding-right: 0;
         }
         .fr-reg-shell {
-            display: block;
-            overflow: visible;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
             width: 100%;
             max-width: none;
             margin-left: 0;
             margin-right: 0;
+            min-height: calc(100dvh - var(--beanthentic-fixed-topbar-h, 0px));
         }
         .fr-reg-hero {
             background: linear-gradient(165deg, #1b5e20 0%, #145218 55%, #0f3d12 100%);
@@ -978,12 +950,14 @@ class RegisterFarmModule:
             margin-top: -0.75rem;
             position: relative;
             z-index: 2;
-            min-height: 60vh;
+            flex: 1 1 auto;
+            min-height: 0;
             overflow-x: hidden;
-            overflow-y: visible;
+            overflow-y: auto;
             -webkit-overflow-scrolling: touch;
             overscroll-behavior: contain;
             width: 100%;
+            max-height: calc(100dvh - var(--beanthentic-fixed-topbar-h, 0px));
         }
         
         .container {
@@ -1625,70 +1599,14 @@ class RegisterFarmModule:
             margin: 2.1rem 0 1.05rem;
             letter-spacing: -0.01em;
         }
-        /* Profile preview on step 1 — mirrors photo chosen on Profile Picture step */
-        .fr-hero-avatar-wrap {
-            display: flex;
-            justify-content: center;
-            padding: 0.15rem 0 0.35rem;
-        }
-        .fr-hero-avatar-btn {
-            border: 0;
-            padding: 0;
-            margin: 0;
-            background: transparent;
-            cursor: pointer;
-            border-radius: 999px;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .fr-hero-avatar-btn:focus-visible {
-            outline: 2px solid #1b5e20;
-            outline-offset: 3px;
-        }
-        .fr-hero-avatar-btn:active .fr-hero-avatar {
-            transform: scale(0.97);
-        }
-        .fr-hero-avatar {
-            width: min(28vw, 112px);
-            height: min(28vw, 112px);
-            border-radius: 999px;
-            background: #e5e7eb;
-            border: 1px solid #d1d5db;
-            display: grid;
-            place-items: center;
-            position: relative;
-            overflow: hidden;
-            box-shadow: inset 0 1px 4px rgba(15, 23, 42, 0.08);
-            transition: transform 0.15s ease;
-        }
-        .fr-hero-avatar-img {
-            position: absolute;
-            inset: 0;
+        label.btn-fr-photo,
+        button.btn-fr-photo {
+            display: block;
+            box-sizing: border-box;
+            text-align: center;
             width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 999px;
-            z-index: 1;
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-        }
-        .fr-hero-avatar.has-photo .fr-hero-avatar-img {
-            opacity: 1;
-            visibility: visible;
-        }
-        .fr-hero-avatar-placeholder {
-            color: #9ca3af;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.2s ease;
-        }
-        .fr-hero-avatar-placeholder svg {
-            width: 52px;
-            height: 52px;
-        }
-        .fr-hero-avatar.has-photo .fr-hero-avatar-placeholder {
-            opacity: 0;
+            border: none;
+            cursor: pointer;
         }
         /* First section (e.g. Personal Information): extra space below green header */
         .fr-section-title:first-of-type {
@@ -1797,7 +1715,7 @@ class RegisterFarmModule:
             padding: 0.7rem 1.2rem;
             font-weight: 700;
             font-size: 0.92rem;
-            font-family: inherit;
+            font-family: var(--fr-font);
             cursor: pointer;
             display: none;
             align-items: center;
@@ -1813,7 +1731,7 @@ class RegisterFarmModule:
             padding: 0.7rem 1.35rem;
             font-weight: 700;
             font-size: 0.92rem;
-            font-family: inherit;
+            font-family: var(--fr-font);
             cursor: pointer;
             display: inline-flex;
             align-items: center;
@@ -1951,6 +1869,10 @@ class RegisterFarmModule:
             object-fit: cover;
             display: block;
         }
+        button.fr-photo-icon-btn {
+            font: inherit;
+            cursor: pointer;
+        }
         .fr-photo-icon-btn {
             position: absolute;
             right: 0.5rem;
@@ -1975,44 +1897,66 @@ class RegisterFarmModule:
         }
         .btn-fr-photo {
             width: 100%;
-            border-radius: 10px;
-            padding: 0.72rem 1rem;
+            border-radius: 999px;
+            padding: 0.7rem 1.2rem;
+            font-family: var(--fr-font);
             font-weight: 700;
-            font-size: 0.95rem;
-            font-family: inherit;
+            font-size: 0.92rem;
+            letter-spacing: -0.01em;
+            line-height: 1.25;
+            -webkit-font-smoothing: antialiased;
             cursor: pointer;
         }
         .btn-fr-photo.take {
-            border: 1px solid #d1d5db;
-            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            background: #f1f4f8;
             color: #1c5216;
-            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+            box-shadow: 0 3px 10px rgba(15, 23, 42, 0.06);
         }
         .btn-fr-photo.upload {
             border: none;
             background: linear-gradient(135deg, #1b5e20, #145218);
-            color: #ffffff;
-            box-shadow: 0 4px 12px rgba(28, 82, 22, 0.28);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(28, 82, 22, 0.28);
         }
         .fr-photo-hint {
-            margin: 0;
-            font-size: 0.82rem;
+            margin: 0.35rem 0 0;
+            font-family: var(--fr-font);
+            font-size: 0.78rem;
+            font-weight: 500;
+            line-height: 1.45;
             color: #6b7280;
         }
+        .fr-draft-banner {
+            display: none;
+            margin: 0 0 1rem;
+            padding: 0.55rem 0.75rem;
+            border-radius: 10px;
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            color: #065f46;
+            font-family: var(--fr-font);
+            font-size: 0.8rem;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+        .fr-draft-banner.is-visible { display: block; }
         /* display:none breaks programmatic input.click() → file/camera sheet in Chrome/Edge/Safari */
         .fr-visually-hidden-file {
-            position: absolute;
+            position: fixed;
             left: 0;
-            top: 0;
-            width: 1px;
-            height: 1px;
+            bottom: 0;
+            width: 4px;
+            height: 4px;
             margin: 0;
             padding: 0;
             overflow: hidden;
             clip: rect(0, 0, 0, 0);
+            clip-path: inset(50%);
             white-space: nowrap;
             border: 0;
-            opacity: 0.01;
+            opacity: 0;
+            z-index: 2147483646;
         }
         .fr-camera-modal {
             position: fixed;
@@ -2315,20 +2259,17 @@ class RegisterFarmModule:
                     </div>
                 </header>
                 <div class="register-farm-sheet fr-reg-sheet">
+                    <p id="frDraftBanner" class="fr-draft-banner" role="status" aria-live="polite"></p>
                     <form id="farmerForm" novalidate autocomplete="off">
                     <input type="hidden" name="production_year" id="productionYear" value="2026">
                     <input type="hidden" id="farmerEmail" name="email" value="">
                     <input type="hidden" id="farmerPhone" name="phone" value="">
+                    <!-- File inputs MUST stay outside .fr-step (steps use display:none) or WebView/desktop may block the picker. -->
+                    <input type="file" id="frTakePictureInput" accept="image/*" class="fr-visually-hidden-file" tabindex="-1">
+                    <input type="file" id="frUploadPictureInput" accept="image/*" class="fr-visually-hidden-file" tabindex="-1">
 
                     <div id="frStep1" class="fr-step is-active" data-fr-step="1">
-                        <div class="fr-hero-avatar-wrap">
-                            <button type="button" class="fr-hero-avatar-btn" id="frHeroPickPhotoBtn" aria-label="Add profile photo — camera or gallery" title="Tap: camera or gallery">
-                                <div class="fr-hero-avatar" id="frHeroAvatar">
-                                    <img id="frHeroProfilePhoto" class="fr-hero-avatar-img" alt="" width="112" height="112" decoding="async" />
-                                    <span class="fr-hero-avatar-placeholder"><i data-lucide="user"></i></span>
-                                </div>
-                            </button>
-                        </div>
+                        <h2 class="fr-page-heading">Farmer Information</h2>
                         <p class="fr-section-title">Personal Information</p>
                         <div class="fr-row2">
                             <div class="fr-field">
@@ -2342,6 +2283,14 @@ class RegisterFarmModule:
                                 <span class="field-error" data-error-for="first_name" role="alert"></span>
                             </div>
                             </div>
+                        <div class="fr-row1" style="margin-top:1.5rem;">
+                            <div class="fr-field">
+                                <label for="farmerBirthday">Birthday <span class="required">*</span></label>
+                                <input type="text" id="farmerBirthday" name="birthday" required readonly inputmode="none" placeholder="Select date">
+                                <p style="font-size: 0.75rem; color: #666; margin-top: 4px;">Format: MM/DD/YYYY (if manual)</p>
+                                <span class="field-error" data-error-for="birthday" role="alert"></span>
+                            </div>
+                        </div>
                         <div class="fr-row3" style="margin-top:1.5rem;">
                             <div class="fr-field">
                                 <label for="province">Province <span class="required">*</span></label>
@@ -2412,14 +2361,13 @@ class RegisterFarmModule:
                                 </div>
                             </div>
                         </div>
-                        <div class="fr-row2" style="margin-top:1.5rem;">
+                        <div class="fr-row3" style="margin-top:1.5rem;">
                             <div class="fr-field">
                                 <label for="frRsbsa">RSBSA Registered <span class="required">*</span></label>
                                 <select id="frRsbsa" name="rsbsa_registered">
                                     <option value="">Select</option>
                                     <option value="yes">Yes</option>
                                     <option value="no">No</option>
-                                    <option value="pending">Pending</option>
                                 </select>
                                 <span class="field-error" data-error-for="rsbsa_registered" role="alert"></span>
                             </div>
@@ -2427,7 +2375,16 @@ class RegisterFarmModule:
                                 <label for="frRsbsaNo">RSBSA Registered Number</label>
                                 <input type="text" id="frRsbsaNo" name="rsbsa_number" maxlength="120" placeholder="Number if registered">
                                 <span class="field-error" data-error-for="rsbsa_number" role="alert"></span>
-                                </div>
+                            </div>
+                            <div class="fr-field" id="frRsbsaStatusWrap" hidden>
+                                <label for="frRsbsaStatus">RSBSA Status <span class="required">*</span></label>
+                                <select id="frRsbsaStatus" name="rsbsa_status">
+                                    <option value="">Select</option>
+                                    <option value="not_yet_applied">Not Yet Applied</option>
+                                    <option value="pending_rsbsa">Pending RSBSA</option>
+                                </select>
+                                <span class="field-error" data-error-for="rsbsa_status" role="alert"></span>
+                            </div>
                             </div>
                         </div>
                         
@@ -2436,11 +2393,11 @@ class RegisterFarmModule:
                         <div class="fr-field">
                             <label for="frOwnership">Status of Ownership <span class="required">*</span></label>
                             <select id="frOwnership" name="ownership_status">
-                                <option value="">Select</option>
+                                <option value="">Select status of ownership</option>
                                 <option value="landowner">Landowner</option>
-                                <option value="cloa_holder">CLOA Holder</option>
-                                <option value="list_holder">List Holder</option>
-                                <option value="sessional_farm_worker">Sessional Farm Worker</option>
+                                <option value="cloa_holder">CLOA holder</option>
+                                <option value="list_holder">LIST holder</option>
+                                <option value="sessional_farm_worker">Seasonal farm worker</option>
                                 <option value="others">Others</option>
                             </select>
                             <span class="field-error" data-error-for="ownership_status" role="alert"></span>
@@ -2467,7 +2424,7 @@ class RegisterFarmModule:
                                     <span class="fr-tree-variety">Liberica (Kapeng Barako)</span>
                                     <span class="fr-tree-metric">number of bearing</span>
                             </label>
-                                <input type="number" id="libB" name="liberica_bearing" min="0" step="1" value="0">
+                                <input type="number" id="libB" name="liberica_bearing" min="0" step="1" placeholder="">
                                 <span class="field-error" data-error-for="liberica_bearing" role="alert"></span>
                         </div>
                             <div class="fr-field">
@@ -2475,7 +2432,7 @@ class RegisterFarmModule:
                                     <span class="fr-tree-variety">Liberica (Kapeng Barako)</span>
                                     <span class="fr-tree-metric">number of non bearing</span>
                                 </label>
-                                <input type="number" id="libN" name="liberica_non_bearing" min="0" step="1" value="0">
+                                <input type="number" id="libN" name="liberica_non_bearing" min="0" step="1" placeholder="">
                                 <span class="field-error" data-error-for="liberica_non_bearing" role="alert"></span>
                 </div>
                             <div class="fr-field">
@@ -2483,7 +2440,7 @@ class RegisterFarmModule:
                                     <span class="fr-tree-variety">Robusta</span>
                                     <span class="fr-tree-metric">number of bearing</span>
                                 </label>
-                                <input type="number" id="robB" name="robusta_bearing" min="0" step="1" value="0">
+                                <input type="number" id="robB" name="robusta_bearing" min="0" step="1" placeholder="">
                                 <span class="field-error" data-error-for="robusta_bearing" role="alert"></span>
             </div>
                             <div class="fr-field">
@@ -2491,7 +2448,7 @@ class RegisterFarmModule:
                                     <span class="fr-tree-variety">Robusta</span>
                                     <span class="fr-tree-metric">number of non bearing</span>
                                 </label>
-                                <input type="number" id="robN" name="robusta_non_bearing" min="0" step="1" value="0">
+                                <input type="number" id="robN" name="robusta_non_bearing" min="0" step="1" placeholder="">
                                 <span class="field-error" data-error-for="robusta_non_bearing" role="alert"></span>
                         </div>
                             <div class="fr-field">
@@ -2499,7 +2456,7 @@ class RegisterFarmModule:
                                     <span class="fr-tree-variety">Excelsa</span>
                                     <span class="fr-tree-metric">number of bearing</span>
                                 </label>
-                                <input type="number" id="excB" name="excelsa_bearing" min="0" step="1" value="0">
+                                <input type="number" id="excB" name="excelsa_bearing" min="0" step="1" placeholder="">
                                 <span class="field-error" data-error-for="excelsa_bearing" role="alert"></span>
                         </div>
                             <div class="fr-field">
@@ -2507,7 +2464,7 @@ class RegisterFarmModule:
                                     <span class="fr-tree-variety">Excelsa</span>
                                     <span class="fr-tree-metric">number of non bearing</span>
                                 </label>
-                                <input type="number" id="excN" name="excelsa_non_bearing" min="0" step="1" value="0">
+                                <input type="number" id="excN" name="excelsa_non_bearing" min="0" step="1" placeholder="">
                                 <span class="field-error" data-error-for="excelsa_non_bearing" role="alert"></span>
                     </div>
                         </div>
@@ -2574,10 +2531,8 @@ class RegisterFarmModule:
                                 <button type="button" class="btn-fr-photo take" id="frTakePictureBtn">Take Picture</button>
                                 <button type="button" class="btn-fr-photo upload" id="frUploadPictureBtn">Upload Picture</button>
                         </div>
-                            <input type="file" id="frTakePictureInput" accept="image/*" class="fr-visually-hidden-file" aria-hidden="true" tabindex="-1">
-                            <input type="file" id="frUploadPictureInput" accept="image/*" class="fr-visually-hidden-file" aria-hidden="true" tabindex="-1">
                             <input type="hidden" id="frPhotoData" name="profile_photo_data">
-                            <p class="fr-photo-hint">Use camera or gallery to add your profile photo.</p>
+                            <p class="fr-photo-hint">Take Picture opens your webcam. Upload Picture picks a file from this device.</p>
                             <span class="field-error" data-error-for="profile_photo_data" role="alert"></span>
                         </div>
                         <div class="fr-camera-modal" id="frCameraModal" aria-hidden="true">
@@ -2673,6 +2628,212 @@ class RegisterFarmModule:
             el.querySelectorAll('.checkbox-invalid').forEach(l => l.classList.remove('checkbox-invalid'));
         }
 
+        function pad2(n) {
+            return String(n).padStart(2, '0');
+        }
+
+        function isoFromParts(year, monthIndex, day) {
+            // monthIndex: 0..11
+            return String(year) + '-' + pad2(monthIndex + 1) + '-' + pad2(day);
+        }
+
+        function parseIsoDate(s) {
+            const m = String(s || '').trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
+            if (!m) return null;
+            const y = parseInt(m[1], 10);
+            const mm = parseInt(m[2], 10);
+            const d = parseInt(m[3], 10);
+            if (!(y >= 1900 && y <= 2100)) return null;
+            if (!(mm >= 1 && mm <= 12)) return null;
+            if (!(d >= 1 && d <= 31)) return null;
+            const dt = new Date(y, mm - 1, d);
+            if (isNaN(dt.getTime())) return null;
+            if (dt.getFullYear() !== y || dt.getMonth() !== (mm - 1) || dt.getDate() !== d) return null;
+            return dt;
+        }
+
+        function formatDisplayDate(iso) {
+            const dt = parseIsoDate(iso);
+            if (!dt) return '';
+            // Match the helper text (MM/DD/YYYY)
+            return pad2(dt.getMonth() + 1) + '/' + pad2(dt.getDate()) + '/' + dt.getFullYear();
+        }
+
+        function wireBirthdayModal() {
+            const input = document.getElementById('farmerBirthday');
+            const modal = document.getElementById('frDateModal');
+            const panel = modal ? modal.querySelector('.fr-date-modal-card') : null;
+            const grid = modal ? modal.querySelector('#frDateGrid') : null;
+            const monthSel = modal ? modal.querySelector('#frDateMonth') : null;
+            const yearSel = modal ? modal.querySelector('#frDateYear') : null;
+            const btnClose = modal ? modal.querySelector('#frDateClose') : null;
+            const btnOk = modal ? modal.querySelector('#frDateOk') : null;
+            const btnPrev = modal ? modal.querySelector('#frDatePrev') : null;
+            const btnNext = modal ? modal.querySelector('#frDateNext') : null;
+
+            if (!input || !modal || !panel || !grid || !monthSel || !yearSel) return;
+
+            function bindTap(el, fn) {
+                if (!el) return;
+                const handler = function (e) {
+                    try {
+                        if (e && typeof e.preventDefault === 'function') e.preventDefault();
+                        if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
+                    } catch (_p) {}
+                    fn(e);
+                };
+                el.addEventListener('click', handler);
+                // Android WebView sometimes misses click; add touch fallback.
+                el.addEventListener('touchend', handler, { passive: false });
+                el.addEventListener('pointerup', handler);
+            }
+
+            const monthNames = [
+                'January','February','March','April','May','June',
+                'July','August','September','October','November','December'
+            ];
+
+            // Populate month/year once
+            monthSel.innerHTML = '';
+            monthNames.forEach((name, idx) => {
+                const opt = document.createElement('option');
+                opt.value = String(idx);
+                opt.textContent = name;
+                monthSel.appendChild(opt);
+            });
+            yearSel.innerHTML = '';
+            for (let y = new Date().getFullYear(); y >= 1900; y--) {
+                const opt = document.createElement('option');
+                opt.value = String(y);
+                opt.textContent = String(y);
+                yearSel.appendChild(opt);
+            }
+
+            let viewYear = new Date().getFullYear();
+            let viewMonth = new Date().getMonth();
+            let pendingIso = '';
+            let suppressOpenUntil = 0;
+
+            function openModal() {
+                if (Date.now() < suppressOpenUntil) return;
+                const current = parseIsoDate(input.value);
+                const base = current || new Date(2004, 7, 9);
+                viewYear = base.getFullYear();
+                viewMonth = base.getMonth();
+                pendingIso = current ? (input.value || '') : '';
+                monthSel.value = String(viewMonth);
+                yearSel.value = String(viewYear);
+                renderGrid();
+                modal.hidden = false;
+                modal.setAttribute('aria-hidden', 'false');
+                document.body.classList.add('fr-date-modal-open');
+                try { panel.focus(); } catch (_e) {}
+            }
+
+            function closeModal() {
+                modal.hidden = true;
+                modal.setAttribute('aria-hidden', 'true');
+                document.body.classList.remove('fr-date-modal-open');
+                // Avoid immediately re-opening due to programmatic focus.
+                suppressOpenUntil = Date.now() + 450;
+                try { input.blur(); } catch (_b) {}
+            }
+
+            function daysInMonth(year, monthIndex) {
+                return new Date(year, monthIndex + 1, 0).getDate();
+            }
+
+            function renderGrid() {
+                const activeIso = String(pendingIso || input.value || '').trim();
+                const firstDay = new Date(viewYear, viewMonth, 1);
+                const startDow = firstDay.getDay(); // 0 Sun
+                const totalDays = daysInMonth(viewYear, viewMonth);
+                grid.innerHTML = '';
+                const header = document.createElement('div');
+                header.className = 'fr-date-dow';
+                ['Su','Mo','Tu','We','Th','Fr','Sa'].forEach((d) => {
+                    const el = document.createElement('div');
+                    el.textContent = d;
+                    header.appendChild(el);
+                });
+                grid.appendChild(header);
+
+                const cells = document.createElement('div');
+                cells.className = 'fr-date-cells';
+                const blanks = startDow;
+                for (let i = 0; i < blanks; i++) {
+                    const b = document.createElement('div');
+                    b.className = 'fr-date-cell fr-date-cell--blank';
+                    cells.appendChild(b);
+                }
+                for (let day = 1; day <= totalDays; day++) {
+                    const iso = isoFromParts(viewYear, viewMonth, day);
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'fr-date-cell';
+                    btn.textContent = String(day);
+                    btn.setAttribute('aria-label', monthNames[viewMonth] + ' ' + day + ', ' + viewYear);
+                    btn.dataset.iso = iso;
+                    if (iso === activeIso) btn.setAttribute('aria-selected', 'true');
+                    btn.addEventListener('click', () => {
+                        pendingIso = iso;
+                        renderGrid();
+                    });
+                    cells.appendChild(btn);
+                }
+                grid.appendChild(cells);
+            }
+
+            bindTap(input, openModal);
+
+            modal.addEventListener('click', function (e) {
+                if (e.target === modal) closeModal();
+            });
+            bindTap(btnClose, closeModal);
+            function applyOkOnly() {
+                if (!pendingIso) {
+                    // If nothing selected, keep existing value and just close.
+                    closeModal();
+                    return;
+                }
+                input.value = pendingIso;
+                // Trigger validation clear and allow form to pick up chosen value.
+                try { input.dispatchEvent(new Event('change', { bubbles: true })); } catch (_e) {}
+                closeModal();
+            }
+            bindTap(btnOk, applyOkOnly);
+            if (btnPrev) btnPrev.addEventListener('click', function () {
+                viewMonth -= 1;
+                if (viewMonth < 0) { viewMonth = 11; viewYear -= 1; }
+                monthSel.value = String(viewMonth);
+                yearSel.value = String(viewYear);
+                renderGrid();
+            });
+            if (btnNext) btnNext.addEventListener('click', function () {
+                viewMonth += 1;
+                if (viewMonth > 11) { viewMonth = 0; viewYear += 1; }
+                monthSel.value = String(viewMonth);
+                yearSel.value = String(viewYear);
+                renderGrid();
+            });
+            monthSel.addEventListener('change', function () {
+                viewMonth = parseInt(monthSel.value, 10) || 0;
+                renderGrid();
+            });
+            yearSel.addEventListener('change', function () {
+                viewYear = parseInt(yearSel.value, 10) || new Date().getFullYear();
+                renderGrid();
+            });
+
+            document.addEventListener('keydown', function (e) {
+                if (modal.hidden) return;
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    closeModal();
+                }
+            });
+        }
+
         function setFieldError(fieldKey, message) {
             const span = document.querySelector('.field-error[data-error-for="' + fieldKey + '"]');
             if (span) span.textContent = message || '';
@@ -2702,7 +2863,7 @@ class RegisterFarmModule:
         function moveWizardToStepForErrors(errors) {
             if (!errors) return;
             const keys = Object.keys(errors);
-            const stepKeys1 = ['last_name','first_name','barangay','affiliation_role','ncfrs','rsbsa_registered','rsbsa_number'];
+            const stepKeys1 = ['last_name','first_name','birthday','barangay','affiliation_role','ncfrs','rsbsa_registered','rsbsa_number','rsbsa_status'];
             const stepKeys2 = [
                 'ownership_status','plant_area_value','plant_area_unit',
                 'liberica_bearing','liberica_non_bearing','robusta_bearing','robusta_non_bearing','excelsa_bearing','excelsa_non_bearing',
@@ -2725,6 +2886,68 @@ class RegisterFarmModule:
             return s;
         }
 
+        /** Prefer sessionStorage (current login), then localStorage; pick entry with user_id. */
+        function readStoredAuthUser() {
+            var parsed = [];
+            try {
+                var ss = sessionStorage.getItem('beanthentic_user');
+                var ls = localStorage.getItem('beanthentic_user');
+                if (ss) {
+                    var a = JSON.parse(ss);
+                    if (a && typeof a === 'object') parsed.push(a);
+                }
+                if (ls) {
+                    var b = JSON.parse(ls);
+                    if (b && typeof b === 'object') parsed.push(b);
+                }
+            } catch (_e) {}
+            var i;
+            for (i = 0; i < parsed.length; i++) {
+                var uid = parseInt(String(parsed[i].user_id || ''), 10);
+                if (uid > 0) return parsed[i];
+            }
+            for (i = 0; i < parsed.length; i++) {
+                if (parsed[i].email || parsed[i].phone_number) return parsed[i];
+            }
+            return null;
+        }
+
+        function resolveLoginIdsFromStorage() {
+            var out = [];
+            var u = readStoredAuthUser();
+            if (u) {
+                if (u.phone_number) out.push(String(u.phone_number));
+                if (u.email) out.push(String(u.email));
+            }
+            try {
+                ['beanthentic_new_signup_login_id', 'beanthentic_onboarding_required_login_id'].forEach(function (k) {
+                    var v = sessionStorage.getItem(k) || localStorage.getItem(k);
+                    if (v && String(v).trim()) out.push(String(v).trim());
+                });
+            } catch (_e2) {}
+            return out;
+        }
+
+        function resolveAuthForSubmit(payload) {
+            payload = payload || {};
+            var u = readStoredAuthUser();
+            var uid = 0;
+            if (u && u.user_id != null) {
+                uid = parseInt(String(u.user_id), 10);
+                if (!(uid > 0)) uid = 0;
+            }
+            var phone = String(payload.phone || '').trim();
+            var email = String(payload.email || '').trim().toLowerCase();
+            resolveLoginIdsFromStorage().forEach(function (id) {
+                var s = String(id || '').trim();
+                if (!s) return;
+                if (!EMAIL_RE.test(email) && EMAIL_RE.test(s)) email = s.toLowerCase();
+                var p = normalizePhone(s);
+                if (!/^09\\d{9}$/.test(phone) && /^09\\d{9}$/.test(p)) phone = p;
+            });
+            return { user_id: uid, phone: phone, email: email };
+        }
+
         function looksLikePersonName(value) {
             const s = String(value || '').trim();
             if (!s || s.length < 2) return false;
@@ -2745,8 +2968,20 @@ class RegisterFarmModule:
             const last = (d.last_name || '').trim();
             const first = (d.first_name || '').trim();
             const barangay = (d.barangay || '').trim();
+            const birthday = (d.birthday || '').trim();
             if (last.length < 2) err.last_name = 'Enter your last name.';
             if (first.length < 2) err.first_name = 'Enter your first name.';
+            if (!birthday) err.birthday = 'Enter your birthday.';
+            else {
+                const dob = new Date(birthday + 'T00:00:00');
+                if (isNaN(dob.getTime())) err.birthday = 'Enter a valid date.';
+                else {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    if (dob > today) err.birthday = 'Birthday cannot be in the future.';
+                    else if (dob < new Date('1900-01-01T00:00:00')) err.birthday = 'Enter a valid birthday.';
+                }
+            }
             if (!barangay) err.barangay = 'Select your barangay in Lipa City.';
             else if (!LIPA_BARANGAYS_REGISTER.has(barangay)) err.barangay = 'Barangay must be within Lipa City.';
             return err;
@@ -2758,10 +2993,12 @@ class RegisterFarmModule:
             const ncfrs = (d.ncfrs || '').trim().toLowerCase();
             const rsb = (d.rsbsa_registered || '').trim().toLowerCase();
             const rsbNum = (d.rsbsa_number || '').trim();
+            const rsbStatus = (d.rsbsa_status || '').trim().toLowerCase();
             if (!role) err.affiliation_role = 'Select your role.';
             if (!['yes','no'].includes(ncfrs)) err.ncfrs = 'Select NCFRS (Yes or No).';
-            if (!['yes','no','pending'].includes(rsb)) err.rsbsa_registered = 'Select RSBSA registration status.';
+            if (!['yes','no'].includes(rsb)) err.rsbsa_registered = 'Select RSBSA Registered (Yes or No).';
             if (rsb === 'yes' && rsbNum.length < 4) err.rsbsa_number = 'Enter your RSBSA number.';
+            if (rsb === 'no' && !['not_yet_applied','pending_rsbsa'].includes(rsbStatus)) err.rsbsa_status = 'Select RSBSA Status.';
             return err;
         }
 
@@ -2821,6 +3058,32 @@ class RegisterFarmModule:
 
         let frStep = 1;
         const frMaxStep = 4;
+
+        function scrollRegisterFormToTop() {
+            function doScroll() {
+                var sheet = document.querySelector('.register-farm-sheet.fr-reg-sheet') || document.querySelector('.register-farm-sheet');
+                if (sheet) sheet.scrollTop = 0;
+                try {
+                    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+                } catch (_e) {
+                    window.scrollTo(0, 0);
+                }
+                var activeStep = document.querySelector('.fr-step.is-active');
+                if (!activeStep) return;
+                var topEl = activeStep.querySelector('.fr-page-heading') || activeStep.querySelector('.fr-section-title');
+                if (topEl && typeof topEl.scrollIntoView === 'function') {
+                    try {
+                        topEl.scrollIntoView({ block: 'start', behavior: 'auto' });
+                    } catch (_e2) {
+                        topEl.scrollIntoView(true);
+                    }
+                }
+            }
+            requestAnimationFrame(function () {
+                requestAnimationFrame(doScroll);
+            });
+        }
+
         function syncFrWizardUi() {
             document.querySelectorAll('.fr-step').forEach(function (el) {
                 const step = parseInt(el.getAttribute('data-fr-step'), 10);
@@ -2835,6 +3098,7 @@ class RegisterFarmModule:
             if (back) back.classList.toggle('is-visible', frStep > 1);
             if (next) next.style.display = frStep === frMaxStep ? 'none' : '';
             if (sub) sub.classList.toggle('is-visible', frStep === frMaxStep);
+            scrollRegisterFormToTop();
         }
 
         const REGISTER_FARM_REG_OK = 'register_farm_registration_ok';
@@ -3014,25 +3278,20 @@ class RegisterFarmModule:
 
         (function prefillFromAccount() {
             try {
-                function parseUser(raw) {
-                    if (!raw) return null;
-                    try {
-                        const u = JSON.parse(raw);
-                        if (u && u.email) return u;
-                    } catch (_e) {}
-                    return null;
-                }
-                const u = parseUser(localStorage.getItem('beanthentic_user')) || parseUser(sessionStorage.getItem('beanthentic_user'));
+                const u = readStoredAuthUser();
                 if (!u) return;
-                const id = String(u.email || '').trim();
                 const em = document.getElementById('farmerEmail');
                 const ph = document.getElementById('farmerPhone');
-                if (EMAIL_RE.test(id)) {
-                    if (em && !em.value.trim()) em.value = id;
-                } else {
-                    const n = normalizePhone(id);
-                    if (ph && !ph.value.trim() && /^09\\d{9}$/.test(n)) ph.value = n;
-                }
+                resolveLoginIdsFromStorage().forEach(function (id) {
+                    const s = String(id || '').trim();
+                    if (!s) return;
+                    if (EMAIL_RE.test(s)) {
+                        if (em && !em.value.trim()) em.value = s;
+                    } else {
+                        const n = normalizePhone(s);
+                        if (ph && !ph.value.trim() && /^09\\d{9}$/.test(n)) ph.value = n;
+                    }
+                });
                 const fn = document.getElementById('farmerFirstName');
                 const ln = document.getElementById('farmerLastName');
                 if (looksLikePersonName(u.name) && fn && ln && !fn.value.trim() && !ln.value.trim()) {
@@ -3048,6 +3307,44 @@ class RegisterFarmModule:
         })();
 
         const frForm = document.getElementById('farmerForm');
+        const frRsbsa = document.getElementById('frRsbsa');
+        const frRsbsaNo = document.getElementById('frRsbsaNo');
+        const frRsbsaStatus = document.getElementById('frRsbsaStatus');
+        const frRsbsaStatusWrap = document.getElementById('frRsbsaStatusWrap');
+
+        function syncRsbsaFields() {
+            if (!frRsbsa) return;
+            const val = (frRsbsa.value || '').trim().toLowerCase();
+            if (val === 'no') {
+                if (frRsbsaNo) {
+                    frRsbsaNo.value = 'N/A';
+                    frRsbsaNo.readOnly = true;
+                }
+                if (frRsbsaStatusWrap) frRsbsaStatusWrap.hidden = false;
+            } else if (val === 'yes') {
+                if (frRsbsaNo) {
+                    if ((frRsbsaNo.value || '').trim().toUpperCase() === 'N/A') frRsbsaNo.value = '';
+                    frRsbsaNo.readOnly = false;
+                    frRsbsaNo.placeholder = 'Number if registered';
+                }
+                if (frRsbsaStatus) frRsbsaStatus.value = '';
+                if (frRsbsaStatusWrap) frRsbsaStatusWrap.hidden = true;
+            } else {
+                if (frRsbsaNo) {
+                    frRsbsaNo.value = '';
+                    frRsbsaNo.readOnly = false;
+                    frRsbsaNo.placeholder = 'Number if registered';
+                }
+                if (frRsbsaStatus) frRsbsaStatus.value = '';
+                if (frRsbsaStatusWrap) frRsbsaStatusWrap.hidden = true;
+            }
+        }
+
+        if (frRsbsa) {
+            frRsbsa.addEventListener('change', syncRsbsaFields);
+            syncRsbsaFields();
+        }
+
         const frNext = document.getElementById('frWizardNext');
         const frBack = document.getElementById('frWizardBack');
         const frTakePictureBtn = document.getElementById('frTakePictureBtn');
@@ -3057,9 +3354,6 @@ class RegisterFarmModule:
         const frUploadPictureInput = document.getElementById('frUploadPictureInput');
         const frProfilePreview = document.getElementById('frProfilePreview');
         const frPhotoData = document.getElementById('frPhotoData');
-        const frHeroProfilePhoto = document.getElementById('frHeroProfilePhoto');
-        const frHeroAvatar = document.getElementById('frHeroAvatar');
-        const frHeroPickPhotoBtn = document.getElementById('frHeroPickPhotoBtn');
         const frCameraModal = document.getElementById('frCameraModal');
         const frCameraVideo = document.getElementById('frCameraVideo');
         const frCameraCanvas = document.getElementById('frCameraCanvas');
@@ -3073,6 +3367,142 @@ class RegisterFarmModule:
         const frSuccessGoHome = document.getElementById('frSuccessGoHome');
         let frCameraStream = null;
         let frPhotoToastTimer = null;
+        const REGISTER_FARM_DRAFT_PREFIX = 'register_farm_form_draft_v1_';
+        let frDraftSaveTimer = null;
+
+        function getRegisterFarmDraftKey() {
+            var u = readStoredAuthUser();
+            var id = '';
+            if (u) {
+                if (u.user_id) id = 'uid_' + String(u.user_id);
+                else if (u.email) id = 'login_' + String(u.email).trim().toLowerCase();
+                else if (u.phone_number) id = 'login_' + String(u.phone_number).trim().toLowerCase();
+            }
+            if (!id) {
+                try {
+                    var nid =
+                        sessionStorage.getItem('beanthentic_onboarding_required_login_id') ||
+                        localStorage.getItem('beanthentic_onboarding_required_login_id') ||
+                        sessionStorage.getItem('beanthentic_new_signup_login_id') ||
+                        localStorage.getItem('beanthentic_new_signup_login_id');
+                    if (nid) id = 'login_' + String(nid).trim().toLowerCase();
+                } catch (_e) {}
+            }
+            return REGISTER_FARM_DRAFT_PREFIX + (id || 'guest');
+        }
+
+        function collectRegisterFarmDraftFields() {
+            if (!frForm) return {};
+            var fd = new FormData(frForm);
+            var out = {};
+            fd.forEach(function (val, key) {
+                if (key === 'profile_photo_data') return;
+                out[key] = String(val || '');
+            });
+            if (frPhotoData && frPhotoData.value) {
+                var photo = String(frPhotoData.value).trim();
+                if (photo && photo.length < 450000) out.profile_photo_data = photo;
+            }
+            return out;
+        }
+
+        function saveRegisterFarmDraft() {
+            if (!frForm) return;
+            var key = getRegisterFarmDraftKey();
+            var fields = collectRegisterFarmDraftFields();
+            var hasData = Object.keys(fields).some(function (k) {
+                if (k === 'province' || k === 'municipality' || k === 'production_year') return false;
+                return String(fields[k] || '').trim() !== '';
+            });
+            if (!hasData) return;
+            var payload = { savedAt: Date.now(), step: frStep, fields: fields };
+            try {
+                var json = JSON.stringify(payload);
+                localStorage.setItem(key, json);
+                sessionStorage.setItem(key, json);
+            } catch (_quota) {
+                try {
+                    delete fields.profile_photo_data;
+                    var slim = JSON.stringify({ savedAt: Date.now(), step: frStep, fields: fields });
+                    localStorage.setItem(key, slim);
+                    sessionStorage.setItem(key, slim);
+                } catch (_e2) {}
+            }
+        }
+
+        function scheduleSaveRegisterFarmDraft() {
+            if (frDraftSaveTimer) clearTimeout(frDraftSaveTimer);
+            frDraftSaveTimer = setTimeout(saveRegisterFarmDraft, 450);
+        }
+
+        function clearRegisterFarmDraft() {
+            var key = getRegisterFarmDraftKey();
+            try {
+                localStorage.removeItem(key);
+                sessionStorage.removeItem(key);
+            } catch (_e) {}
+            var banner = document.getElementById('frDraftBanner');
+            if (banner) {
+                banner.textContent = '';
+                banner.classList.remove('is-visible');
+            }
+        }
+
+        function restoreRegisterFarmDraft() {
+            if (!frForm) return false;
+            var key = getRegisterFarmDraftKey();
+            var raw = null;
+            try {
+                raw = sessionStorage.getItem(key) || localStorage.getItem(key);
+            } catch (_e) {
+                return false;
+            }
+            if (!raw) return false;
+            var draft = null;
+            try {
+                draft = JSON.parse(raw);
+            } catch (_p) {
+                return false;
+            }
+            if (!draft || !draft.fields || typeof draft.fields !== 'object') return false;
+
+            var fields = draft.fields;
+            Object.keys(fields).forEach(function (name) {
+                if (name === 'profile_photo_data') return;
+                var el = frForm.elements[name];
+                if (!el) return;
+                if (el.readOnly) return;
+                if (el.type === 'checkbox') {
+                    el.checked = fields[name] === 'yes' || fields[name] === 'on';
+                } else {
+                    el.value = fields[name];
+                }
+            });
+            if (fields.profile_photo_data) {
+                syncProfilePhotoToPreviews(fields.profile_photo_data);
+            }
+            syncRsbsaFields();
+            var stepNum = parseInt(String(draft.step || '1'), 10);
+            if (stepNum >= 1 && stepNum <= frMaxStep) {
+                frStep = stepNum;
+                syncFrWizardUi();
+            }
+            var banner = document.getElementById('frDraftBanner');
+            if (banner) {
+                var when = '';
+                try {
+                    when = new Date(draft.savedAt || Date.now()).toLocaleString();
+                } catch (_d) {
+                    when = '';
+                }
+                banner.textContent =
+                    'Na-restore ang na-save na form' +
+                    (when ? ' (' + when + ').' : '.') +
+                    ' Puwede kang magpatuloy kung saan ka tumigil.';
+                banner.classList.add('is-visible');
+            }
+            return true;
+        }
 
         function goRegisterSummary() {
             try {
@@ -3161,6 +3591,10 @@ class RegisterFarmModule:
             return false;
         }
 
+        function isLikelyDesktopLaptop() {
+            return !isLikelyMobileOrTablet();
+        }
+
         /**
          * captureMode: 'environment' (back), 'user' (front), 'file' (no capture — gallery/files only)
          * Must run in the same synchronous user gesture as the button tap (no await before this).
@@ -3184,38 +3618,71 @@ class RegisterFarmModule:
             }
         }
 
-        function openTakePictureInputFallback() {
-            var mobile = isLikelyMobileOrTablet();
-            if (mobile) {
-                if (openTakePictureFilePicker('environment')) return true;
-                if (openTakePictureFilePicker('user')) return true;
-            }
-            if (openTakePictureFilePicker('file')) return true;
-            return false;
+        function getRegisterFarmLoopbackUrl() {
+            try {
+                if (window.__BEANTHENTIC_LOCAL_API_ORIGIN__) {
+                    return String(window.__BEANTHENTIC_LOCAL_API_ORIGIN__).replace(/\\/+$/, '') + '/register-farm';
+                }
+                if (/^192\\.168\\./.test(location.hostname)) {
+                    var port = location.port || '8080';
+                    return 'http://127.0.0.1:' + port + '/register-farm';
+                }
+            } catch (_e) {}
+            return '';
         }
 
-        /** Live preview only when secure context; uses promises (no async on button handler). */
+        /** Desktop: never open file explorer for Take Picture — webcam only or help text. */
+        function showCameraBlockedHelp() {
+            var link = getRegisterFarmLoopbackUrl();
+            var msg = 'Camera is blocked on this page address (HTTP).';
+            if (link) {
+                msg += ' On this laptop, open:\\n' + link;
+                try {
+                    if (window.confirm(msg + '\\n\\nOpen that link now? (webcam will work)')) {
+                        window.location.href = link;
+                        return;
+                    }
+                } catch (_c) {}
+            }
+            showPhotoToast(msg + ' Or use Upload Picture.', 'error');
+        }
+
+        function onTakePictureCameraFailed() {
+            if (isLikelyDesktopLaptop()) {
+                showCameraBlockedHelp();
+                return;
+            }
+            if (openTakePictureFilePicker('environment')) return;
+            if (openTakePictureFilePicker('user')) return;
+            showPhotoToast('Camera unavailable. Try Upload Picture.', 'error');
+        }
+
+        /** Live preview — uses getUserMedia (laptop webcam). Never falls back to file explorer on desktop. */
         function startLiveCameraPreview() {
             if (!frCameraModal || !frCameraVideo) {
-                openTakePictureInputFallback();
+                onTakePictureCameraFailed();
                 return;
             }
             if (!navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== 'function') {
-                openTakePictureInputFallback();
+                onTakePictureCameraFailed();
                 return;
             }
-            var tries = [
-                { video: true, audio: false },
-                { video: { facingMode: 'user' }, audio: false },
-                { video: { facingMode: 'environment' }, audio: false },
-                { video: { facingMode: { ideal: 'user' } }, audio: false },
-                { video: { facingMode: { ideal: 'environment' } }, audio: false }
-            ];
+            var tries = isLikelyDesktopLaptop()
+                ? [
+                    { video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false },
+                    { video: { facingMode: { ideal: 'user' } }, audio: false },
+                    { video: true, audio: false }
+                ]
+                : [
+                    { video: { facingMode: 'environment' }, audio: false },
+                    { video: { facingMode: 'user' }, audio: false },
+                    { video: true, audio: false },
+                    { video: { facingMode: { ideal: 'environment' } }, audio: false },
+                    { video: { facingMode: { ideal: 'user' } }, audio: false }
+                ];
             function attempt(idx) {
                 if (idx >= tries.length) {
-                    requestAnimationFrame(function () {
-                        showPhotoToast('Live preview unavailable — use Upload Picture or try again.', 'error');
-                    });
+                    onTakePictureCameraFailed();
                     return;
                 }
                 navigator.mediaDevices.getUserMedia(tries[idx]).then(function (stream) {
@@ -3235,63 +3702,16 @@ class RegisterFarmModule:
         }
 
         /**
-         * SYNCHRONOUS entry: opens native camera/file sheet in the same gesture as the click.
-         * Browsers block delayed input.click() after await / microtasks without a fresh tap.
+         * Take Picture entry: request camera via getUserMedia first so the browser/WebView can show
+         * the camera permission prompt; then live preview modal. Falls back to file/capture input.
          */
         function openDeviceCamera() {
             ensureGetUserMediaPolyfill();
-
-            var mobile = isLikelyMobileOrTablet();
-            var insecure = false;
-            try {
-                insecure = typeof window !== 'undefined' && window.isSecureContext === false;
-            } catch (_s) {}
-
-            if (!frCameraModal || !frCameraVideo) {
-                openTakePictureInputFallback();
-                return;
-            }
-
-            if (mobile) {
-                if (openTakePictureFilePicker('environment') || openTakePictureFilePicker('user')) {
-                    return;
-                }
-            }
-
-            // Laptop on http://LAN: getUserMedia is blocked — open OS picker immediately (same tap).
-            if (!mobile && insecure) {
-                if (openTakePictureFilePicker('user') || openTakePictureFilePicker('environment') || openTakePictureFilePicker('file')) {
-                    return;
-                }
-            }
-
-            // localhost / https: try in-page live preview (async inside startLiveCameraPreview, gesture only needed for gUM prompt).
-            if (!insecure && navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === 'function') {
+            if (frCameraModal && frCameraVideo && navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === 'function') {
                 startLiveCameraPreview();
                 return;
             }
-
-            if (openTakePictureInputFallback()) {
-                return;
-            }
-            requestAnimationFrame(function () {
-                showPhotoToast('Cannot open camera. Tap Upload Picture below.', 'error');
-            });
-        }
-
-        /** Same user-gesture path as Take Picture — opens native sheet (camera + gallery on many phones). */
-        function openProfilePhotoPickerSameGesture() {
-            if (!frTakePictureInput) {
-                openDeviceCamera();
-                return;
-            }
-            try { frTakePictureInput.value = ''; } catch (_e0) {}
-            try { frTakePictureInput.removeAttribute('capture'); } catch (_e1) {}
-            try {
-                frTakePictureInput.click();
-            } catch (_e2) {
-                openDeviceCamera();
-            }
+            onTakePictureCameraFailed();
         }
 
         function toggleSubmitOverlay(kind, isVisible) {
@@ -3332,13 +3752,8 @@ class RegisterFarmModule:
                 frProfilePreview.src = url;
                 frProfilePreview.style.display = 'block';
             }
-            if (frHeroProfilePhoto && frHeroAvatar) {
-                frHeroProfilePhoto.src = url;
-                frHeroProfilePhoto.style.opacity = '1';
-                frHeroProfilePhoto.style.visibility = 'visible';
-                frHeroAvatar.classList.add('has-photo');
-            }
             setFieldError('profile_photo_data', '');
+            scheduleSaveRegisterFarmDraft();
         }
 
         function bindProfilePhotoInput(inputEl) {
@@ -3361,27 +3776,91 @@ class RegisterFarmModule:
             });
         }
 
-        if (frTakePictureBtn) frTakePictureBtn.addEventListener('click', function () { openDeviceCamera(); });
-        if (frTakePictureIcon) frTakePictureIcon.addEventListener('click', function () { openDeviceCamera(); });
-        if (frHeroPickPhotoBtn) frHeroPickPhotoBtn.addEventListener('click', function () { openProfilePhotoPickerSameGesture(); });
-        if (frUploadPictureBtn && frUploadPictureInput) frUploadPictureBtn.addEventListener('click', function () { frUploadPictureInput.click(); });
+        /** Prime inputs before native <label for> activation — do not call input.click() here (double-open / gesture loss). */
+        function primeFrTakePictureInput(captureMode) {
+            if (!frTakePictureInput) return;
+            try { frTakePictureInput.value = ''; } catch (_e0) {}
+            try {
+                frTakePictureInput.removeAttribute('capture');
+                if (captureMode === 'environment') {
+                    frTakePictureInput.setAttribute('capture', 'environment');
+                } else if (captureMode === 'user') {
+                    frTakePictureInput.setAttribute('capture', 'user');
+                }
+            } catch (_attr) {}
+        }
+
+        function primeFrUploadPictureInput() {
+            if (!frUploadPictureInput) return;
+            try { frUploadPictureInput.value = ''; } catch (_e0) {}
+            try { frUploadPictureInput.removeAttribute('capture'); } catch (_attr) {}
+        }
+
+        /** Stop <label for> from opening the file input — we run openDeviceCamera() so getUserMedia runs first (permission prompt). */
+        function onTakePictureControlClick(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            openDeviceCamera();
+        }
+
+        var _photoPrimeOpts = { capture: true, passive: true };
+        var _takePictureClickOpts = { capture: true };
+        function onUploadPictureClick(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            primeFrUploadPictureInput();
+            if (frUploadPictureInput) {
+                try { frUploadPictureInput.click(); } catch (_u) {}
+            }
+        }
+
+        if (frTakePictureBtn) {
+            frTakePictureBtn.addEventListener('click', onTakePictureControlClick, _takePictureClickOpts);
+        }
+        if (frTakePictureIcon) {
+            frTakePictureIcon.addEventListener('click', onTakePictureControlClick, _takePictureClickOpts);
+            frTakePictureIcon.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onTakePictureControlClick(e);
+                }
+            });
+        }
+        if (frUploadPictureBtn) {
+            frUploadPictureBtn.addEventListener('click', onUploadPictureClick, _takePictureClickOpts);
+        }
         if (frCameraCancelBtn) frCameraCancelBtn.addEventListener('click', function () { stopCameraStream(); });
         if (frCameraCaptureBtn && frCameraVideo && frCameraCanvas) {
             frCameraCaptureBtn.addEventListener('click', function () {
-                const w = frCameraVideo.videoWidth || 0;
-                const h = frCameraVideo.videoHeight || 0;
-                if (!(w > 0 && h > 0)) return;
-                frCameraCanvas.width = w;
-                frCameraCanvas.height = h;
-                const ctx = frCameraCanvas.getContext('2d');
-                if (!ctx) return;
-                ctx.drawImage(frCameraVideo, 0, 0, w, h);
-                const dataUrl = frCameraCanvas.toDataURL('image/jpeg', 0.92);
-                syncProfilePhotoToPreviews(dataUrl);
-                stopCameraStream();
+                function captureFrame() {
+                    const w = frCameraVideo.videoWidth || 0;
+                    const h = frCameraVideo.videoHeight || 0;
+                    if (!(w > 0 && h > 0)) return false;
+                    frCameraCanvas.width = w;
+                    frCameraCanvas.height = h;
+                    const ctx = frCameraCanvas.getContext('2d');
+                    if (!ctx) return false;
+                    ctx.drawImage(frCameraVideo, 0, 0, w, h);
+                    const dataUrl = frCameraCanvas.toDataURL('image/jpeg', 0.92);
+                    syncProfilePhotoToPreviews(dataUrl);
+                    stopCameraStream();
+                    return true;
+                }
+                if (captureFrame()) return;
+                let n = 0;
+                const tick = window.setInterval(function () {
+                    n += 1;
+                    if (captureFrame()) {
+                        window.clearInterval(tick);
+                        return;
+                    }
+                    if (n >= 40) {
+                        window.clearInterval(tick);
+                        showPhotoToast('Camera not ready. Use Take Picture or Upload Picture.', 'error');
+                    }
+                }, 100);
             });
         }
-        bindProfilePhotoInput(frTakePictureInput);
         bindProfilePhotoInput(frUploadPictureInput);
 
         (function restoreDraftProfilePhoto() {
@@ -3406,23 +3885,16 @@ class RegisterFarmModule:
             let email = '';
             let phone = '';
             try {
-                function parseUser(raw) {
-                    if (!raw) return null;
-                    try {
-                        const u = JSON.parse(raw);
-                        if (u) return u;
-                    } catch (_e) {}
-                    return null;
-                }
-                const u = parseUser(localStorage.getItem('beanthentic_user')) || parseUser(sessionStorage.getItem('beanthentic_user'));
-                const id = String((u && (u.phone_number || u.email)) || '').trim();
-                if (EMAIL_RE.test(id)) email = id.toLowerCase();
-                const p = normalizePhone(id);
-                if (/^09\\d{9}$/.test(p)) phone = p;
+                resolveLoginIdsFromStorage().forEach(function (id) {
+                    const s = String(id || '').trim();
+                    if (!s) return;
+                    if (!EMAIL_RE.test(email) && EMAIL_RE.test(s)) email = s.toLowerCase();
+                    const p = normalizePhone(s);
+                    if (!/^09\\d{9}$/.test(phone) && /^09\\d{9}$/.test(p)) phone = p;
+                });
             } catch (_e2) {}
-            // Keep submit unblocked even when account payload is missing.
-            if (!EMAIL_RE.test(email)) email = 'farmer.' + Date.now() + '@beanthentic.local';
-            if (!/^09\\d{9}$/.test(phone)) phone = '09999999999';
+            if (!EMAIL_RE.test(email)) email = '';
+            if (!/^09\\d{9}$/.test(phone)) phone = '';
             return { email: email, phone: phone };
         }
 
@@ -3434,16 +3906,24 @@ class RegisterFarmModule:
             const base = {
                 last_name: (data.last_name || '').trim(),
                 first_name: (data.first_name || '').trim(),
+                birthday: (data.birthday || '').trim(),
                 email: EMAIL_RE.test(rawEmail) ? rawEmail : contactFallback.email,
                 phone: /^09\\d{9}$/.test(rawPhone) ? rawPhone : contactFallback.phone,
+                province: (data.province || 'Batangas').trim(),
+                municipality: (data.municipality || 'Lipa City').trim(),
                 barangay: data.barangay,
                 affiliation_role: (data.affiliation_role || '').trim(),
                 ncfrs: (data.ncfrs || '').trim().toLowerCase(),
                 // Backward-compatible keys for existing server/client code + summary page.
                 federation: (data.affiliation_role || '').trim(),
                 association: '',
-                rsbsa_registered: (data.rsbsa_registered || '').trim(),
-                rsbsa_number: (data.rsbsa_number || '').trim(),
+                rsbsa_registered: (data.rsbsa_registered || '').trim().toLowerCase(),
+                rsbsa_number: (function () {
+                    const reg = (data.rsbsa_registered || '').trim().toLowerCase();
+                    const num = (data.rsbsa_number || '').trim();
+                    return reg === 'no' ? 'N/A' : num;
+                })(),
+                rsbsa_status: (data.rsbsa_status || '').trim().toLowerCase(),
                 ownership_status: (data.ownership_status || '').trim(),
                 plant_area_value: data.plant_area_value,
                 plant_area_unit: (data.plant_area_unit || '').trim(),
@@ -3469,6 +3949,7 @@ class RegisterFarmModule:
         if (frNext) {
             frNext.addEventListener('click', function () {
                 if (!frForm) return;
+                syncRsbsaFields();
                 const fd = new FormData(frForm);
                 const data = Object.fromEntries(fd.entries());
                 clearErrors(frForm);
@@ -3484,6 +3965,7 @@ class RegisterFarmModule:
                 if (frStep < frMaxStep) frStep += 1;
                 syncFrWizardUi();
                 refreshIcons();
+                saveRegisterFarmDraft();
             });
         }
 
@@ -3493,6 +3975,7 @@ class RegisterFarmModule:
                 frStep -= 1;
                 clearErrors(frForm);
                 syncFrWizardUi();
+                saveRegisterFarmDraft();
             });
         }
 
@@ -3500,6 +3983,7 @@ class RegisterFarmModule:
             frForm.addEventListener('submit', function (e) {
             e.preventDefault();
                 if (frStep !== frMaxStep) return;
+            syncRsbsaFields();
             clearErrors(this);
             const fd = new FormData(this);
             const data = Object.fromEntries(fd.entries());
@@ -3510,8 +3994,8 @@ class RegisterFarmModule:
                     validateStepFinalErrors(data));
             if (Object.keys(ve).length) {
                 Object.keys(ve).forEach(k => setFieldError(k, ve[k]));
-                    const stepKeysPersonal = ['last_name','first_name','barangay'];
-                    const stepKeysAffil = ['affiliation_role','ncfrs','rsbsa_registered','rsbsa_number'];
+                    const stepKeysPersonal = ['last_name','first_name','birthday','barangay'];
+                    const stepKeysAffil = ['affiliation_role','ncfrs','rsbsa_registered','rsbsa_number','rsbsa_status'];
                     const hasStep1 = Object.keys(ve).some(k => stepKeysPersonal.indexOf(k) >= 0 || stepKeysAffil.indexOf(k) >= 0);
                     const stepKeysFarm = ['ownership_status','plant_area_value','plant_area_unit','liberica_bearing','liberica_non_bearing','robusta_bearing','robusta_non_bearing','excelsa_bearing','excelsa_non_bearing'];
                     const hasFarm = Object.keys(ve).some(k => stepKeysFarm.indexOf(k) >= 0 || k.indexOf('bearing') >= 0);
@@ -3533,21 +4017,25 @@ class RegisterFarmModule:
                 const submitStartedAt = Date.now();
 
                 var apiBaseFr = phpApiBase();
-                var uidFr = 0;
-                try {
-                    var uRawFr = localStorage.getItem('beanthentic_user') || sessionStorage.getItem('beanthentic_user');
-                    var uFr = uRawFr ? JSON.parse(uRawFr) : null;
-                    uidFr = uFr && uFr.user_id ? parseInt(String(uFr.user_id), 10) : 0;
-                } catch (_eUidFr) {}
                 if (!apiBaseFr) {
                     showAlert('Registration saves to MySQL. Use http:// or https:// on the same machine where MySQL runs (e.g. this app URL), start MySQL, and import the Beanthentic schema.', 'error');
                     return;
                 }
-                if (!(uidFr > 0)) {
-                    showAlert('Please sign in again (account id missing for registration).', 'error');
+                var authFr = resolveAuthForSubmit(payload);
+                if (!(authFr.user_id > 0) && !/^09\\d{9}$/.test(authFr.phone) && !EMAIL_RE.test(authFr.email)) {
+                    showAlert('Please log in on this device first, then complete Register Farm.', 'error');
+                    try {
+                        window.setTimeout(function () {
+                            window.location.assign(new URL('login.php', location.href).href);
+                        }, 1600);
+                    } catch (_goLogin) {
+                        try { window.location.assign('login.php'); } catch (_goLogin2) {}
+                    }
                     return;
                 }
-                var payloadWithUser = Object.assign({}, payload, { user_id: uidFr });
+                if (authFr.phone) payload.phone = authFr.phone;
+                if (authFr.email) payload.email = authFr.email;
+                var payloadWithUser = Object.assign({}, payload, { user_id: authFr.user_id > 0 ? authFr.user_id : 0 });
 
             const lockRegistrationFields = () => {
                     this.querySelectorAll('input, select, textarea').forEach(function (el) {
@@ -3607,26 +4095,33 @@ class RegisterFarmModule:
                     clearTimeout(timeoutId);
                 if (body.success) {
                     farmerId = body.farmer_id;
+                    if (body.user_id) {
+                        try {
+                            var uidSync = parseInt(String(body.user_id), 10);
+                            if (uidSync > 0) {
+                                var uSyncRaw = localStorage.getItem('beanthentic_user') || sessionStorage.getItem('beanthentic_user');
+                                var uSync = uSyncRaw ? JSON.parse(uSyncRaw) : {};
+                                if (!uSync || typeof uSync !== 'object') uSync = {};
+                                uSync.user_id = uidSync;
+                                var uSyncJson = JSON.stringify(uSync);
+                                sessionStorage.setItem('beanthentic_user', uSyncJson);
+                                localStorage.setItem('beanthentic_user', uSyncJson);
+                            }
+                        } catch (_eUidSync) {}
+                    }
                     sessionStorage.setItem(REGISTER_FARM_REG_OK, '1');
                     sessionStorage.setItem(REGISTER_FARM_FARMER_ID, String(farmerId));
-                    try { localStorage.setItem('beanthentic_farmer_id', String(farmerId)); } catch (_e) {}
-                    // Per-account registration state (so new accounts can register too).
                     try {
-                        var uRaw = localStorage.getItem('beanthentic_user') || sessionStorage.getItem('beanthentic_user');
-                        var email = '';
-                        if (uRaw) {
-                            try {
-                                var u = JSON.parse(uRaw);
-                                if (u && u.email) email = String(u.email).trim().toLowerCase();
-                            } catch (_pe) {}
-                        }
-                        if (email) {
-                            var rawMap = localStorage.getItem('beanthentic_farmer_id_map') || sessionStorage.getItem('beanthentic_farmer_id_map');
-                            var map = rawMap ? JSON.parse(rawMap) : {};
-                            if (!map || typeof map !== 'object') map = {};
-                            map[email] = String(farmerId);
-                            localStorage.setItem('beanthentic_farmer_id_map', JSON.stringify(map));
-                            sessionStorage.setItem('beanthentic_farmer_id_map', JSON.stringify(map));
+                        var uRaw2 = localStorage.getItem('beanthentic_user') || sessionStorage.getItem('beanthentic_user');
+                        var u2 = uRaw2 ? JSON.parse(uRaw2) : {};
+                        if (!u2 || typeof u2 !== 'object') u2 = {};
+                        u2.farmer_id = farmerId;
+                        if (body.user_id) u2.user_id = parseInt(String(body.user_id), 10);
+                        var loginId2 = String(u2.email || u2.phone_number || payload.email || payload.phone || '').trim();
+                        if (window.BeanthenticClientWeb && typeof window.BeanthenticClientWeb.persistFarmerIdForUser === 'function') {
+                            window.BeanthenticClientWeb.persistFarmerIdForUser(u2, farmerId, loginId2);
+                        } else {
+                            try { localStorage.setItem('beanthentic_farmer_id', String(farmerId)); } catch (_e) {}
                         }
                     } catch (_eMap) {}
                     try {
@@ -3635,16 +4130,18 @@ class RegisterFarmModule:
                             id: farmerId,
                             first_name: String(payload.first_name || '').trim(),
                             last_name: String(payload.last_name || '').trim(),
+                            birthday: String(payload.birthday || '').trim(),
                             email: String(payload.email || '').trim(),
                             phone: String(payload.phone || '').trim(),
-                            province: 'Batangas',
-                            municipality: 'Lipa City',
+                            province: String(payload.province || 'Batangas').trim(),
+                            municipality: String(payload.municipality || 'Lipa City').trim(),
                             barangay: String(payload.barangay || '').trim(),
                             federation: String(payload.federation || '').trim(),
-                            association: String(payload.association || '').trim(),
+                            association: '',
                             ncfrs: String(payload.ncfrs || '').trim().toLowerCase(),
                             rsbsa_registered: String(payload.rsbsa_registered || '').trim(),
                             rsbsa_number: String(payload.rsbsa_number || '').trim(),
+                            rsbsa_status: String(payload.rsbsa_status || '').trim(),
                             ownership_status: String(payload.ownership_status || '').trim(),
                             plant_area_value: payload.plant_area_value,
                             plant_area_unit: String(payload.plant_area_unit || '').trim(),
@@ -3677,6 +4174,7 @@ class RegisterFarmModule:
                                     unit: String(payload.excelsa_prod_unit || 'kg').trim().toLowerCase()
                                 }
                             },
+                            profile_photo: String((body && body.profile_photo) ? body.profile_photo : '').trim(),
                             profile_photo_data: String(payload.profile_photo_data || '').trim(),
                         };
                         localStorage.setItem('beanthentic_farmer_profile', JSON.stringify(farmerProfile));
@@ -3730,8 +4228,15 @@ class RegisterFarmModule:
                     try {
                         var uRaw = localStorage.getItem('beanthentic_user') || sessionStorage.getItem('beanthentic_user');
                         var u = uRaw ? JSON.parse(uRaw) : null;
-                        if (u && u.email) {
+                        if (u) {
                             u.needs_registration = false;
+                            // Must match index.php hasFarmerRegistration() / ui.js — signup leaves pending until GI form is done.
+                            u.registration_complete = true;
+                            u.farmer_status = 'active';
+                            if (farmerId != null && String(farmerId).trim() !== '') {
+                                var _fidN = parseInt(String(farmerId), 10);
+                                if (!isNaN(_fidN) && _fidN > 0) u.farmer_id = _fidN;
+                            }
                             // Set name to the formatted full name if available.
                             var nm = (String(payload.last_name || '').trim() + ', ' + String(payload.first_name || '').trim())
                                 .replace(/^,\s*/, '')
@@ -3746,6 +4251,7 @@ class RegisterFarmModule:
                         localStorage.removeItem('beanthentic_new_signup_login_id');
                         sessionStorage.removeItem('beanthentic_new_signup_login_id');
                     } catch (_e0) {}
+                    clearRegisterFarmDraft();
                         try { syncRegisterNavIconFromStorage(); } catch (_e2) {}
                     lockRegistrationFields();
                     clearErrors(this);
@@ -3754,10 +4260,7 @@ class RegisterFarmModule:
                         setTimeout(function () {
                             toggleSubmitOverlay('loading', false);
                             toggleSubmitOverlay('success', true);
-                            // Auto-open summary so user immediately sees submitted data.
-                            setTimeout(function () {
-                                goRegisterSummary();
-                            }, 900);
+                            // Stay on success screen: user chooses View Summary or Go Home.
                         }, waitMs);
                 } else {
                         if (body.errors) {
@@ -3793,6 +4296,13 @@ class RegisterFarmModule:
         }
         document.querySelectorAll('#farmerForm input, #farmerForm select, #farmerForm textarea').forEach(wireFieldClear);
 
+        if (frForm) {
+            frForm.addEventListener('input', scheduleSaveRegisterFarmDraft);
+            frForm.addEventListener('change', scheduleSaveRegisterFarmDraft);
+            window.addEventListener('beforeunload', saveRegisterFarmDraft);
+            window.addEventListener('pagehide', saveRegisterFarmDraft);
+        }
+
         function showAlert(message, type) {
             const alertDiv = document.createElement('div');
             alertDiv.className = 'alert alert-' + type;
@@ -3812,6 +4322,8 @@ class RegisterFarmModule:
             syncFrWizardUi();
             refreshIcons();
             syncRegisterNavIconFromStorage();
+            wireBirthdayModal();
+            restoreRegisterFarmDraft();
 
             const navBack = document.getElementById('frNavBack');
             if (navBack) {
@@ -3828,6 +4340,27 @@ class RegisterFarmModule:
         });
     </script>
 
+    <div id="frDateModal" class="fr-date-modal" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-label="Select date">
+        <div class="fr-date-modal-card" tabindex="-1">
+            <div class="fr-date-modal-head">
+                <div class="fr-date-modal-title">Select birthday</div>
+                <button type="button" class="fr-date-icon-btn" id="frDateClose" aria-label="Close">×</button>
+            </div>
+            <div class="fr-date-modal-controls">
+                <button type="button" class="fr-date-icon-btn" id="frDatePrev" aria-label="Previous month">‹</button>
+                <div class="fr-date-selects">
+                    <select id="frDateMonth" aria-label="Month"></select>
+                    <select id="frDateYear" aria-label="Year"></select>
+                </div>
+                <button type="button" class="fr-date-icon-btn" id="frDateNext" aria-label="Next month">›</button>
+            </div>
+            <div id="frDateGrid" class="fr-date-grid" aria-label="Calendar"></div>
+            <div class="fr-date-modal-actions">
+                <button type="button" class="fr-date-action primary" id="frDateOk">OK</button>
+            </div>
+        </div>
+    </div>
+
     <nav class="app-bottom-nav app-bottom-nav--mint" aria-label="Quick navigation">
         <div class="app-bottom-nav-inner">
             <a href="/#home" id="nav-home" class="app-bottom-nav-link">
@@ -3836,11 +4369,11 @@ class RegisterFarmModule:
                 </span>
                 <span class="app-bottom-nav-label">Home</span>
             </a>
-            <a href="/qr.php" id="nav-qr" class="app-bottom-nav-link">
+            <a href="/records.php" id="nav-qr" class="app-bottom-nav-link">
                 <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
-                    <svg class="app-bottom-nav-icon app-bottom-nav-icon--transaction" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6 7.25h9v2H6z"/><path fill="currentColor" d="M15 6 19 8.25 15 10.5z"/><path fill="currentColor" d="M9 14.25h9v2H9z"/><path fill="currentColor" d="M9 13.25 5 15.25 9 17.25z"/></svg>
+                    <svg class="app-bottom-nav-icon app-bottom-nav-icon--record" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 2h6v2H9z"/><path d="M9 12h6"/><path d="M9 16h6"/><path d="M9 20h4"/></svg>
                 </span>
-                <span class="app-bottom-nav-label">Transaction</span>
+                <span class="app-bottom-nav-label">Record</span>
             </a>
             <a href="/register_summary.php" id="nav-register" class="app-bottom-nav-link app-bottom-nav-link--featured">
                 <span class="app-bottom-nav-icon-wrap" aria-hidden="true">

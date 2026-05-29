@@ -44,6 +44,23 @@ def _load_register_farm_module_class():
 
 
 RegisterFarmModule = _load_register_farm_module_class()
+
+_MYSQL_API_LOADED = False
+try:
+    from beanthentic_mysql_api import register_mysql_json_routes
+
+    register_mysql_json_routes(app)
+    _MYSQL_API_LOADED = True
+except Exception as mysql_api_err:
+    import warnings
+
+    warnings.warn(
+        "beanthentic_mysql_api not loaded — login/signup will fail on port 8080. "
+        "Run: pip install -r requirements.txt then restart app.py. "
+        f"({mysql_api_err!s})"
+    )
+
+# After MySQL routes so /api/register-farm/farmer-profile reads XAMPP MySQL (not SQLite).
 register_farm_module = RegisterFarmModule(app)
 
 
@@ -66,18 +83,65 @@ def _load_maps_module_class():
 MapsModule = _load_maps_module_class()
 maps_module = MapsModule(app)
 
-try:
-    from beanthentic_mysql_api import register_mysql_json_routes
 
-    register_mysql_json_routes(app)
-except Exception as mysql_api_err:
-    import warnings
+def _client_is_server_machine() -> bool:
+    """
+    True when the browser runs on this PC (localhost or LAN hairpin to own IP).
+    Used to inject 127.0.0.1 API origin — Windows often blocks POST to own LAN IP.
+    """
+    try:
+        remote = (request.remote_addr or "").strip()
+        if remote in ("127.0.0.1", "::1"):
+            return True
+        host = (request.host or "").split(":")[0].strip()
+        if not host:
+            return False
+        if remote == host:
+            return True
+        if remote.startswith("::ffff:") and remote[7:] == host:
+            return True
+    except RuntimeError:
+        pass
+    return False
 
-    warnings.warn(
-        "beanthentic_mysql_api not loaded (pip install PyMySQL bcrypt). "
-        f"Signup/login via /api/*.php on Flask will not work: {mysql_api_err}",
-        stacklevel=1,
+
+def _local_loopback_api_origin() -> str:
+    try:
+        port = str(request.environ.get("SERVER_PORT") or "8080")
+        return f"http://127.0.0.1:{port}"
+    except RuntimeError:
+        return "http://127.0.0.1:8080"
+
+
+def _client_web_base() -> str:
+    """Public URL of Beanthentic-Client-Web (farmer profile pages) — LAN IP for QR scans."""
+    from beanthentic_url_config import resolve_client_web_base
+
+    try:
+        return resolve_client_web_base(request.host)
+    except RuntimeError:
+        return resolve_client_web_base("")
+
+
+def _inject_local_api_script(body: str) -> str:
+    """Tell in-browser JS to call 127.0.0.1 for API when this PC opens its own LAN URL."""
+    if not _client_is_server_machine():
+        return body
+    origin = _local_loopback_api_origin()
+    client_web = _client_web_base()
+    snippet = (
+        "<script>window.__BEANTHENTIC_LOCAL_API_ORIGIN__="
+        + json.dumps(origin)
+        + ";window.__BEANTHENTIC_USE_API_PROXY__=true;"
+        + "window.__BEANTHENTIC_CLIENT_WEB_BASE__="
+        + json.dumps(client_web)
+        + ";</script>\n"
     )
+    if "<head>" in body:
+        return body.replace("<head>", "<head>\n" + snippet, 1)
+    if "</head>" in body:
+        return body.replace("</head>", snippet + "</head>", 1)
+    return snippet + body
 
 
 def _serve_php_asset(filename: str) -> Response:
@@ -105,6 +169,20 @@ def _serve_php_asset(filename: str) -> Response:
             "window.__BEANTHENTIC_INJECTED_ORIGIN__ = " + json.dumps(injected) + ";",
             1,
         )
+    body = _inject_local_api_script(body)
+    if "window.__BEANTHENTIC_CLIENT_WEB_BASE__" not in body:
+        client_web = _client_web_base()
+        cfg_snippet = (
+            "<script>window.__BEANTHENTIC_CLIENT_WEB_BASE__="
+            + json.dumps(client_web)
+            + ";</script>\n"
+        )
+        if "<head>" in body:
+            body = body.replace("<head>", "<head>\n" + cfg_snippet, 1)
+        elif "</head>" in body:
+            body = body.replace("</head>", cfg_snippet + "</head>", 1)
+        else:
+            body = cfg_snippet + body
     resp = Response(body, mimetype="text/html; charset=utf-8")
     # Prevent stale assets on LAN testing (192.x) from hiding recent fixes.
     resp.headers["Cache-Control"] = "no-store, max-age=0"
@@ -161,9 +239,16 @@ def tutorial_page():
     return _serve_php_asset("tutorial.php")
 
 
+@app.route("/records.php")
+def records_page():
+    """Pending transaction records (farmer approve/dismiss)."""
+    return _serve_php_asset("records.php")
+
+
 @app.route("/qr.php")
-def qr_page():
-    return _serve_php_asset("qr.php")
+def qr_page_legacy():
+    """Backward-compatible alias; page renamed from qr.php to records.php."""
+    return _serve_php_asset("records.php")
 
 
 @app.route("/news.php")
@@ -190,6 +275,17 @@ def messages_page():
 @app.route("/settings.php")
 def settings_page():
     return _serve_php_asset("settings.php")
+
+
+@app.route("/notification_settings.php")
+def notification_settings_php_page():
+    return _serve_php_asset("notification_settings.php")
+
+
+@app.route("/notification_settings.html")
+def notification_settings_html_page():
+    return _serve_html_asset("notification_settings.html")
+
 
 @app.route("/register-summary")
 @app.route("/register_summary.php")
@@ -541,7 +637,19 @@ def add_dev_no_cache_headers(response):
 
 if __name__ == "__main__":
     # Run on LAN so phones on same Wi‑Fi can reach it:
-    # http://192.168.0.104:8000 (example)
+    # http://192.168.0.100:8080 (example)
+    if not _MYSQL_API_LOADED:
+        print(
+            "\n*** WARNING: MySQL API routes not loaded. "
+            "Install deps and restart:\n"
+            "    pip install -r requirements.txt\n"
+            "    python app.py\n"
+            "Also start XAMPP MySQL and import xampp-beanthentic-import.sql\n"
+        )
+    else:
+        print(
+            "MySQL API routes OK (login, farmer_account_status, registration_status, …)"
+        )
     app.config["TEMPLATES_AUTO_RELOAD"] = True
     app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
     app.run(

@@ -44,6 +44,7 @@
           </p>
         </div>
         <div class="tutorial-sheet-actions">
+          <div class="tutorial-pagination" aria-label="Tutorial progress" role="tablist"></div>
           <button type="button" class="tutorial-next-btn" id="tutorial-continue-1">
             CONTINUE <span class="tutorial-next-arrow" aria-hidden="true">→</span>
           </button>
@@ -67,6 +68,7 @@
           </p>
         </div>
         <div class="tutorial-sheet-actions">
+          <div class="tutorial-pagination" aria-label="Tutorial progress" role="tablist"></div>
           <button type="button" class="tutorial-next-btn" id="tutorial-continue-2">
             CONTINUE <span class="tutorial-next-arrow" aria-hidden="true">→</span>
           </button>
@@ -90,6 +92,7 @@
           </p>
         </div>
         <div class="tutorial-sheet-actions">
+          <div class="tutorial-pagination" aria-label="Tutorial progress" role="tablist"></div>
           <button type="button" class="tutorial-next-btn" id="tutorial-continue-3">
             CONTINUE <span class="tutorial-next-arrow" aria-hidden="true">→</span>
           </button>
@@ -113,6 +116,7 @@
           </p>
         </div>
         <div class="tutorial-sheet-actions">
+          <div class="tutorial-pagination" aria-label="Tutorial progress" role="tablist"></div>
           <button type="button" class="tutorial-next-btn" id="tutorial-continue-4">
             CONTINUE <span class="tutorial-next-arrow" aria-hidden="true">→</span>
           </button>
@@ -136,6 +140,7 @@
           </p>
         </div>
         <div class="tutorial-sheet-actions">
+          <div class="tutorial-pagination" aria-label="Tutorial progress" role="tablist"></div>
           <button type="button" class="tutorial-next-btn" id="tutorial-continue-5">
             CONTINUE <span class="tutorial-next-arrow" aria-hidden="true">→</span>
           </button>
@@ -159,6 +164,7 @@
           </p>
         </div>
         <div class="tutorial-sheet-actions">
+          <div class="tutorial-pagination" aria-label="Tutorial progress" role="tablist"></div>
           <button type="button" class="tutorial-next-btn" id="tutorial-continue-6">
             CONTINUE <span class="tutorial-next-arrow" aria-hidden="true">→</span>
           </button>
@@ -280,9 +286,54 @@
           if (!el) continue;
           el.classList.toggle('tutorial-step--active', i + 1 === which);
         }
+        syncPagination(which, steps.length);
         try {
           window.scrollTo(0, 0);
         } catch (_s) {}
+      }
+
+      function buildPagination(count) {
+        var holders = document.querySelectorAll('.tutorial-pagination');
+        if (!holders || !holders.length) return;
+
+        for (var h = 0; h < holders.length; h++) {
+          var holder = holders[h];
+          if (!holder) continue;
+          holder.innerHTML = '';
+
+          for (var i = 1; i <= count; i++) {
+            var dot = document.createElement('button');
+            dot.type = 'button';
+            dot.className = 'tutorial-page-dot';
+            dot.setAttribute('role', 'tab');
+            dot.setAttribute('aria-selected', 'false');
+            dot.setAttribute('aria-label', 'Step ' + i + ' of ' + count);
+            dot.dataset.step = String(i);
+            dot.addEventListener('click', function (ev) {
+              var t = ev.currentTarget;
+              var raw = t && t.dataset ? t.dataset.step : '';
+              var next = parseInt(String(raw || ''), 10);
+              if (!next || next < 1 || next > count) return;
+              showStep(next);
+            });
+            holder.appendChild(dot);
+          }
+        }
+      }
+
+      function syncPagination(active, count) {
+        var dots = document.querySelectorAll('.tutorial-page-dot');
+        if (!dots || !dots.length) return;
+
+        for (var i = 0; i < dots.length; i++) {
+          var dot = dots[i];
+          if (!dot) continue;
+          var step = 0;
+          try {
+            step = parseInt(String(dot.dataset.step || ''), 10) || 0;
+          } catch (_x) {}
+          dot.setAttribute('aria-selected', step === active ? 'true' : 'false');
+        }
       }
 
       function showMain() {
@@ -291,6 +342,7 @@
           loader.setAttribute('aria-busy', 'false');
         }
         if (main) main.hidden = false;
+        buildPagination(6);
         showStep(1);
         applyTutorialLang();
       }
@@ -310,6 +362,18 @@
       function goHome() {
         // If login marked this as a new-user session, carry marker to Home.
         var marker = '';
+        var currentLoginId = '';
+        try {
+          var rawUser = localStorage.getItem('beanthentic_user') || sessionStorage.getItem('beanthentic_user');
+          var user = rawUser ? JSON.parse(rawUser) : null;
+          currentLoginId = user && user.email ? String(user.email).trim().toLowerCase() : '';
+        } catch (_u) {}
+        if (currentLoginId) {
+          try {
+            sessionStorage.setItem('beanthentic_onboarding_done_login_id', currentLoginId);
+            localStorage.setItem('beanthentic_onboarding_done_login_id', currentLoginId);
+          } catch (_od) {}
+        }
         try {
           var sp = new URLSearchParams(String(location.search || '').replace(/^\\?/, ''));
           if (sp.get('new_user') === '1') marker = '?new_user=1';

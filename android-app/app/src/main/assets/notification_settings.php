@@ -87,7 +87,7 @@
 
   <main class="auth-main">
     <div class="auth-card" style="max-width: 44rem;">
-      <a href="index.php#home" class="news-portal-back">
+      <a href="index.php#home" id="notif-settings-back" class="news-portal-back">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true">
           <path d="m12 19-7-7 7-7"/>
           <path d="M19 12H5"/>
@@ -96,53 +96,44 @@
       </a>
 
       <h1>Notification Settings</h1>
-      <p class="auth-lead">Configure dashboard preferences.</p>
+      <p class="auth-lead">Manage email, SMS, and in-app alerts for registrations and security events.</p>
 
       <div class="notif-card">
-        <div class="notif-card__head"><strong>Email Notifications</strong></div>
-        <div class="notif-row">
-          <div class="notif-row__text"><strong>System Events</strong><span>Get notified about system updates and maintenance.</span></div>
-          <label class="switch"><input type="checkbox" id="notif-email-system" /><span class="switch__track" aria-hidden="true"></span></label>
+        <div class="notif-card__head"><strong>Notifications</strong></div>
+        <div class="notif-row notif-row--compact">
+          <div class="notif-row__text"><strong>Login Verification</strong></div>
+          <label class="switch">
+            <input type="checkbox" id="notif-login-verification" />
+            <span class="switch__track" aria-hidden="true"></span>
+          </label>
         </div>
-        <div class="notif-row">
-          <div class="notif-row__text"><strong>User Registrations</strong><span>Receive alerts when new users register.</span></div>
-          <label class="switch"><input type="checkbox" id="notif-email-registrations" /><span class="switch__track" aria-hidden="true"></span></label>
+        <div class="notif-row notif-row--compact">
+          <div class="notif-row__text"><strong>Suspicious Login Alerts</strong></div>
+          <label class="switch">
+            <input type="checkbox" id="notif-suspicious-login" />
+            <span class="switch__track" aria-hidden="true"></span>
+          </label>
         </div>
-        <div class="notif-row" style="border-bottom:none;">
-          <div class="notif-row__text"><strong>Security Breaches</strong><span>Immediate alerts for security incidents.</span></div>
-          <label class="switch"><input type="checkbox" id="notif-email-breaches" /><span class="switch__track" aria-hidden="true"></span></label>
+        <div class="notif-row notif-row--compact">
+          <div class="notif-row__text"><strong>Account Updates</strong></div>
+          <label class="switch">
+            <input type="checkbox" id="notif-account-updates" />
+            <span class="switch__track" aria-hidden="true"></span>
+          </label>
         </div>
-      </div>
-
-      <div class="notif-card">
-        <div class="notif-card__head"><strong>SMS Notifications</strong></div>
-        <div class="notif-row">
-          <div class="notif-row__text"><strong>System Events</strong><span>Get notified about system updates and maintenance.</span></div>
-          <label class="switch"><input type="checkbox" id="notif-sms-system" /><span class="switch__track" aria-hidden="true"></span></label>
+        <div class="notif-row notif-row--compact">
+          <div class="notif-row__text"><strong>Security Reminders</strong></div>
+          <label class="switch">
+            <input type="checkbox" id="notif-security-reminders" />
+            <span class="switch__track" aria-hidden="true"></span>
+          </label>
         </div>
-        <div class="notif-row">
-          <div class="notif-row__text"><strong>User Registrations</strong><span>Receive alerts when new users register.</span></div>
-          <label class="switch"><input type="checkbox" id="notif-sms-registrations" /><span class="switch__track" aria-hidden="true"></span></label>
-        </div>
-        <div class="notif-row" style="border-bottom:none;">
-          <div class="notif-row__text"><strong>Security Breaches</strong><span>Immediate alerts for security incidents.</span></div>
-          <label class="switch"><input type="checkbox" id="notif-sms-breaches" /><span class="switch__track" aria-hidden="true"></span></label>
-        </div>
-      </div>
-
-      <div class="notif-card">
-        <div class="notif-card__head"><strong>In-App Notifications</strong></div>
-        <div class="notif-row">
-          <div class="notif-row__text"><strong>System Events</strong><span>Get notified about system updates and maintenance.</span></div>
-          <label class="switch"><input type="checkbox" id="notif-inapp-system" /><span class="switch__track" aria-hidden="true"></span></label>
-        </div>
-        <div class="notif-row">
-          <div class="notif-row__text"><strong>User Registrations</strong><span>Receive alerts when new users register.</span></div>
-          <label class="switch"><input type="checkbox" id="notif-inapp-registrations" /><span class="switch__track" aria-hidden="true"></span></label>
-        </div>
-        <div class="notif-row" style="border-bottom:none;">
-          <div class="notif-row__text"><strong>Security Breaches</strong><span>Immediate alerts for security incidents.</span></div>
-          <label class="switch"><input type="checkbox" id="notif-inapp-breaches" /><span class="switch__track" aria-hidden="true"></span></label>
+        <div class="notif-row notif-row--compact" style="border-bottom:none;">
+          <div class="notif-row__text"><strong>App Updates</strong></div>
+          <label class="switch">
+            <input type="checkbox" id="notif-app-updates" />
+            <span class="switch__track" aria-hidden="true"></span>
+          </label>
         </div>
       </div>
 
@@ -167,11 +158,11 @@
         </span>
         <span class="app-bottom-nav-label">Home</span>
       </a>
-      <a href="qr.php" id="nav-qr" class="app-bottom-nav-link">
+      <a href="records.php" id="nav-qr" class="app-bottom-nav-link">
         <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
-          <svg class="app-bottom-nav-icon app-bottom-nav-icon--transaction" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6 7.25h9v2H6z"/><path fill="currentColor" d="M15 6 19 8.25 15 10.5z"/><path fill="currentColor" d="M9 14.25h9v2H9z"/><path fill="currentColor" d="M9 13.25 5 15.25 9 17.25z"/></svg>
+          <svg class="app-bottom-nav-icon app-bottom-nav-icon--record" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 2h6v2H9z"/><path d="M9 12h6"/><path d="M9 16h6"/><path d="M9 20h4"/></svg>
         </span>
-        <span class="app-bottom-nav-label">Transaction</span>
+        <span class="app-bottom-nav-label">Record</span>
       </a>
       <a href="register_summary.php" id="nav-register" class="app-bottom-nav-link app-bottom-nav-link--featured">
         <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
@@ -197,54 +188,38 @@
 
   <script src="js/navigation.js"></script>
   <script src="js/ui.js"></script>
+  <script src="js/beanthentic_notification_prefs.js"></script>
   <script>
     (function () {
-      var NOTIF_KEY = 'beanthentic_notification_prefs';
-      function getNotifIds() {
-        return [
-          'notif-email-system',
-          'notif-email-registrations',
-          'notif-email-breaches',
-          'notif-sms-system',
-          'notif-sms-registrations',
-          'notif-sms-breaches',
-          'notif-inapp-system',
-          'notif-inapp-registrations',
-          'notif-inapp-breaches'
-        ];
-      }
-
-      function loadNotifPrefs() {
-        try {
-          var raw = localStorage.getItem(NOTIF_KEY);
-          var prefs = raw ? JSON.parse(raw) : {};
-          getNotifIds().forEach(function (id) {
-            var el = document.getElementById(id);
-            if (!el) return;
-            el.checked = !!prefs[id];
-          });
-        } catch (e) {}
-      }
-
-      function saveNotifPrefs() {
-        try {
-          var prefsOut = {};
-          getNotifIds().forEach(function (id) {
-            var el = document.getElementById(id);
-            if (!el) return;
-            prefsOut[id] = !!el.checked;
-          });
-          localStorage.setItem(NOTIF_KEY, JSON.stringify(prefsOut));
-        } catch (e) {}
-        if (window.uiController && typeof window.uiController.showNotification === 'function') {
-          window.uiController.showNotification('Notification settings saved.', 'info');
-        }
-      }
-
       function init() {
-        loadNotifPrefs();
+        var back = document.getElementById('notif-settings-back');
+        if (back) {
+          try {
+            var from = new URLSearchParams(location.search || '').get('from');
+            if (from === 'settings' || from === 'account_settings') {
+              var href = from === 'account_settings'
+                ? 'settings.php?from=account_settings&section=notifications'
+                : 'settings.php?section=notifications';
+              back.setAttribute('href', href);
+              back.innerHTML =
+                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg> Back to Notification Settings';
+            }
+          } catch (_b) {}
+        }
+        if (window.BeanthenticNotifPrefs) {
+          window.BeanthenticNotifPrefs.load(document);
+        }
         var btn = document.getElementById('notif-save-btn');
-        if (btn) btn.addEventListener('click', saveNotifPrefs);
+        if (btn) {
+          btn.addEventListener('click', function () {
+            if (window.BeanthenticNotifPrefs) {
+              window.BeanthenticNotifPrefs.save(document);
+            }
+            if (window.uiController && typeof window.uiController.showNotification === 'function') {
+              window.uiController.showNotification('Notification settings saved.', 'info');
+            }
+          });
+        }
       }
 
       if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

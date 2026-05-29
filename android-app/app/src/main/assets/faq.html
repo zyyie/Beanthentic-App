@@ -1,18 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#25671E" />
+  <script src="js/beanthentic_theme.js?v=20260527-9"></script>
   <title>Frequently Asked Questions · Beanthentic Coffee</title>
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/responsive.css">
-  <script id="beanthentic-fixed-topbar-js" src="js/beanthentic_fixed_topbar.js" defer></script>
+  <script id="beanthentic-fixed-topbar-js" src="js/beanthentic_fixed_topbar.js"></script>
   <style>
-    body { margin: 0; background: #eef6ff; }
-    .faq-page header { background: linear-gradient(180deg, #1d7a2a 0%, #145e1e 100%); border-bottom: none; border-radius: 0 0 16px 16px; padding-top: env(safe-area-inset-top); }
+    body {
+      margin: 0;
+      background: #eef6ff;
+    }
+
+    .faq-page header {
+      background: linear-gradient(180deg, #1d7a2a 0%, #145e1e 100%);
+      border-bottom: none;
+      border-radius: 0 0 16px 16px;
+      padding-top: env(safe-area-inset-top);
+    }
+
     .faq-page .nav {
       display: flex;
       align-items: center;
@@ -21,6 +33,7 @@
       min-height: 4.6rem;
       padding: 0.72rem 1.05rem 0.78rem max(0.8rem, env(safe-area-inset-left, 0px));
     }
+
     .faq-nav-back {
       position: absolute;
       left: 0.55rem;
@@ -34,7 +47,12 @@
       padding: 8px;
       -webkit-tap-highlight-color: transparent;
     }
-    .faq-nav-back svg { width: 18px; height: 18px; }
+
+    .faq-nav-back svg {
+      width: 18px;
+      height: 18px;
+    }
+
     .faq-nav-title {
       margin: 0;
       color: #fff;
@@ -44,28 +62,123 @@
       letter-spacing: 0.01em;
       text-align: center;
     }
-    .faq-shell { width: min(100%, 760px); margin: 0 auto; padding: 1.55rem 1.15rem 6.5rem; box-sizing: border-box; }
-    .faq-back { display: inline-flex; align-items: center; gap: 0.3rem; color: #2f7a24; text-decoration: none; font-size: 0.88rem; margin-bottom: 0.7rem; }
-    .faq-back svg { width: 16px; height: 16px; }
-    .faq-title { margin: 0 0 0.85rem; font-size: 2.03rem; line-height: 1.08; font-weight: 800; color: #111827; letter-spacing: -0.01em; }
-    .faq-title span { color: #1d7a2a; }
-    .faq-search { width: 100%; min-height: 2.45rem; border: 1px solid #2f7a24; border-radius: 10px; background: #dff0df; font-size: 0.94rem; color: #111827; padding: 0.55rem 0.82rem; box-sizing: border-box; margin-bottom: 0.45rem; }
-    .faq-search::placeholder { color: #3f5d45; opacity: 0.8; }
-    .faq-list { background: transparent; }
-    .faq-item { border-bottom: 1px solid rgba(17,24,39,0.12); }
-    .faq-item:last-child { border-bottom: none; }
-    .faq-q { width: 100%; border: none; background: transparent; display: grid; grid-template-columns: 1fr 22px; gap: 0.45rem; align-items: center; text-align: left; padding: 0.62rem 0; font-size: 0.9rem; font-weight: 500; color: #233240; cursor: pointer; }
-    .faq-chevron { width: 10px; height: 10px; border-right: 2px solid #17443a; border-bottom: 2px solid #17443a; transform: rotate(45deg); justify-self: center; transition: transform .18s ease; }
-    .faq-q[aria-expanded="true"] .faq-chevron { transform: rotate(-135deg); margin-top: 0.2rem; }
-    .faq-a { display: none; padding: 0 0 0.8rem; font-size: 0.84rem; line-height: 1.45; color: #2f3f4d; }
-    .faq-a.is-open { display: block; }
+
+    .faq-shell {
+      width: min(100%, 760px);
+      margin: 0 auto;
+      padding: 1.55rem 1.15rem 6.5rem;
+      box-sizing: border-box;
+    }
+
+    .faq-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      color: #2f7a24;
+      text-decoration: none;
+      font-size: 0.88rem;
+      margin-bottom: 0.7rem;
+    }
+
+    .faq-back svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .faq-title {
+      margin: 0 0 0.85rem;
+      font-size: 2.03rem;
+      line-height: 1.08;
+      font-weight: 800;
+      color: #111827;
+      letter-spacing: -0.01em;
+    }
+
+    .faq-title span {
+      color: #1d7a2a;
+    }
+
+    .faq-search {
+      width: 100%;
+      min-height: 2.45rem;
+      border: 1px solid #2f7a24;
+      border-radius: 10px;
+      background: #dff0df;
+      font-size: 0.94rem;
+      color: #111827;
+      padding: 0.55rem 0.82rem;
+      box-sizing: border-box;
+      margin-bottom: 0.45rem;
+    }
+
+    .faq-search::placeholder {
+      color: #3f5d45;
+      opacity: 0.8;
+    }
+
+    .faq-list {
+      background: transparent;
+    }
+
+    .faq-item {
+      border-bottom: 1px solid rgba(17, 24, 39, 0.12);
+    }
+
+    .faq-item:last-child {
+      border-bottom: none;
+    }
+
+    .faq-q {
+      width: 100%;
+      border: none;
+      background: transparent;
+      display: grid;
+      grid-template-columns: 1fr 22px;
+      gap: 0.45rem;
+      align-items: center;
+      text-align: left;
+      padding: 0.62rem 0;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #233240;
+      cursor: pointer;
+    }
+
+    .faq-chevron {
+      width: 10px;
+      height: 10px;
+      border-right: 2px solid #17443a;
+      border-bottom: 2px solid #17443a;
+      transform: rotate(45deg);
+      justify-self: center;
+      transition: transform .18s ease;
+    }
+
+    .faq-q[aria-expanded="true"] .faq-chevron {
+      transform: rotate(-135deg);
+      margin-top: 0.2rem;
+    }
+
+    .faq-a {
+      display: none;
+      padding: 0 0 0.8rem;
+      font-size: 0.84rem;
+      line-height: 1.45;
+      color: #2f3f4d;
+    }
+
+    .faq-a.is-open {
+      display: block;
+    }
   </style>
 </head>
+
 <body class="has-app-bottom-nav faq-page">
   <header>
     <div class="nav">
       <a class="faq-nav-back" href="account.php" aria-label="Back">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"
+          stroke-linejoin="round" aria-hidden="true">
           <polyline points="15 18 9 12 15 6"></polyline>
         </svg>
       </a>
@@ -78,43 +191,95 @@
 
     <section class="faq-list" aria-label="Frequently asked questions list">
       <div class="faq-item">
-        <button type="button" class="faq-q" aria-expanded="false"><span>What is Brewthentic?</span><span class="faq-chevron" aria-hidden="true"></span></button>
-        <div class="faq-a">Beanthentic is a local coffee information and transaction platform that highlights farmer profiles, coffee origins, and transparent records.</div>
+        <button type="button" class="faq-q" aria-expanded="false"><span>What is Brewthentic?</span><span
+            class="faq-chevron" aria-hidden="true"></span></button>
+        <div class="faq-a">Beanthentic is a local coffee information and transaction platform that highlights farmer
+          profiles, coffee origins, and transparent records.</div>
       </div>
       <div class="faq-item">
-        <button type="button" class="faq-q" aria-expanded="false"><span>Does Brewthentic issue official GI Certifications?</span><span class="faq-chevron" aria-hidden="true"></span></button>
-        <div class="faq-a">The app displays traceability and farm profile data. Official GI certification issuance follows the designated certifying authorities and partner organizations.</div>
+        <button type="button" class="faq-q" aria-expanded="false"><span>Does Brewthentic issue official GI
+            Certifications?</span><span class="faq-chevron" aria-hidden="true"></span></button>
+        <div class="faq-a">The app displays traceability and farm profile data. Official GI certification issuance
+          follows the designated certifying authorities and partner organizations.</div>
       </div>
       <div class="faq-item">
-        <button type="button" class="faq-q" aria-expanded="false"><span>Who is this app for?</span><span class="faq-chevron" aria-hidden="true"></span></button>
-        <div class="faq-a">This app is for coffee farmers, buyers, and community members who want transparent coffee origin and farm transaction records.</div>
+        <button type="button" class="faq-q" aria-expanded="false"><span>Who is this app for?</span><span
+            class="faq-chevron" aria-hidden="true"></span></button>
+        <div class="faq-a">This app is for coffee farmers, buyers, and community members who want transparent coffee
+          origin and farm transaction records.</div>
       </div>
       <div class="faq-item">
-        <button type="button" class="faq-q" aria-expanded="false"><span>How does the QR Code system work?</span><span class="faq-chevron" aria-hidden="true"></span></button>
-        <div class="faq-a">Each profile or transaction can be represented by a QR code so users can quickly access linked details and verify records.</div>
+        <button type="button" class="faq-q" aria-expanded="false"><span>How does the QR Code system work?</span><span
+            class="faq-chevron" aria-hidden="true"></span></button>
+        <div class="faq-a">Each profile or transaction can be represented by a QR code so users can quickly access
+          linked details and verify records.</div>
       </div>
       <div class="faq-item">
-        <button type="button" class="faq-q" aria-expanded="false"><span>Can I use the app offline?</span><span class="faq-chevron" aria-hidden="true"></span></button>
-        <div class="faq-a">Some cached screens may open offline, but account syncing, registration, and transaction updates still require internet.</div>
+        <button type="button" class="faq-q" aria-expanded="false"><span>Can I use the app offline?</span><span
+            class="faq-chevron" aria-hidden="true"></span></button>
+        <div class="faq-a">Some cached screens may open offline, but account syncing, registration, and transaction
+          updates still require internet.</div>
       </div>
       <div class="faq-item">
-        <button type="button" class="faq-q" aria-expanded="false"><span>Is my farm data secure?</span><span class="faq-chevron" aria-hidden="true"></span></button>
-        <div class="faq-a">Yes, account and form data are handled with validation and controlled access in the app flow. Keep your login credentials private.</div>
+        <button type="button" class="faq-q" aria-expanded="false"><span>Is my farm data secure?</span><span
+            class="faq-chevron" aria-hidden="true"></span></button>
+        <div class="faq-a">Yes, account and form data are handled with validation and controlled access in the app flow.
+          Keep your login credentials private.</div>
       </div>
       <div class="faq-item">
-        <button type="button" class="faq-q" aria-expanded="false"><span>Who can I contact if I encounter an error?</span><span class="faq-chevron" aria-hidden="true"></span></button>
-        <div class="faq-a">Use the Contact Us section and social channels listed in the app, or notify your project administrator for immediate assistance.</div>
+        <button type="button" class="faq-q" aria-expanded="false"><span>Who can I contact if I encounter an
+            error?</span><span class="faq-chevron" aria-hidden="true"></span></button>
+        <div class="faq-a">Use the Contact Us section and social channels listed in the app, or notify your project
+          administrator for immediate assistance.</div>
       </div>
     </section>
   </main>
 
   <nav class="app-bottom-nav app-bottom-nav--mint" aria-label="Quick navigation">
     <div class="app-bottom-nav-inner">
-      <a href="index.php#home" id="nav-home" class="app-bottom-nav-link"><span class="app-bottom-nav-icon-wrap" aria-hidden="true"><svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="app-bottom-nav-label">Home</span></a>
-      <a href="qr.php" id="nav-qr" class="app-bottom-nav-link"><span class="app-bottom-nav-icon-wrap" aria-hidden="true"><svg class="app-bottom-nav-icon app-bottom-nav-icon--transaction" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6 7.25h9v2H6z"/><path fill="currentColor" d="M15 6 19 8.25 15 10.5z"/><path fill="currentColor" d="M9 14.25h9v2H9z"/><path fill="currentColor" d="M9 13.25 5 15.25 9 17.25z"/></svg></span><span class="app-bottom-nav-label">Transaction</span></a>
-      <a href="register_summary.php" id="nav-register" class="app-bottom-nav-link app-bottom-nav-link--featured"><span class="app-bottom-nav-icon-wrap" aria-hidden="true"><svg class="app-bottom-nav-icon app-bottom-nav-register-svg app-bottom-nav-register-svg--pending" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><svg class="app-bottom-nav-icon app-bottom-nav-register-svg app-bottom-nav-register-svg--complete" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></span><span class="app-bottom-nav-label">Register</span></a>
-      <a href="transaction-history.html" id="nav-history" class="app-bottom-nav-link app-bottom-nav-link--history"><span class="app-bottom-nav-icon-wrap" aria-hidden="true"><svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg></span><span class="app-bottom-nav-label">History</span></a>
-      <a href="account.php" id="nav-signin" class="app-bottom-nav-link app-bottom-nav-link--signin"><span class="app-bottom-nav-icon-wrap" aria-hidden="true"><svg class="app-bottom-nav-icon app-bottom-nav-icon--account" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.75"/><path d="M5.5 21v-.75a5 5 0 0 1 5-5h3a5 5 0 0 1 5 5v.75"/></svg></span><span class="app-bottom-nav-label">Account</span></a>
+      <a href="index.php#home" id="nav-home" class="app-bottom-nav-link"><span class="app-bottom-nav-icon-wrap"
+          aria-hidden="true"><svg class="app-bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+            <polyline points="9 22 9 12 15 12 15 22" />
+          </svg></span><span class="app-bottom-nav-label">Home</span></a>
+      <a href="records.php" id="nav-qr" class="app-bottom-nav-link"><span class="app-bottom-nav-icon-wrap"
+          aria-hidden="true"><svg class="app-bottom-nav-icon app-bottom-nav-icon--record" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+            aria-hidden="true">
+            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+            <path d="M9 2h6v2H9z" />
+            <path d="M9 12h6" />
+            <path d="M9 16h6" />
+            <path d="M9 20h4" />
+          </svg></span><span class="app-bottom-nav-label">Record</span></a>
+      <a href="register_summary.php" id="nav-register" class="app-bottom-nav-link app-bottom-nav-link--featured"><span
+          class="app-bottom-nav-icon-wrap" aria-hidden="true"><svg
+            class="app-bottom-nav-icon app-bottom-nav-register-svg app-bottom-nav-register-svg--pending"
+            viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="currentColor" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg><svg class="app-bottom-nav-icon app-bottom-nav-register-svg app-bottom-nav-register-svg--complete"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            <path d="m9 12 2 2 4-4" />
+          </svg></span><span class="app-bottom-nav-label">Register</span></a>
+      <a href="transaction-history.html" id="nav-history" class="app-bottom-nav-link app-bottom-nav-link--history"><span
+          class="app-bottom-nav-icon-wrap" aria-hidden="true"><svg class="app-bottom-nav-icon" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <path d="M14 2v6h6" />
+            <path d="M16 13H8" />
+            <path d="M16 17H8" />
+            <path d="M10 9H8" />
+          </svg></span><span class="app-bottom-nav-label">History</span></a>
+      <a href="account.php" id="nav-signin" class="app-bottom-nav-link app-bottom-nav-link--signin"><span
+          class="app-bottom-nav-icon-wrap" aria-hidden="true"><svg
+            class="app-bottom-nav-icon app-bottom-nav-icon--account" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="8" r="3.75" />
+            <path d="M5.5 21v-.75a5 5 0 0 1 5-5h3a5 5 0 0 1 5 5v.75" />
+          </svg></span><span class="app-bottom-nav-label">Account</span></a>
     </div>
   </nav>
 
@@ -129,7 +294,7 @@
           if (params.get('from') === 'account_settings') {
             backLink.setAttribute('href', 'account_settings.html');
           }
-        } catch (_e) {}
+        } catch (_e) { }
         backLink.addEventListener('click', function (event) {
           event.preventDefault();
           try {
@@ -137,7 +302,7 @@
               window.history.back();
               return;
             }
-          } catch (_err) {}
+          } catch (_err) { }
           window.location.href = backLink.getAttribute('href') || 'account.php';
         });
       }
@@ -164,5 +329,5 @@
     })();
   </script>
 </body>
-</html>
 
+</html>

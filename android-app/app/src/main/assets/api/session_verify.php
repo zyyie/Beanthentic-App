@@ -42,8 +42,29 @@ try {
         echo json_encode(['ok' => false, 'reason' => 'identifier']);
         exit;
     }
-    $ok = (bool)$stmt->fetchColumn();
-    echo json_encode(['ok' => $ok]);
+    if (!(bool)$stmt->fetchColumn()) {
+        echo json_encode(['ok' => false]);
+        exit;
+    }
+
+    $farmerStmt = $pdo->prepare('SELECT farmer_id FROM farmers WHERE user_id = ? LIMIT 1');
+    $farmerStmt->execute([$userId]);
+    $farmerRow = $farmerStmt->fetch();
+    $farmerId = $farmerRow ? (int)($farmerRow['farmer_id'] ?? 0) : 0;
+    if ($farmerId > 0) {
+        beanthentic_ensure_farmer_account_mod_columns($pdo);
+        $acct = beanthentic_farmer_account_status($pdo, $farmerId);
+        if (!empty($acct['is_suspended'])) {
+            echo json_encode([
+                'ok' => false,
+                'reason' => 'suspended',
+                'message' => beanthentic_suspend_block_message($acct),
+            ]);
+            exit;
+        }
+    }
+
+    echo json_encode(['ok' => true]);
 } catch (Throwable $e) {
     http_response_code(503);
     echo json_encode(['ok' => false, 'reason' => 'db', 'error' => $e->getMessage()]);

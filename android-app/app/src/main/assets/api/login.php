@@ -24,6 +24,7 @@ try {
     if ($parsed['type'] === 'email') {
         $stmt = $pdo->prepare(
             'SELECT u.user_id, u.phone_number, u.password_hash, u.username, u.email, f.farmer_id,
+                    f.status AS farmer_status,
                     pi.first_name, pi.last_name
              FROM users u
              LEFT JOIN farmers f ON f.user_id = u.user_id
@@ -39,6 +40,7 @@ try {
         }
         $stmt = $pdo->prepare(
             'SELECT u.user_id, u.phone_number, u.password_hash, u.username, u.email, f.farmer_id,
+                    f.status AS farmer_status,
                     pi.first_name, pi.last_name
              FROM users u
              LEFT JOIN farmers f ON f.user_id = u.user_id
@@ -57,6 +59,15 @@ try {
         json_fail('Invalid password.', 401);
     }
 
+    $farmerId = $row['farmer_id'] !== null ? (int)$row['farmer_id'] : 0;
+    if ($farmerId > 0) {
+        beanthentic_ensure_farmer_account_mod_columns($pdo);
+        $acct = beanthentic_farmer_account_status($pdo, $farmerId);
+        if (!empty($acct['is_suspended'])) {
+            json_fail(beanthentic_suspend_block_message($acct), 403);
+        }
+    }
+
     $name = trim((string)($row['username'] ?? ''));
     if ($name === '') {
         $first = trim((string)($row['first_name'] ?? ''));
@@ -70,10 +81,15 @@ try {
     $upd = $pdo->prepare('UPDATE users SET last_login_at = CURRENT_TIMESTAMP WHERE user_id = ?');
     $upd->execute([(int)$row['user_id']]);
 
+    $farmerStatus = strtolower(trim((string)($row['farmer_status'] ?? 'pending')));
+    $registrationComplete = $farmerStatus === 'active';
+
     json_ok([
         'user' => [
             'user_id' => (int)$row['user_id'],
             'farmer_id' => $row['farmer_id'] !== null ? (int)$row['farmer_id'] : null,
+            'farmer_status' => $row['farmer_status'] !== null ? (string)$row['farmer_status'] : 'pending',
+            'registration_complete' => $registrationComplete,
             'phone_number' => (string)($row['phone_number'] ?? ''),
             'email' => $row['email'] !== null ? (string)$row['email'] : null,
             'name' => $name,

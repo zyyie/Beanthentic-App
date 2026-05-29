@@ -77,7 +77,8 @@
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 0.4rem;
     }
-    .txn-chip {
+    .txn-chip,
+    .txn-period {
       min-height: 2.05rem;
       border-radius: 999px;
       border: none;
@@ -87,8 +88,10 @@
       background: #e5e7e4;
       color: #1f5f25;
       cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease;
     }
-    .txn-chip.is-active {
+    .txn-chip.is-active,
+    .txn-period.is-active {
       background: #145e1e;
       color: #ffffff;
     }
@@ -98,52 +101,172 @@
       grid-template-columns: 1fr 1fr;
       gap: 0.42rem;
     }
-    .txn-period {
-      min-height: 1.95rem;
-      border-radius: 999px;
-      border: none;
-      font-size: 0.86rem;
-      font-weight: 700;
-      background: #e5e7e4;
-      color: #1f2937;
-      cursor: pointer;
-    }
 
     .txn-list {
       margin-top: 0.85rem;
       border-top: 1px solid rgba(17, 24, 39, 0.18);
       background: #ffffff;
     }
+    .txn-bulk-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.65rem;
+      padding: 0.55rem 0.45rem;
+      border-bottom: 1px solid rgba(17, 24, 39, 0.12);
+      background: #f6faf6;
+    }
+    .txn-bulk-bar[hidden] {
+      display: none !important;
+    }
+    .txn-check-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      border: 0;
+      background: transparent;
+      padding: 0;
+      margin: 0;
+      cursor: pointer;
+      user-select: none;
+      font: inherit;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .txn-check-btn--row {
+      display: none;
+      justify-content: center;
+      width: 22px;
+      min-width: 22px;
+      height: 22px;
+    }
+    .txn-list.txn-list--select-mode .txn-check-btn--row {
+      display: inline-flex;
+    }
+    .txn-check-btn--select-all .txn-check-label {
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: #1f4f26;
+    }
+    .txn-check-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+    .txn-check-box {
+      width: 18px;
+      height: 18px;
+      border: 2px solid #9ca3af;
+      border-radius: 4px;
+      background: #ffffff;
+      flex-shrink: 0;
+      display: inline-block;
+      box-sizing: border-box;
+      position: relative;
+      pointer-events: none;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .txn-check-btn.is-checked .txn-check-box {
+      background: #145e1e;
+      border-color: #145e1e;
+    }
+    .txn-check-btn.is-checked .txn-check-box::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 45%;
+      width: 5px;
+      height: 9px;
+      border: solid #ffffff;
+      border-width: 0 2px 2px 0;
+      transform: translate(-50%, -50%) rotate(45deg);
+    }
+    .txn-check-btn.is-indeterminate .txn-check-box {
+      background: #5f9a66;
+      border-color: #145e1e;
+    }
+    .txn-check-btn.is-indeterminate .txn-check-box::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 10px;
+      height: 2px;
+      margin: 0;
+      background: #ffffff;
+      border: 0;
+      transform: translate(-50%, -50%);
+    }
+    .txn-bulk-send-btn {
+      border: 0;
+      border-radius: 999px;
+      padding: 0.45rem 0.95rem;
+      font-size: 0.82rem;
+      font-weight: 800;
+      font-family: inherit;
+      color: #ffffff;
+      background: linear-gradient(165deg, #0f5f16 0%, #0b4d12 100%);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+    .txn-bulk-send-btn.txn-send-all-hidden {
+      display: none !important;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .txn-bulk-send-btn:not(.txn-send-all-hidden) {
+      display: inline-block !important;
+      visibility: visible;
+      pointer-events: auto;
+      animation: txn-send-all-in 0.22s ease;
+    }
+    @keyframes txn-send-all-in {
+      from {
+        opacity: 0;
+        transform: scale(0.92);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+    .txn-bulk-send-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+    .txn-bulk-send-btn.is-sending {
+      opacity: 0.75;
+    }
     .txn-item {
       display: grid;
-      grid-template-columns: 36px 1fr auto;
+      grid-template-columns: 1fr auto;
       align-items: center;
-      gap: 0.6rem;
-      padding: 0.9rem 0.35rem;
+      gap: 0.45rem;
+      padding: 0.62rem 0.3rem;
       border-bottom: 1px solid rgba(17, 24, 39, 0.18);
     }
-    .txn-item-arrow {
-      width: 26px;
-      height: 26px;
-      color: #1d7a2a;
+    .txn-list.txn-list--select-mode .txn-item {
+      grid-template-columns: 22px 1fr auto;
+    }
+    .txn-item.is-selected {
+      background: #f0fdf4;
     }
     .txn-item-main {
       min-width: 0;
     }
     .txn-item-to {
-      margin: 0 0 0.1rem;
-      font-size: 0.95rem;
-      line-height: 1.2;
+      margin: 0 0 0.06rem;
+      font-size: 0.86rem;
+      line-height: 1.15;
       color: #111827;
     }
     .txn-item-ref {
       margin: 0;
-      font-size: 0.82rem;
-      line-height: 1.2;
+      font-size: 0.74rem;
+      line-height: 1.15;
       color: #374151;
     }
     .txn-item-qty {
-      font-size: 1.35rem;
+      font-size: 1.08rem;
       font-weight: 800;
       line-height: 1;
       color: #111827;
@@ -155,13 +278,6 @@
     }
     .txn-item:hover {
       background: #f6faf6;
-    }
-    .txn-item-arrow--accent {
-      color: #2563eb;
-    }
-    .txn-period.is-active {
-      background: #145e1e;
-      color: #ffffff;
     }
     .txn-list-empty {
       margin: 0;
@@ -176,35 +292,209 @@
     .txn-receipt-view[hidden] {
       display: none !important;
     }
-    .txn-receipt-title {
-      margin: 0 0 1rem;
-      font-size: 1.55rem;
-      line-height: 1.15;
-      color: #111827;
+    .txn-receipt-view {
+      padding-top: 0.35rem;
     }
     .txn-receipt-card {
       background: #ffffff;
-      border: 1px solid rgba(17, 24, 39, 0.16);
-      border-radius: 10px;
-      padding: 0.9rem;
-      display: grid;
-      gap: 0.5rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 1.35rem 1.15rem 1.2rem;
+      box-shadow: 0 2px 12px rgba(15, 23, 42, 0.06);
     }
-    .txn-receipt-row {
+    .txn-rcpt-brand {
+      text-align: center;
+      margin-bottom: 0.85rem;
+    }
+    .txn-rcpt-logo {
+      width: min(42vw, 128px);
+      height: auto;
+      max-height: 128px;
+      margin: 0 auto 0.65rem;
+      display: block;
+      object-fit: contain;
+    }
+    .txn-rcpt-brand-title {
+      margin: 0 0 0.2rem;
+      font-size: 1.35rem;
+      line-height: 1.15;
+      font-weight: 800;
+      color: #1a2b4b;
+      letter-spacing: -0.02em;
+    }
+    .txn-rcpt-brand-sub {
+      margin: 0;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .txn-rcpt-rule {
+      border: 0;
+      margin: 0.85rem 0;
+    }
+    .txn-rcpt-rule--solid {
+      border-top: 1px solid #e2e8f0;
+    }
+    .txn-rcpt-rule--dash {
+      border-top: 1px dashed #cbd5e1;
+    }
+    .txn-rcpt-section-title {
+      margin: 0 0 0.55rem;
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #94a3b8;
+    }
+    .txn-rcpt-rows {
       display: grid;
-      grid-template-columns: 120px 1fr;
-      gap: 0.5rem;
+      gap: 0.42rem;
+    }
+    .txn-rcpt-row {
+      display: flex;
       align-items: baseline;
-      font-size: 0.92rem;
-      color: #111827;
+      justify-content: space-between;
+      gap: 0.75rem;
+      font-size: 0.9rem;
+      line-height: 1.35;
     }
-    .txn-receipt-key {
-      font-weight: 700;
-      color: #374151;
+    .txn-rcpt-label {
+      color: #64748b;
+      font-weight: 600;
+      flex-shrink: 0;
     }
-    .txn-receipt-val {
+    .txn-rcpt-value {
+      color: #1a2b4b;
+      font-weight: 800;
       text-align: right;
       word-break: break-word;
+    }
+    .txn-rcpt-product-line {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0.75rem;
+      font-size: 0.92rem;
+    }
+    .txn-rcpt-product-name {
+      color: #1a2b4b;
+      font-weight: 700;
+    }
+    .txn-rcpt-product-qty {
+      color: #1a2b4b;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .txn-rcpt-thanks {
+      margin: 0.95rem 0 0;
+      text-align: center;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #64748b;
+    }
+    .txn-receipt-actions {
+      margin-top: 1rem;
+    }
+    .txn-receipt-send-btn {
+      width: 100%;
+      min-height: 3rem;
+      padding: 0.65rem 1rem;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(165deg, #0f4a15 0%, #2f7d44 100%);
+      color: #ffffff;
+      font-size: 0.98rem;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      box-shadow: 0 4px 14px rgba(47, 125, 68, 0.28);
+    }
+    .txn-receipt-send-btn svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+    .txn-receipt-send-btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+    .txn-receipt-send-btn.is-sending {
+      opacity: 0.75;
+      pointer-events: none;
+    }
+    .txn-receipt-success-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 100000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      background: rgba(9, 58, 17, 0.38);
+      box-sizing: border-box;
+    }
+    .txn-receipt-success-modal.is-open {
+      display: flex;
+    }
+    .txn-receipt-success-card {
+      width: min(92vw, 400px);
+      background: linear-gradient(165deg, #0f5f16 0%, #0b4d12 100%);
+      color: #f8fafc;
+      border-radius: 16px;
+      box-shadow: 0 18px 40px rgba(9, 58, 17, 0.38);
+      padding: 1.15rem 1.1rem 1rem;
+      text-align: center;
+    }
+    .txn-receipt-success-icon {
+      width: 52px;
+      height: 52px;
+      margin: 0 auto 0.65rem;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.14);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.65rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .txn-receipt-success-title {
+      margin: 0 0 0.45rem;
+      font-size: 1.05rem;
+      font-weight: 800;
+    }
+    .txn-receipt-success-msg {
+      margin: 0;
+      font-size: 0.92rem;
+      line-height: 1.45;
+      color: #ecfdf3;
+    }
+    .txn-receipt-success-ok {
+      margin-top: 1rem;
+      width: 100%;
+      min-height: 2.65rem;
+      border: 1px solid rgba(13, 84, 23, 0.32);
+      border-radius: 10px;
+      background: #f0fdf4;
+      color: #14532d;
+      font-size: 0.95rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    @media print {
+      .txn-receipt-actions,
+      .app-bottom-nav,
+      .txn-history-page header {
+        display: none !important;
+      }
+      .txn-receipt-card {
+        box-shadow: none;
+        border: 1px solid #ccc;
+      }
     }
   </style>
 </head>
@@ -233,25 +523,107 @@
         </div>
       </section>
 
-      <section class="txn-list" aria-label="Transaction list">
+      <section id="txn-list-section" class="txn-list" aria-label="Transaction list">
+        <div id="txn-bulk-bar" class="txn-bulk-bar" hidden>
+          <button
+            type="button"
+            id="txn-select-all-btn"
+            class="txn-check-btn txn-check-btn--select-all"
+            aria-pressed="false"
+            aria-label="Select all transactions"
+          >
+            <span class="txn-check-box" aria-hidden="true"></span>
+            <span class="txn-check-label">Select all</span>
+          </button>
+          <button type="button" id="txn-send-all-btn" class="txn-bulk-send-btn txn-send-all-hidden">Send All</button>
+        </div>
         <p id="txn-list-empty" class="txn-list-empty" hidden></p>
         <div id="txn-list-root"></div>
       </section>
     </section>
 
     <section id="txn-history-receipt-view" class="txn-receipt-view" hidden>
-      <h2 class="txn-receipt-title">Transaction Receipt</h2>
-      <div class="txn-receipt-card">
-        <div class="txn-receipt-row"><div class="txn-receipt-key">Buyer</div><div id="hist-receipt-buyer" class="txn-receipt-val">-</div></div>
-        <div class="txn-receipt-row"><div class="txn-receipt-key">Product</div><div id="hist-receipt-product" class="txn-receipt-val">-</div></div>
-        <div class="txn-receipt-row"><div class="txn-receipt-key">Quantity</div><div id="hist-receipt-qty" class="txn-receipt-val">-</div></div>
-        <div class="txn-receipt-row"><div class="txn-receipt-key">Amount</div><div id="hist-receipt-amount" class="txn-receipt-val">-</div></div>
-        <div class="txn-receipt-row"><div class="txn-receipt-key">Payment</div><div id="hist-receipt-payment" class="txn-receipt-val">-</div></div>
-        <div class="txn-receipt-row"><div class="txn-receipt-key">Payment Amt</div><div id="hist-receipt-payment-amount" class="txn-receipt-val">-</div></div>
-        <div class="txn-receipt-row"><div class="txn-receipt-key">Total</div><div id="hist-receipt-total" class="txn-receipt-val">-</div></div>
-        <div class="txn-receipt-row"><div class="txn-receipt-key">Change</div><div id="hist-receipt-change" class="txn-receipt-val">-</div></div>
-        <div class="txn-receipt-row"><div class="txn-receipt-key">Ref. No.</div><div id="hist-receipt-ref" class="txn-receipt-val">-</div></div>
-        <div class="txn-receipt-row"><div class="txn-receipt-key">Date</div><div id="hist-receipt-date" class="txn-receipt-val">-</div></div>
+      <div class="txn-receipt-card" id="txn-receipt-print-area">
+        <div class="txn-rcpt-brand">
+          <img class="txn-rcpt-logo" src="beantHentic_logo.png" alt="Beanthentic" width="128" height="128" />
+          <h1 class="txn-rcpt-brand-title">Beanthentic Coffee</h1>
+          <p class="txn-rcpt-brand-sub">Official Transaction Receipt</p>
+        </div>
+        <hr class="txn-rcpt-rule txn-rcpt-rule--solid" aria-hidden="true" />
+
+        <div class="txn-rcpt-rows" aria-label="Transaction summary">
+          <div class="txn-rcpt-row">
+            <span class="txn-rcpt-label">Ref. No.</span>
+            <span id="hist-receipt-ref" class="txn-rcpt-value">-</span>
+          </div>
+          <div class="txn-rcpt-row">
+            <span class="txn-rcpt-label">Date</span>
+            <span id="hist-receipt-date" class="txn-rcpt-value">-</span>
+          </div>
+          <div class="txn-rcpt-row">
+            <span class="txn-rcpt-label">Time</span>
+            <span id="hist-receipt-time" class="txn-rcpt-value">-</span>
+          </div>
+        </div>
+
+        <hr class="txn-rcpt-rule txn-rcpt-rule--dash" aria-hidden="true" />
+
+        <div class="txn-rcpt-section">
+          <p class="txn-rcpt-section-title">Buyer Details</p>
+          <div class="txn-rcpt-rows">
+            <div class="txn-rcpt-row">
+              <span class="txn-rcpt-label">Buyer Name</span>
+              <span id="hist-receipt-buyer" class="txn-rcpt-value">-</span>
+            </div>
+          </div>
+        </div>
+
+        <hr class="txn-rcpt-rule txn-rcpt-rule--dash" aria-hidden="true" />
+
+        <div class="txn-rcpt-section">
+          <p class="txn-rcpt-section-title">Product Info</p>
+          <div class="txn-rcpt-product-line">
+            <span id="hist-receipt-product" class="txn-rcpt-product-name">-</span>
+            <span id="hist-receipt-qty" class="txn-rcpt-product-qty">-</span>
+          </div>
+        </div>
+
+        <hr class="txn-rcpt-rule txn-rcpt-rule--dash" aria-hidden="true" />
+
+        <div class="txn-rcpt-section">
+          <p class="txn-rcpt-section-title">Payment Details</p>
+          <div class="txn-rcpt-rows">
+            <div class="txn-rcpt-row">
+              <span class="txn-rcpt-label">Amount</span>
+              <span id="hist-receipt-amount" class="txn-rcpt-value">-</span>
+            </div>
+            <div class="txn-rcpt-row">
+              <span class="txn-rcpt-label">Payment</span>
+              <span id="hist-receipt-payment" class="txn-rcpt-value">-</span>
+            </div>
+            <div class="txn-rcpt-row">
+              <span class="txn-rcpt-label">Payment Amt</span>
+              <span id="hist-receipt-payment-amount" class="txn-rcpt-value">-</span>
+            </div>
+            <div class="txn-rcpt-row">
+              <span class="txn-rcpt-label">Total</span>
+              <span id="hist-receipt-total" class="txn-rcpt-value">-</span>
+            </div>
+            <div class="txn-rcpt-row">
+              <span class="txn-rcpt-label">Change</span>
+              <span id="hist-receipt-change" class="txn-rcpt-value">-</span>
+            </div>
+          </div>
+        </div>
+
+        <p class="txn-rcpt-thanks">Thank you for using Beanthentic!</p>
+      </div>
+
+      <div class="txn-receipt-actions">
+        <button type="button" id="hist-receipt-send-btn" class="txn-receipt-send-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+          Receipt Send
+        </button>
       </div>
     </section>
   </main>
@@ -264,11 +636,11 @@
         </span>
         <span class="app-bottom-nav-label">Home</span>
       </a>
-      <a href="qr.php" id="nav-qr" class="app-bottom-nav-link">
+      <a href="records.php" id="nav-qr" class="app-bottom-nav-link">
         <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
-          <svg class="app-bottom-nav-icon app-bottom-nav-icon--transaction" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6 7.25h9v2H6z"/><path fill="currentColor" d="M15 6 19 8.25 15 10.5z"/><path fill="currentColor" d="M9 14.25h9v2H9z"/><path fill="currentColor" d="M9 13.25 5 15.25 9 17.25z"/></svg>
+          <svg class="app-bottom-nav-icon app-bottom-nav-icon--record" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 2h6v2H9z"/><path d="M9 12h6"/><path d="M9 16h6"/><path d="M9 20h4"/></svg>
         </span>
-        <span class="app-bottom-nav-label">Transaction</span>
+        <span class="app-bottom-nav-label">Record</span>
       </a>
       <a href="register_summary.php" id="nav-register" class="app-bottom-nav-link app-bottom-nav-link--featured">
         <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
@@ -292,6 +664,16 @@
     </div>
   </nav>
 
+  <div id="txn-receipt-success-modal" class="txn-receipt-success-modal" hidden aria-hidden="true" role="dialog" aria-labelledby="txn-receipt-success-title">
+    <div class="txn-receipt-success-card">
+      <div class="txn-receipt-success-icon" aria-hidden="true">✓</div>
+      <p id="txn-receipt-success-title" class="txn-receipt-success-title">Receipt Sent</p>
+      <p id="txn-receipt-success-msg" class="txn-receipt-success-msg">You have successfully sent the receipt.</p>
+      <button type="button" id="txn-receipt-success-ok" class="txn-receipt-success-ok">OK</button>
+    </div>
+  </div>
+
+  <script src="js/beanthentic_api_urls.js"></script>
   <script src="js/navigation.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/txn_history_store.js"></script>
@@ -305,6 +687,37 @@
       var receiptView = document.getElementById('txn-history-receipt-view');
       var headerTitle = document.getElementById('txn-header-title');
       var receiptBack = null;
+      var currentReceipt = null;
+      var receiptSendBtn = document.getElementById('hist-receipt-send-btn');
+      var bulkBar = document.getElementById('txn-bulk-bar');
+      var listSection = document.getElementById('txn-list-section');
+      var selectAllBtn = document.getElementById('txn-select-all-btn');
+      var sendAllBtn = document.getElementById('txn-send-all-btn');
+      var selectedRefs = {};
+      var bulkSending = false;
+      var selectionModeActive = false;
+      var lastFiltered = [];
+
+      function refKey(ref) {
+        if (ref == null || ref === '') return '';
+        return String(ref).trim();
+      }
+
+      function isRefSelected(ref) {
+        var key = refKey(ref);
+        return !!key && selectedRefs[key] === true;
+      }
+
+      function setRefSelected(ref, on) {
+        var key = refKey(ref);
+        if (!key) return;
+        if (on) selectedRefs[key] = true;
+        else delete selectedRefs[key];
+      }
+
+      function countSelectedRefs() {
+        return Object.keys(selectedRefs).length;
+      }
 
       function varietyFromRecord(r) {
         var v = (r && r.variety ? String(r.variety) : '').toLowerCase();
@@ -332,26 +745,6 @@
         return true;
       }
 
-      function arrowSvg(isAccent) {
-        var ns = 'http://www.w3.org/2000/svg';
-        var svg = document.createElementNS(ns, 'svg');
-        svg.setAttribute('class', 'txn-item-arrow' + (isAccent ? ' txn-item-arrow--accent' : ''));
-        svg.setAttribute('viewBox', '0 0 24 24');
-        svg.setAttribute('fill', 'none');
-        svg.setAttribute('stroke', 'currentColor');
-        svg.setAttribute('stroke-width', '2.1');
-        svg.setAttribute('stroke-linecap', 'round');
-        svg.setAttribute('stroke-linejoin', 'round');
-        svg.setAttribute('aria-hidden', 'true');
-        var p1 = document.createElementNS(ns, 'path');
-        p1.setAttribute('d', 'M4 20 20 4');
-        var p2 = document.createElementNS(ns, 'path');
-        p2.setAttribute('d', 'M8 4h12v12');
-        svg.appendChild(p1);
-        svg.appendChild(p2);
-        return svg;
-      }
-
       function moneyLike(v) {
         var n = Number(v);
         if (!isFinite(n)) return '-';
@@ -375,14 +768,372 @@
         return '';
       }
 
+      function receiptShareText(r) {
+        var amountNum = firstNumber(r, ['amount', 'totalAmount', 'amountValue']);
+        var paymentAmtNum = firstNumber(r, ['paymentAmount', 'paidAmount', 'payment_value']);
+        var totalNum = firstNumber(r, ['total', 'amount', 'totalAmount']);
+        var changeNum = firstNumber(r, ['change', 'changeAmount']);
+        var paymentText = firstText(r, ['payment', 'paymentMethod', 'modeOfPayment']);
+        var qty = (r.qty != null && String(r.qty) !== '' ? String(r.qty) : '-') +
+          (r.unit ? String(r.unit).toUpperCase() : '');
+        var d = new Date(r.at);
+        var dateStr = isNaN(d.getTime()) ? '-' : d.toLocaleString();
+        return [
+          'Beanthentic Receipt',
+          'Buyer: ' + (r.buyer || '-'),
+          'Product: ' + (r.product || '-'),
+          'Quantity: ' + qty,
+          'Amount: ' + (amountNum == null ? '0.00' : moneyLike(amountNum)),
+          'Payment: ' + (paymentText || 'Cash'),
+          'Payment Amt: ' + (paymentAmtNum == null ? '0.00' : moneyLike(paymentAmtNum)),
+          'Total: ' + (totalNum == null ? '0.00' : moneyLike(totalNum)),
+          'Change: ' + (changeNum == null ? '0.00' : moneyLike(changeNum)),
+          'Ref. No.: ' + (r.ref || '-'),
+          'Date: ' + dateStr
+        ].join('\n');
+      }
+
+      var successModal = document.getElementById('txn-receipt-success-modal');
+      var successMsgEl = document.getElementById('txn-receipt-success-msg');
+      var successOkBtn = document.getElementById('txn-receipt-success-ok');
+      var receiptSending = false;
+
+      function resolveApiRoot() {
+        if (window.BeanthenticApiUrls && typeof window.BeanthenticApiUrls.resolveApiBase === 'function') {
+          var b = window.BeanthenticApiUrls.resolveApiBase();
+          if (b) return String(b).replace(/\/+$/, '');
+        }
+        try {
+          var s = localStorage.getItem('beanthentic_api_base') || sessionStorage.getItem('beanthentic_api_base');
+          if (s && String(s).replace(/\s/g, '')) {
+            return String(s).replace(/\/+$/, '');
+          }
+        } catch (_e) {}
+        try {
+          if (location && (location.protocol === 'http:' || location.protocol === 'https:')) {
+            return String(new URL('.', location.href).href).replace(/\/+$/, '');
+          }
+        } catch (_e2) {}
+        return '';
+      }
+
+      function currentUserId() {
+        try {
+          var raw = localStorage.getItem('beanthentic_user') || sessionStorage.getItem('beanthentic_user');
+          var u = raw ? JSON.parse(raw) : null;
+          return u && u.user_id ? parseInt(String(u.user_id), 10) : 0;
+        } catch (_e) {
+          return 0;
+        }
+      }
+
+      function showReceiptSuccess(message) {
+        if (!successModal) {
+          try { window.alert(message); } catch (_a) {}
+          return;
+        }
+        if (successMsgEl) successMsgEl.textContent = message;
+        successModal.hidden = false;
+        successModal.setAttribute('aria-hidden', 'false');
+        successModal.classList.add('is-open');
+      }
+
+      function hideReceiptSuccess() {
+        if (!successModal) return;
+        successModal.classList.remove('is-open');
+        successModal.hidden = true;
+        successModal.setAttribute('aria-hidden', 'true');
+      }
+
+      if (successOkBtn) {
+        successOkBtn.addEventListener('click', hideReceiptSuccess);
+      }
+      if (successModal) {
+        successModal.addEventListener('click', function (e) {
+          if (e.target === successModal) hideReceiptSuccess();
+        });
+      }
+
+      function setReceiptSendBusy(busy) {
+        receiptSending = !!busy;
+        if (!receiptSendBtn) return;
+        receiptSendBtn.disabled = busy;
+        receiptSendBtn.classList.toggle('is-sending', busy);
+        if (busy) {
+          receiptSendBtn.textContent = 'Sending…';
+        } else {
+          receiptSendBtn.innerHTML =
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> Receipt Send';
+        }
+      }
+
+      function sendReceiptPayload(record) {
+        var uid = currentUserId();
+        if (uid <= 0) {
+          return Promise.resolve({ ok: false, error: 'Please log in again to send the receipt.' });
+        }
+        var payload = Object.assign({}, record, { user_id: uid });
+        var ready = window.BeanthenticApiUrls && window.BeanthenticApiUrls.whenLocalApiProxyReady
+          ? window.BeanthenticApiUrls.whenLocalApiProxyReady()
+          : Promise.resolve();
+
+        return ready.then(function () {
+          if (window.BeanthenticApiUrls && typeof window.BeanthenticApiUrls.fetchApiSequential === 'function') {
+            return window.BeanthenticApiUrls.fetchApiSequential('send_receipt.php', payload, {
+              timeoutMs: 10000,
+              maxTries: 4
+            });
+          }
+          var root = resolveApiRoot();
+          if (!root) return Promise.resolve({ ok: false, error: 'Cannot reach server API.' });
+          return fetch(root + '/api/send_receipt.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          }).then(function (res) {
+            return res.text().then(function (txt) {
+              var body = null;
+              try { body = txt ? JSON.parse(txt) : null; } catch (_p) { body = null; }
+              if (!res.ok && body && body.error) return body;
+              if (!res.ok) return { ok: false, error: 'Could not send receipt. Try again.' };
+              return body;
+            });
+          });
+        });
+      }
+
+      function applySendSuccess(record, body) {
+        if (window.BeanthenticTxnHistory && record.ref) {
+          window.BeanthenticTxnHistory.markSentByRef(record.ref);
+        }
+        record.sentToClient = true;
+        delete selectedRefs[refKey(record.ref)];
+      }
+
+      function sendReceipt() {
+        if (!currentReceipt || receiptSending || bulkSending) return;
+        if (currentReceipt.sentToClient) {
+          showReceiptSuccess('You have already sent this receipt to the client.');
+          return;
+        }
+
+        setReceiptSendBusy(true);
+        sendReceiptPayload(currentReceipt)
+          .then(function (body) {
+            setReceiptSendBusy(false);
+            if (!body || body.ok !== true) {
+              var err = (body && body.error) ? body.error : 'Could not send receipt. Try again.';
+              try { window.alert(err); } catch (_a) {}
+              return;
+            }
+            var msg = body.message || 'You have successfully sent the receipt.';
+            if (body.client_name) {
+              msg = 'You have successfully sent the receipt to ' + body.client_name + '.';
+            }
+            applySendSuccess(currentReceipt, body);
+            if (receiptSendBtn) {
+              receiptSendBtn.disabled = true;
+              receiptSendBtn.textContent = 'Receipt Sent';
+            }
+            showReceiptSuccess(msg);
+          })
+          .catch(function () {
+            setReceiptSendBusy(false);
+            try { window.alert('Network error. Check your connection and try again.'); } catch (_e) {}
+          });
+      }
+
+      function selectableForUi(records) {
+        return records.filter(function (r) {
+          return r && r.ref;
+        });
+      }
+
+      function selectableForSend(records) {
+        return records.filter(function (r) {
+          return r && r.ref && !r.sentToClient;
+        });
+      }
+
+      function clearSelectedRefs() {
+        selectedRefs = {};
+      }
+
+      function setSelectAllState(checked) {
+        var uiRows = selectableForUi(lastFiltered);
+        uiRows.forEach(function (r) {
+          setRefSelected(r.ref, checked);
+        });
+        if (selectAllBtn) {
+          selectAllBtn.classList.toggle('is-checked', checked);
+          selectAllBtn.setAttribute('aria-pressed', checked ? 'true' : 'false');
+          selectAllBtn.classList.remove('is-indeterminate');
+        }
+        syncItemChecksFromSelection();
+        updateBulkBar();
+      }
+
+      function applySelectionModeUI() {
+        if (listSection) {
+          listSection.classList.toggle('txn-list--select-mode', selectionModeActive);
+        }
+        syncItemChecksFromSelection();
+      }
+
+      function exitSelectionMode() {
+        selectionModeActive = false;
+        clearSelectedRefs();
+        if (selectAllBtn) {
+          selectAllBtn.classList.remove('is-checked', 'is-indeterminate');
+          selectAllBtn.setAttribute('aria-pressed', 'false');
+        }
+        applySelectionModeUI();
+        updateBulkBar();
+      }
+
+      function enterSelectionMode(selectAll) {
+        selectionModeActive = true;
+        if (selectAll) setSelectAllState(true);
+        else syncItemChecksFromSelection();
+        applySelectionModeUI();
+        updateBulkBar();
+      }
+
+      function updateBulkBar() {
+        var uiRows = selectableForUi(lastFiltered);
+        if (bulkBar) bulkBar.hidden = lastFiltered.length === 0;
+
+        var selectedUiCount = 0;
+        uiRows.forEach(function (r) {
+          if (isRefSelected(r.ref)) selectedUiCount++;
+        });
+
+        if (selectionModeActive && selectedUiCount === 0) {
+          exitSelectionMode();
+          return;
+        }
+
+        if (sendAllBtn) {
+          var showSendAll = selectionModeActive && selectedUiCount > 0;
+          sendAllBtn.classList.toggle('txn-send-all-hidden', !showSendAll);
+          sendAllBtn.disabled = bulkSending || receiptSending;
+          sendAllBtn.textContent =
+            showSendAll ? ('Send All (' + selectedUiCount + ')') : 'Send All';
+          sendAllBtn.classList.toggle('is-sending', bulkSending);
+        }
+
+        if (selectAllBtn) {
+          if (!uiRows.length) {
+            selectAllBtn.classList.remove('is-checked', 'is-indeterminate');
+            selectAllBtn.setAttribute('aria-pressed', 'false');
+            selectAllBtn.disabled = true;
+          } else {
+            selectAllBtn.disabled = bulkSending || receiptSending;
+            var allSelected =
+              selectionModeActive && selectedUiCount > 0 && selectedUiCount === uiRows.length;
+            var someSelected =
+              selectionModeActive && selectedUiCount > 0 && selectedUiCount < uiRows.length;
+            selectAllBtn.classList.toggle('is-checked', allSelected);
+            selectAllBtn.classList.toggle('is-indeterminate', someSelected);
+            selectAllBtn.setAttribute('aria-pressed', allSelected ? 'true' : 'false');
+          }
+        }
+      }
+
+      function syncItemChecksFromSelection() {
+        if (!listRoot) return;
+        listRoot.querySelectorAll('.txn-item').forEach(function (art) {
+          var ref = art.getAttribute('data-ref') || '';
+          var checked = isRefSelected(ref);
+          var btn = art.querySelector('.txn-check-btn--row');
+          if (btn) {
+            btn.classList.toggle('is-checked', checked);
+            btn.setAttribute('aria-pressed', checked ? 'true' : 'false');
+          }
+          art.classList.toggle('is-selected', checked);
+        });
+      }
+
+      function toggleRefSelection(ref, checked) {
+        setRefSelected(ref, checked);
+        updateBulkBar();
+      }
+
+      function sendAllSelected() {
+        if (bulkSending || receiptSending) return;
+        var uid = currentUserId();
+        if (uid <= 0) {
+          try { window.alert('Please log in again to send receipts.'); } catch (_e) {}
+          return;
+        }
+        var queue = selectableForUi(lastFiltered).filter(function (r) {
+          return isRefSelected(r.ref);
+        });
+        if (!queue.length) {
+          try { window.alert('Select at least one receipt to send.'); } catch (_a) {}
+          return;
+        }
+
+        bulkSending = true;
+        updateBulkBar();
+        var sent = 0;
+        var failed = 0;
+
+        function next(i) {
+          if (i >= queue.length) {
+            bulkSending = false;
+            if (sent > 0) exitSelectionMode();
+            else updateBulkBar();
+            renderList();
+            if (sent > 0 && failed === 0) {
+              showReceiptSuccess('Successfully sent ' + sent + ' receipt' + (sent === 1 ? '' : 's') + ' to client(s).');
+            } else if (sent > 0) {
+              showReceiptSuccess('Sent ' + sent + ' receipt(s). ' + failed + ' could not be sent.');
+            } else {
+              try { window.alert('Could not send selected receipts. Try again.'); } catch (_b) {}
+            }
+            return;
+          }
+          sendReceiptPayload(queue[i])
+            .then(function (body) {
+              if (body && body.ok === true) {
+                sent++;
+                applySendSuccess(queue[i], body);
+              } else {
+                failed++;
+              }
+              next(i + 1);
+            })
+            .catch(function () {
+              failed++;
+              next(i + 1);
+            });
+        }
+
+        next(0);
+      }
+
       function showListView() {
         if (listView) listView.hidden = false;
         if (receiptView) receiptView.hidden = true;
+        currentReceipt = null;
         if (headerTitle) headerTitle.textContent = 'Transaction History';
+      }
+
+      function formatReceiptDateTime(iso) {
+        var d = new Date(iso);
+        if (isNaN(d.getTime())) {
+          return { date: '-', time: '-' };
+        }
+        return {
+          date: d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }),
+          time: d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
+        };
       }
 
       function showReceiptView(r) {
         if (!r || !receiptView || !listView) return;
+        currentReceipt = r;
         listView.hidden = true;
         receiptView.hidden = false;
         if (headerTitle) headerTitle.textContent = 'Receipt History';
@@ -391,45 +1142,117 @@
         var totalNum = firstNumber(r, ['total', 'amount', 'totalAmount']);
         var changeNum = firstNumber(r, ['change', 'changeAmount']);
         var paymentText = firstText(r, ['payment', 'paymentMethod', 'modeOfPayment']);
+        var qtyStr = (r.qty != null && String(r.qty) !== '' ? String(r.qty) : '-') +
+          (r.unit ? String(r.unit).toUpperCase() : '');
+        var dt = formatReceiptDateTime(r.at);
+
         document.getElementById('hist-receipt-buyer').textContent = r.buyer || '-';
         document.getElementById('hist-receipt-product').textContent = r.product || '-';
-        document.getElementById('hist-receipt-qty').textContent =
-          (r.qty != null && String(r.qty) !== '' ? String(r.qty) : '-') + (r.unit ? String(r.unit).toUpperCase() : '');
+        document.getElementById('hist-receipt-qty').textContent = qtyStr;
         document.getElementById('hist-receipt-amount').textContent = amountNum == null ? '0.00' : moneyLike(amountNum);
         document.getElementById('hist-receipt-payment').textContent = paymentText || 'Cash';
         document.getElementById('hist-receipt-payment-amount').textContent =
           paymentAmtNum == null ? '0.00' : moneyLike(paymentAmtNum);
         document.getElementById('hist-receipt-total').textContent = totalNum == null ? '0.00' : moneyLike(totalNum);
         document.getElementById('hist-receipt-change').textContent = changeNum == null ? '0.00' : moneyLike(changeNum);
-        document.getElementById('hist-receipt-ref').textContent = r.ref || '-';
-        var d = new Date(r.at);
-        document.getElementById('hist-receipt-date').textContent = isNaN(d.getTime()) ? '-' : d.toLocaleString();
+        document.getElementById('hist-receipt-ref').textContent = r.ref ? ('#' + r.ref) : '-';
+        document.getElementById('hist-receipt-date').textContent = dt.date;
+        var timeEl = document.getElementById('hist-receipt-time');
+        if (timeEl) timeEl.textContent = dt.time;
+
+        if (receiptSendBtn) {
+          receiptSendBtn.disabled = !!r.sentToClient;
+          if (r.sentToClient) {
+            receiptSendBtn.textContent = 'Receipt Sent';
+          } else {
+            receiptSendBtn.innerHTML =
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> Receipt Send';
+          }
+        }
+
+        try {
+          window.scrollTo({ top: 0, behavior: 'auto' });
+        } catch (_e) {
+          window.scrollTo(0, 0);
+        }
       }
 
       function renderList() {
         if (!listRoot || !emptyEl) return;
         showListView();
-        var all = window.BeanthenticTxnHistory ? window.BeanthenticTxnHistory.load() : [];
-        var filtered = all.filter(passesFilters);
+        listRoot.innerHTML = '';
+        emptyEl.hidden = false;
+        emptyEl.textContent = 'Loading history from database…';
+        var loadPromise = window.BeanthenticTxnHistory && window.BeanthenticTxnHistory.refreshFromDatabase
+          ? window.BeanthenticTxnHistory.refreshFromDatabase()
+          : Promise.resolve(window.BeanthenticTxnHistory ? window.BeanthenticTxnHistory.load() : []);
+        loadPromise.then(function (all) {
+        var filtered = (all || []).filter(passesFilters);
+        lastFiltered = filtered;
+        Object.keys(selectedRefs).forEach(function (key) {
+          if (!filtered.some(function (r) { return refKey(r.ref) === key; })) {
+            delete selectedRefs[key];
+          }
+        });
         listRoot.innerHTML = '';
         if (filtered.length === 0) {
           emptyEl.hidden = false;
-          if (all.length === 0) {
+          if (bulkBar) bulkBar.hidden = true;
+          var err = window.BeanthenticTxnHistory.getLastFetchError
+            ? window.BeanthenticTxnHistory.getLastFetchError()
+            : '';
+          if (err) {
+            emptyEl.textContent = err;
+          } else if ((all || []).length === 0) {
             emptyEl.textContent =
-              'No transactions yet. Complete a transaction in Transaction (QR) and confirm the receipt to save it here.';
+              'No approved transactions yet. Approve a client submission in Record — it will appear here from the database.';
           } else {
             emptyEl.textContent = 'No transactions match these filters. Try All or a different time range.';
           }
+          updateBulkBar();
           return;
         }
         emptyEl.hidden = true;
+        if (bulkBar) bulkBar.hidden = false;
         filtered.forEach(function (r, i) {
           var art = document.createElement('article');
-          art.className = 'txn-item';
+          var isSent = !!r.sentToClient;
+          var isChecked = isRefSelected(r.ref);
+          art.className = 'txn-item' + (isChecked ? ' is-selected' : '') + (isSent ? ' is-sent' : '');
           art.setAttribute('tabindex', '0');
           art.setAttribute('role', 'button');
           art.setAttribute('aria-label', 'Open receipt ' + (r.ref || ''));
-          art.appendChild(arrowSvg(i % 2 === 1));
+          if (r.ref) art.setAttribute('data-ref', refKey(r.ref));
+
+          var checkBtn = document.createElement('button');
+          checkBtn.type = 'button';
+          checkBtn.className =
+            'txn-check-btn txn-check-btn--row' + (isChecked ? ' is-checked' : '');
+          checkBtn.setAttribute('aria-label', 'Select receipt ' + (r.ref || ''));
+          checkBtn.setAttribute('aria-pressed', isChecked ? 'true' : 'false');
+          checkBtn.disabled = !r.ref;
+          var checkBox = document.createElement('span');
+          checkBox.className = 'txn-check-box';
+          checkBox.setAttribute('aria-hidden', 'true');
+          checkBtn.appendChild(checkBox);
+          function onRowCheckToggle(e) {
+            if (e) {
+              e.stopPropagation();
+              e.preventDefault();
+            }
+            if (!r.ref || checkBtn.disabled) return;
+            if (!selectionModeActive) enterSelectionMode(false);
+            var key = refKey(r.ref);
+            var next = !isRefSelected(key);
+            setRefSelected(key, next);
+            checkBtn.classList.toggle('is-checked', next);
+            checkBtn.setAttribute('aria-pressed', next ? 'true' : 'false');
+            art.classList.toggle('is-selected', next);
+            updateBulkBar();
+          }
+          checkBtn.addEventListener('click', onRowCheckToggle);
+          art.appendChild(checkBtn);
+
           var main = document.createElement('div');
           main.className = 'txn-item-main';
           var to = document.createElement('p');
@@ -437,7 +1260,7 @@
           to.textContent = 'To: ' + (r.buyer || '—');
           var refp = document.createElement('p');
           refp.className = 'txn-item-ref';
-          refp.textContent = 'Ref. No. ' + (r.ref || '—');
+          refp.textContent = 'Ref. No. ' + (r.ref || '—') + (isSent ? ' · Sent' : '');
           main.appendChild(to);
           main.appendChild(refp);
           var qty = document.createElement('div');
@@ -446,44 +1269,103 @@
           qty.textContent = (r.qty != null && String(r.qty) !== '' ? String(r.qty) : '—') + unit;
           art.appendChild(main);
           art.appendChild(qty);
-          art.addEventListener('click', function () { showReceiptView(r); });
+          art.addEventListener('click', function (e) {
+            if (e.target && e.target.closest && e.target.closest('.txn-check-btn')) return;
+            showReceiptView(r);
+          });
           art.addEventListener('keydown', function (e) {
             if (e.key === 'Enter' || e.key === ' ') {
+              if (e.target && e.target.closest && e.target.closest('.txn-check-btn')) return;
               e.preventDefault();
               showReceiptView(r);
             }
           });
           listRoot.appendChild(art);
         });
+        applySelectionModeUI();
+        updateBulkBar();
+        }).catch(function () {
+          emptyEl.hidden = false;
+          emptyEl.textContent = 'Could not load transaction history.';
+        });
+      }
+
+      function clearFilterActive() {
+        document.querySelectorAll('.txn-chip, .txn-period').forEach(function (b) {
+          b.classList.remove('is-active');
+        });
+      }
+
+      function activateDefaultVarietyFilter() {
+        clearFilterActive();
+        var allBtn = document.querySelector('.txn-chip[data-variety="all"]');
+        if (allBtn) allBtn.classList.add('is-active');
+        varietyFilter = 'all';
+        periodFilter = null;
       }
 
       document.querySelectorAll('.txn-chip').forEach(function (btn) {
         btn.addEventListener('click', function () {
-          varietyFilter = btn.getAttribute('data-variety') || 'all';
-          document.querySelectorAll('.txn-chip').forEach(function (b) {
-            b.classList.remove('is-active');
-          });
+          if (btn.classList.contains('is-active')) {
+            renderList();
+            return;
+          }
+          clearFilterActive();
           btn.classList.add('is-active');
+          varietyFilter = btn.getAttribute('data-variety') || 'all';
+          periodFilter = null;
           renderList();
         });
       });
 
       document.querySelectorAll('.txn-period').forEach(function (btn) {
         btn.addEventListener('click', function () {
-          var p = btn.getAttribute('data-period');
-          if (periodFilter === p) {
-            periodFilter = null;
-            btn.classList.remove('is-active');
-          } else {
-            periodFilter = p;
-            document.querySelectorAll('.txn-period').forEach(function (b) {
-              b.classList.remove('is-active');
-            });
-            btn.classList.add('is-active');
+          if (btn.classList.contains('is-active')) {
+            activateDefaultVarietyFilter();
+            renderList();
+            return;
           }
+          clearFilterActive();
+          btn.classList.add('is-active');
+          periodFilter = btn.getAttribute('data-period');
+          varietyFilter = 'all';
           renderList();
         });
       });
+
+      if (receiptSendBtn) {
+        receiptSendBtn.addEventListener('click', sendReceipt);
+      }
+
+      if (selectAllBtn) {
+        selectAllBtn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          if (selectAllBtn.disabled || bulkSending || receiptSending) return;
+          if (!selectableForUi(lastFiltered).length) return;
+
+          if (!selectionModeActive) {
+            enterSelectionMode(true);
+            return;
+          }
+
+          var rows = selectableForUi(lastFiltered);
+          var allSelected =
+            rows.length > 0 &&
+            rows.every(function (row) {
+              return isRefSelected(row.ref);
+            });
+          if (allSelected) {
+            exitSelectionMode();
+            renderList();
+          } else {
+            setSelectAllState(true);
+          }
+        });
+      }
+
+      if (sendAllBtn) {
+        sendAllBtn.addEventListener('click', sendAllSelected);
+      }
 
       var headerBackBtn = document.getElementById('txn-header-back');
       if (headerBackBtn) {
@@ -498,13 +1380,19 @@
               return;
             }
           } catch (_e) {}
-          window.location.href = 'qr.php';
+          window.location.href = 'records.php';
         });
       }
 
       window.addEventListener('pageshow', renderList);
+      document.addEventListener('visibilitychange', function () {
+        if (!document.hidden) renderList();
+      });
       window.addEventListener('storage', function (e) {
-        if (e.key === (window.BeanthenticTxnHistory && window.BeanthenticTxnHistory.KEY)) renderList();
+        var hist = window.BeanthenticTxnHistory;
+        if (!hist || !e || !e.key) return;
+        var prefix = hist.KEY || 'beanthentic_tx_history';
+        if (e.key === prefix || e.key.indexOf(prefix + '_u') === 0) renderList();
       });
       renderList();
     })();
@@ -513,21 +1401,15 @@
     (function () {
       function flaskBase() {
         try {
-          var s = localStorage.getItem('beanthentic_flask_base');
+          var s = localStorage.getItem('beanthentic_flask_base') || sessionStorage.getItem('beanthentic_flask_base');
           if (s && String(s).replace(/\s/g, '')) {
-            s = String(s).replace(/\/$/, '');
-            // If a stale LAN IP was saved, reset to emulator-safe default.
-            if (/^https?:\/\/192\.168\./i.test(s)) {
-              try { localStorage.removeItem('beanthentic_flask_base'); } catch (_e) {}
-            } else {
-              return s;
-            }
+            return String(s).replace(/\/$/, '');
           }
         } catch (e) {}
         if (typeof location !== 'undefined' && (location.protocol === 'http:' || location.protocol === 'https:')) {
           return (location.origin || '').replace(/\/$/, '');
         }
-        return 'http://10.0.2.2:5000';
+        return 'http://10.0.2.2:8080';
       }
       var b = flaskBase();
       document.querySelectorAll('a[data-beanthentic-flask]').forEach(function (a) {

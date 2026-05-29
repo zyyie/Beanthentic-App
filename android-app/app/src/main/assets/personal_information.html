@@ -1,22 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#25671E" />
+  <script src="js/beanthentic_theme.js?v=20260527-9"></script>
   <title>Personal Information · Beanthentic Coffee</title>
   <link rel="stylesheet" href="css/base.css" />
   <link rel="stylesheet" href="css/layout.css" />
   <link rel="stylesheet" href="css/components.css" />
   <link rel="stylesheet" href="css/responsive.css" />
-  <script id="beanthentic-fixed-topbar-js" src="js/beanthentic_fixed_topbar.js" defer></script>
+  <script id="beanthentic-fixed-topbar-js" src="js/beanthentic_fixed_topbar.js"></script>
   <style>
-    body.pi-page { margin: 0; background: #f3f8ff; }
+    body.pi-page {
+      margin: 0;
+      background: #f3f8ff;
+    }
+
     .pi-page header {
       background: linear-gradient(180deg, #1d7a2a 0%, #145e1e 100%);
       border-radius: 0 0 16px 16px;
       padding-top: env(safe-area-inset-top);
     }
+
     .pi-page .nav {
       display: flex;
       align-items: center;
@@ -25,6 +32,7 @@
       min-height: 4.4rem;
       padding: 0.6rem max(1rem, env(safe-area-inset-left, 0px)) 0.7rem max(1rem, env(safe-area-inset-right, 0px));
     }
+
     .pi-header-back {
       position: absolute;
       left: max(0.9rem, env(safe-area-inset-left, 0px));
@@ -40,7 +48,12 @@
       cursor: pointer;
       line-height: 0;
     }
-    .pi-header-back svg { width: 24px; height: 24px; }
+
+    .pi-header-back svg {
+      width: 24px;
+      height: 24px;
+    }
+
     .pi-header-title {
       margin: 0;
       color: #ffffff;
@@ -51,12 +64,14 @@
       text-align: center;
       white-space: nowrap;
     }
+
     .pi-main {
       width: min(100%, 620px);
       margin: 0 auto;
       padding: 1.15rem 1.05rem 6.3rem;
       box-sizing: border-box;
     }
+
     .pi-card {
       background: #ffffff;
       border: 1px solid rgba(17, 24, 39, 0.06);
@@ -65,11 +80,13 @@
       padding: 0.68rem 1rem;
       min-height: 430px;
     }
+
     .pi-avatar-wrap {
       display: flex;
       justify-content: center;
       padding: 0.35rem 0 0.85rem;
     }
+
     .pi-avatar {
       width: 112px;
       height: 112px;
@@ -80,6 +97,7 @@
       position: relative;
       overflow: hidden;
     }
+
     .pi-avatar-photo {
       position: absolute;
       inset: 0;
@@ -89,26 +107,52 @@
       border-radius: 999px;
       z-index: 1;
     }
+
     .pi-avatar-initials {
       font-size: 2rem;
       font-weight: 800;
       color: rgba(17, 24, 39, 0.45);
       letter-spacing: 0.03em;
     }
+
     .pi-avatar.has-photo .pi-avatar-initials {
       opacity: 0;
     }
-    .pi-row { padding: 1.05rem 0.2rem 1rem; border-bottom: 1px solid rgba(17, 24, 39, 0.12); }
-    .pi-row:last-child { border-bottom: none; }
-    .pi-label { margin: 0 0 0.22rem; color: #4b5563; font-size: 0.95rem; line-height: 1.22; }
-    .pi-value { margin: 0; color: #111827; font-size: 1.25rem; line-height: 1.18; font-weight: 500; }
+
+    .pi-row {
+      padding: 1.05rem 0.2rem 1rem;
+      border-bottom: 1px solid rgba(17, 24, 39, 0.12);
+    }
+
+    .pi-row:last-child {
+      border-bottom: none;
+    }
+
+    .pi-label {
+      margin: 0 0 0.22rem;
+      color: #4b5563;
+      font-size: 0.95rem;
+      line-height: 1.22;
+    }
+
+    .pi-value {
+      margin: 0;
+      color: #111827;
+      font-size: 1.25rem;
+      line-height: 1.18;
+      font-weight: 500;
+    }
   </style>
 </head>
+
 <body class="pi-page">
   <header>
     <div class="nav">
       <button type="button" id="pi-header-back" class="pi-header-back" aria-label="Back">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18 9 12l6-6"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+          stroke-linejoin="round" aria-hidden="true">
+          <path d="M15 18 9 12l6-6" />
+        </svg>
       </button>
       <p class="pi-header-title">Personal Information</p>
     </div>
@@ -127,6 +171,10 @@
         <p class="pi-value" id="pi-full-name">—</p>
       </div>
       <div class="pi-row">
+        <p class="pi-label">Birthday</p>
+        <p class="pi-value" id="pi-dob">—</p>
+      </div>
+      <div class="pi-row">
         <p class="pi-label">Phone Number</p>
         <p class="pi-value" id="pi-phone">—</p>
       </div>
@@ -138,6 +186,7 @@
   </main>
 
   <script src="js/navigation.js"></script>
+  <script src="js/beanthentic_profile_store.js"></script>
   <script src="js/ui.js"></script>
   <script>
     (function () {
@@ -147,8 +196,8 @@
       }
       function getUser() {
         var u = null;
-        try { u = parseUser(localStorage.getItem('beanthentic_user')); } catch (_e1) {}
-        if (!u) { try { u = parseUser(sessionStorage.getItem('beanthentic_user')); } catch (_e2) {} }
+        try { u = parseUser(localStorage.getItem('beanthentic_user')); } catch (_e1) { }
+        if (!u) { try { u = parseUser(sessionStorage.getItem('beanthentic_user')); } catch (_e2) { } }
         return u;
       }
       function getKnownUserName(email) {
@@ -188,7 +237,7 @@
               if (map[keys[i]] && typeof map[keys[i]] === 'object') return map[keys[i]];
             }
           }
-        } catch (_e0) {}
+        } catch (_e0) { }
         try {
           var raw = localStorage.getItem('beanthentic_farmer_profile') || sessionStorage.getItem('beanthentic_farmer_profile');
           if (!raw) return null;
@@ -210,6 +259,29 @@
         if (parts.length >= 2) return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
         if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
         return '—';
+      }
+      function farmerProfilePhotoSrc(profile) {
+        if (!profile || typeof profile !== 'object') return '';
+        var raw = String(profile.profile_photo_data || profile.profile_photo || '').trim();
+        if (!raw) return '';
+        if (/^data:image\//i.test(raw) || /^https?:\/\//i.test(raw)) return raw;
+        if (raw.charAt(0) === '/' && raw.length > 4) return raw;
+        var compact = raw.replace(/\s/g, '');
+        if (/^[A-Za-z0-9+/=]+$/.test(compact) && compact.length > 240) {
+          return 'data:image/jpeg;base64,' + compact;
+        }
+        return '';
+      }
+      function formatDob(raw) {
+        var s = String(raw || '').trim();
+        if (!s) return '—';
+        if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+          var d = new Date(s + 'T00:00:00');
+          if (!isNaN(d.getTime())) {
+            return d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: '2-digit' });
+          }
+        }
+        return s;
       }
       function render() {
         var u = getUser() || {};
@@ -235,10 +307,13 @@
             .join(', ');
         }
         if (!address) address = String(u.address || u.current_address || u.location || '').trim() || '—';
+        var dob = formatDob(p.birthday || p.birth_date || p.birthdate || p.date_of_birth || u.birthday || u.birth_date || u.birthdate || u.date_of_birth);
         var elName = document.getElementById('pi-full-name');
+        var elDob = document.getElementById('pi-dob');
         var elPhone = document.getElementById('pi-phone');
         var elAddress = document.getElementById('pi-address');
         if (elName) elName.textContent = name;
+        if (elDob) elDob.textContent = dob;
         if (elPhone) elPhone.textContent = phone || '—';
         if (elAddress) elAddress.textContent = address;
 
@@ -246,14 +321,14 @@
         var photoEl = document.getElementById('pi-photo');
         var avEl = document.getElementById('pi-avatar');
         if (iniEl) iniEl.textContent = initialsFromName(name);
-        var photoRaw = String((p.profile_photo_data || '')).trim();
+        var photoRaw = farmerProfilePhotoSrc(p);
         if (photoEl && avEl) {
-          if (/^data:image\//i.test(photoRaw) || /^https?:\/\//i.test(photoRaw)) {
+          if (/^data:image\//i.test(photoRaw) || /^https?:\/\//i.test(photoRaw) || (photoRaw.charAt(0) === '/' && photoRaw.length > 4)) {
             photoEl.src = photoRaw;
             photoEl.removeAttribute('hidden');
             avEl.classList.add('has-photo');
           } else {
-            try { photoEl.removeAttribute('src'); } catch (_r) {}
+            try { photoEl.removeAttribute('src'); } catch (_r) { }
             photoEl.setAttribute('hidden', '');
             avEl.classList.remove('has-photo');
           }
@@ -267,13 +342,15 @@
               window.history.back();
               return;
             }
-          } catch (_e) {}
+          } catch (_e) { }
           window.location.href = 'account_settings.html';
         });
       }
+      window.addEventListener('beanthentic-profile-changed', render);
       if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', render);
       else render();
     })();
   </script>
 </body>
+
 </html>

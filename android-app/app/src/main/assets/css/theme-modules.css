@@ -1,0 +1,622 @@
+/**
+ * Module-specific dark mode — loaded last (see beanthentic_theme.js)
+ * so rules win over page-inline <style> blocks.
+ */
+
+/* ========== Global app surfaces (exclude login/signup) ========== */
+html[data-beanthentic-theme-effective='dark'] body.beanthentic-dark-mode:not(.login-page):not(.signup-page):not(.choose-lang-page):not(.server-url-page) {
+  background: var(--bt-bg) !important;
+  color: var(--bt-text);
+}
+
+html[data-beanthentic-theme-effective='dark'] body.beanthentic-dark-mode:not(.login-page):not(.signup-page) .auth-card:not(.login-card) {
+  background: var(--bt-surface) !important;
+  border: 1px solid var(--bt-border) !important;
+  box-shadow: var(--bt-card-shadow) !important;
+  color: var(--bt-text) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] body.beanthentic-dark-mode:not(.login-page):not(.signup-page) .auth-main {
+  background: transparent !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .notif-card,
+html[data-beanthentic-theme-effective='dark'] .activity-log-shell.auth-card,
+html[data-beanthentic-theme-effective='dark'] .notif-settings-shell.auth-card {
+  background: var(--bt-surface) !important;
+  border-color: var(--bt-border) !important;
+  box-shadow: var(--bt-card-shadow) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .notif-card__head,
+html[data-beanthentic-theme-effective='dark'] .notif-card__head strong,
+html[data-beanthentic-theme-effective='dark'] .notif-row__text strong {
+  color: var(--bt-text) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .notif-card__subhead,
+html[data-beanthentic-theme-effective='dark'] .notif-row__text span {
+  color: var(--bt-text-muted) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .notif-row {
+  border-top-color: var(--bt-border) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .settings-back-pill {
+  background: var(--bt-surface-2) !important;
+  border-color: var(--bt-border) !important;
+  color: var(--bt-text) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] body.notification-settings-page,
+html[data-beanthentic-theme-effective='dark'] body.activity-log-page {
+  background: var(--bt-bg) !important;
+}
+
+/* ========== Privacy (inline light card) ========== */
+html[data-beanthentic-theme-effective='dark'] body.privacy-page .auth-card {
+  background: var(--bt-surface) !important;
+  border: 1px solid var(--bt-border) !important;
+  box-shadow: var(--bt-card-shadow) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] body.privacy-page .auth-card p,
+html[data-beanthentic-theme-effective='dark'] body.privacy-page .auth-card h2,
+html[data-beanthentic-theme-effective='dark'] body.privacy-page .auth-card li,
+html[data-beanthentic-theme-effective='dark'] body.privacy-page .auth-card strong {
+  color: var(--bt-text) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] body.privacy-page .auth-card h2 {
+  color: #6ee78a !important;
+}
+
+/* ========== Register summary ========== */
+html[data-beanthentic-theme-effective='dark'] body.reg-summary-page {
+  background: var(--bt-bg) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .reg-card {
+  background: var(--bt-surface) !important;
+  border-color: var(--bt-border) !important;
+  box-shadow: var(--bt-card-shadow) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .reg-section-title {
+  color: #6ee78a !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .reg-section-title::before {
+  background: #6ee78a !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .reg-field label {
+  color: var(--bt-text-muted) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .reg-field input,
+html[data-beanthentic-theme-effective='dark'] .reg-field select {
+  background: var(--bt-input-bg) !important;
+  border-color: var(--bt-input-border) !important;
+  color: var(--bt-text) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .reg-field input[readonly] {
+  background: var(--bt-surface-2) !important;
+  color: var(--bt-text-muted) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .reg-note {
+  color: var(--bt-text-muted) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .reg-avatar {
+  background: #2a3340 !important;
+  color: var(--bt-text-muted) !important;
+}
+
+/* ========== Messages ========== */
+html[data-beanthentic-theme-effective='dark'] body.msg-page {
+  --msg-surface: #121820;
+  --msg-green-light: rgba(30, 126, 52, 0.25);
+  --msg-bubble-in: #252f3c;
+  --msg-text: #e8edf2;
+  background: var(--msg-surface) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .msg-chat-head,
+html[data-beanthentic-theme-effective='dark'] .msg-chat-panel {
+  background: var(--bt-surface) !important;
+  border-color: var(--bt-border) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .msg-title,
+html[data-beanthentic-theme-effective='dark'] .msg-title span {
+  color: var(--bt-text) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .msg-title span {
+  color: #6ee78a !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .msg-status {
+  background: rgba(30, 126, 52, 0.3) !important;
+  color: #b8f0c4 !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .bubble-label {
+  color: var(--bt-text-muted) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .bubble.bot {
+  background: var(--bt-surface-2) !important;
+  color: var(--bt-text) !important;
+  border-color: var(--bt-border) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .bubble-time {
+  color: var(--bt-text-muted) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .msg-input-wrap {
+  background: linear-gradient(to top, var(--bt-surface) 85%, rgba(30, 39, 50, 0.97)) !important;
+  border-top-color: var(--bt-border) !important;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.35) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .msg-input {
+  background: var(--bt-input-bg) !important;
+  border-color: var(--bt-input-border) !important;
+  color: var(--bt-text) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .msg-input:focus {
+  background: var(--bt-surface-2) !important;
+  border-color: rgba(110, 231, 138, 0.45) !important;
+  box-shadow: 0 0 0 3px rgba(30, 126, 52, 0.25) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .bubble.user {
+  background: linear-gradient(145deg, #1d7a2a, #0f4a15) !important;
+  color: #ffffff !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .msg-thread--empty .bubble.bot {
+  background: var(--bt-surface-2) !important;
+  color: var(--bt-text-muted) !important;
+  border-color: var(--bt-border) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .msg-list-item {
+  background: var(--bt-surface) !important;
+  border-color: var(--bt-border) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .msg-list-name {
+  color: var(--bt-text) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .msg-list-preview {
+  color: var(--bt-text-muted) !important;
+}
+
+/* ========== GI Updates (news.php / updates-page) ========== */
+html[data-beanthentic-theme-effective='dark'] body.updates-page {
+  --gi-pale-border: rgba(255, 255, 255, 0.12);
+  --gi-pale-text: #e8edf2;
+  background: var(--bt-bg) !important;
+  color: var(--bt-text);
+}
+
+html[data-beanthentic-theme-effective='dark'] .updates-progress-card,
+html[data-beanthentic-theme-effective='dark'] .updates-upload-shell,
+html[data-beanthentic-theme-effective='dark'] .updates-docs-box,
+html[data-beanthentic-theme-effective='dark'] .gi-compose-card,
+html[data-beanthentic-theme-effective='dark'] .gi-login-notice-card {
+  background: var(--bt-surface) !important;
+  border-color: var(--bt-border) !important;
+  box-shadow: var(--bt-card-shadow) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .updates-progress-title,
+html[data-beanthentic-theme-effective='dark'] .updates-upload-title,
+html[data-beanthentic-theme-effective='dark'] .updates-docs-title,
+html[data-beanthentic-theme-effective='dark'] .updates-ai-analysis-title {
+  color: #6ee78a !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .updates-progress-percent,
+html[data-beanthentic-theme-effective='dark'] .updates-ai-analysis-text,
+html[data-beanthentic-theme-effective='dark'] .updates-upload-sub,
+html[data-beanthentic-theme-effective='dark'] .updates-upload-help,
+html[data-beanthentic-theme-effective='dark'] .updates-upload-filename,
+html[data-beanthentic-theme-effective='dark'] .updates-docs-list,
+html[data-beanthentic-theme-effective='dark'] .gi-login-notice-text {
+  color: var(--bt-text) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .updates-progress-track {
+  background: var(--bt-surface-2) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .updates-upload-dropzone {
+  background: var(--bt-surface-2) !important;
+  border-color: var(--bt-border) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .updates-upload-click {
+  color: #6ee78a !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .gi-compose-editor {
+  background: var(--bt-input-bg) !important;
+  border-color: var(--bt-input-border) !important;
+  color: var(--bt-text) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .gi-compose-editor::placeholder {
+  color: var(--bt-text-muted) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .gi-compose-attach-chip {
+  background: var(--bt-surface-2) !important;
+  border-color: var(--bt-border) !important;
+  color: var(--bt-text) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .gi-compose-discard {
+  background: var(--bt-surface-2) !important;
+  color: var(--bt-text) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .gi-compose-discard:hover {
+  background: var(--bt-input-bg) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .gi-attach-preview-panel {
+  background: var(--bt-surface) !important;
+  color: var(--bt-text) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .gi-attach-preview-title {
+  color: var(--bt-text) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .gi-attach-preview-close:hover {
+  background: var(--bt-surface-2) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .gi-attach-preview-fallback {
+  color: var(--bt-text-muted) !important;
+}
+
+/* ========== News portal (legacy class) ========== */
+html[data-beanthentic-theme-effective='dark'] body.news-portal-page {
+  background: var(--bt-bg) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .news-portal-lead,
+html[data-beanthentic-theme-effective='dark'] .news-cert-caption {
+  color: var(--bt-text-muted) !important;
+}
+
+/* ========== Tutorial (optional readable dark) ========== */
+html[data-beanthentic-theme-effective='dark'] body.tutorial-page {
+  background: var(--bt-bg) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] body.tutorial-page .tutorial-loader {
+  background: var(--bt-bg) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] body.tutorial-page .tutorial-loader-text {
+  color: var(--bt-text-muted) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] body.tutorial-page .tutorial-sheet {
+  background: var(--bt-surface) !important;
+  border: 1px solid var(--bt-border);
+  box-shadow: var(--bt-card-shadow) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] body.tutorial-page .tutorial-welcome-copy,
+html[data-beanthentic-theme-effective='dark'] body.tutorial-page .tutorial-welcome-title,
+html[data-beanthentic-theme-effective='dark'] body.tutorial-page .tutorial-step-copy,
+html[data-beanthentic-theme-effective='dark'] body.tutorial-page .tutorial-step-title {
+  color: var(--bt-text) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] body.tutorial-page .tutorial-page-dot {
+  background: var(--bt-surface-2) !important;
+  border-color: var(--bt-border) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] body.tutorial-page .tutorial-page-dot[aria-selected='true'] {
+  background: #1b5e20 !important;
+  border-color: transparent !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .bt-modal-card {
+  background: var(--bt-surface) !important;
+  border-color: var(--bt-border) !important;
+  color: var(--bt-text) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .bt-modal-title {
+  color: #6ee78a !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .bt-modal-text {
+  color: var(--bt-text-muted) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .bt-modal-btn {
+  background: var(--bt-surface-2) !important;
+  color: var(--bt-text) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .bt-modal-btn.primary {
+  background: #1b5e20 !important;
+  color: #ffffff !important;
+}
+
+/* ========== Home — location + date/time (top meta) ========== */
+html[data-beanthentic-theme-effective='dark'] body.home-page .home-top-meta,
+html[data-beanthentic-theme-effective='dark'] body.home-page .home-top-meta-left,
+html[data-beanthentic-theme-effective='dark'] body.home-page .home-top-meta-date {
+  color: #e8edf2 !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] body.home-page .home-top-meta-left svg {
+  color: #6ee78a !important;
+}
+
+/* ========== Farmer Account (account-dash layout) ========== */
+html[data-beanthentic-theme-effective='dark'] body.account-portfolio-page {
+  background: var(--bt-bg) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .account-dash {
+  background: var(--bt-surface) !important;
+  border-color: var(--bt-border) !important;
+  box-shadow: var(--bt-card-shadow) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .account-simple-name {
+  color: var(--bt-text) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .account-simple-phone,
+html[data-beanthentic-theme-effective='dark'] .account-simple-status {
+  color: var(--bt-text-muted) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .account-simple-avatar {
+  background: var(--bt-surface-2) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .account-simple-avatar span {
+  color: var(--bt-text-muted) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .account-filter-pill {
+  background: var(--bt-surface-2) !important;
+  border-color: rgba(110, 231, 138, 0.35) !important;
+  color: #b8f0c4 !important;
+  box-shadow: none !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .account-filter-count,
+html[data-beanthentic-theme-effective='dark'] .account-filter-label {
+  color: inherit !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .account-filter-pill.is-active {
+  background: #1b5e20 !important;
+  border-color: #2e8c48 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .account-filter-pill.is-active .account-filter-count {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .account-filter-pill:hover,
+html[data-beanthentic-theme-effective='dark'] .account-filter-pill:focus-visible {
+  background: rgba(30, 126, 52, 0.45) !important;
+  border-color: #6ee78a !important;
+  color: #ffffff !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .account-filter-pill:hover .account-filter-count,
+html[data-beanthentic-theme-effective='dark'] .account-filter-pill:focus-visible .account-filter-count {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .account-stat {
+  background: var(--bt-surface-2) !important;
+  border-color: var(--bt-border) !important;
+  box-shadow: none !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .account-stat-title,
+html[data-beanthentic-theme-effective='dark'] .account-stat-value {
+  color: #b8f0c4 !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .account-stat-sub {
+  color: var(--bt-text-muted) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .account-stat:hover {
+  background: linear-gradient(165deg, #124a16 0%, #145e1e 48%, #1a7a24 100%) !important;
+  border-color: #2e8c48 !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .account-stat:hover .account-stat-title,
+html[data-beanthentic-theme-effective='dark'] .account-stat:hover .account-stat-sub,
+html[data-beanthentic-theme-effective='dark'] .account-stat:hover .account-stat-value {
+  color: #ffffff !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .account-qr-note,
+html[data-beanthentic-theme-effective='dark'] .account-qr-url {
+  color: var(--bt-text-muted) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .account-qr-farmer-id {
+  color: #6ee78a !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .account-qr-wrap {
+  background: var(--bt-surface-2) !important;
+  border-color: var(--bt-border) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .account-qr-img {
+  background: #ffffff !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .account-qr-enlarge {
+  background: rgba(30, 126, 52, 0.28) !important;
+  color: #b8f0c4 !important;
+}
+
+/* ========== Catch-all readable text on dark app pages ========== */
+html[data-beanthentic-theme-effective='dark'] body.beanthentic-dark-mode:not(.login-page):not(.signup-page) main p,
+html[data-beanthentic-theme-effective='dark'] body.beanthentic-dark-mode:not(.login-page):not(.signup-page) main li,
+html[data-beanthentic-theme-effective='dark'] body.beanthentic-dark-mode:not(.login-page):not(.signup-page) main label,
+html[data-beanthentic-theme-effective='dark'] body.beanthentic-dark-mode:not(.login-page):not(.signup-page) main dd,
+html[data-beanthentic-theme-effective='dark'] body.beanthentic-dark-mode:not(.login-page):not(.signup-page) main dt {
+  color: inherit;
+}
+
+html[data-beanthentic-theme-effective='dark'] body.beanthentic-dark-mode:not(.login-page):not(.signup-page) main h1,
+html[data-beanthentic-theme-effective='dark'] body.beanthentic-dark-mode:not(.login-page):not(.signup-page) main h2,
+html[data-beanthentic-theme-effective='dark'] body.beanthentic-dark-mode:not(.login-page):not(.signup-page) main h3,
+html[data-beanthentic-theme-effective='dark'] body.beanthentic-dark-mode:not(.login-page):not(.signup-page) main h4 {
+  color: var(--bt-text);
+}
+
+/* ========== Home loader + farmer account modals ========== */
+html[data-beanthentic-theme-effective='dark'] #page-loader {
+  background: var(--bt-bg) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] #page-loader p,
+html[data-beanthentic-theme-effective='dark'] #page-loader span {
+  color: var(--bt-text-muted) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .farmer-account-modal__card {
+  background: var(--bt-surface) !important;
+  border-color: var(--bt-border) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .farmer-account-modal__eyebrow,
+html[data-beanthentic-theme-effective='dark'] .farmer-account-modal__reason-label {
+  color: var(--bt-text-muted) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .farmer-account-modal__title,
+html[data-beanthentic-theme-effective='dark'] .farmer-account-modal__reason-category,
+html[data-beanthentic-theme-effective='dark'] .farmer-account-modal__reason-text {
+  color: var(--bt-text) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .farmer-account-modal__lead {
+  color: var(--bt-text-muted) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .farmer-account-modal__reason-box {
+  background: var(--bt-surface-2) !important;
+  border-color: var(--bt-border) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .farmer-account-modal__reason-box--danger {
+  background: rgba(198, 40, 40, 0.12) !important;
+  border-color: rgba(239, 83, 80, 0.35) !important;
+}
+
+/* ========== GI Updates extras ========== */
+html[data-beanthentic-theme-effective='dark'] .updates-progress-percent {
+  color: var(--bt-text) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .updates-upload-title,
+html[data-beanthentic-theme-effective='dark'] .updates-upload-sub {
+  color: var(--bt-text) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .gi-login-notice-brand {
+  color: #6ee78a !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .gi-login-notice-ok {
+  background: #1b5e20 !important;
+  color: #ffffff !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .gi-compose-toolbar {
+  background: var(--bt-surface-2) !important;
+  border-top-color: var(--bt-border) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .gi-compose-attach-link {
+  color: #6ee78a !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .updates-upload-status {
+  color: var(--bt-text-muted) !important;
+}
+
+/* ========== Choose language + Server URL (setup screens) ========== */
+html[data-beanthentic-theme-effective='dark'] body.choose-lang-page,
+html[data-beanthentic-theme-effective='dark'] body.server-url-page {
+  background: var(--bt-bg) !important;
+  color: var(--bt-text);
+}
+
+html[data-beanthentic-theme-effective='dark'] .choose-lang-card,
+html[data-beanthentic-theme-effective='dark'] .server-url-card {
+  background: var(--bt-surface) !important;
+  border-color: var(--bt-border) !important;
+  box-shadow: var(--bt-card-shadow) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .choose-lang-title,
+html[data-beanthentic-theme-effective='dark'] .server-url-card h1 {
+  color: #6ee78a !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .choose-lang-subtitle,
+html[data-beanthentic-theme-effective='dark'] .server-url-card .lead,
+html[data-beanthentic-theme-effective='dark'] .server-url-card label {
+  color: var(--bt-text-muted) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .choose-lang-option {
+  background: var(--bt-surface-2) !important;
+  border-color: var(--bt-border) !important;
+  color: var(--bt-text) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .choose-lang-option:hover,
+html[data-beanthentic-theme-effective='dark'] .choose-lang-option:active {
+  background: rgba(30, 126, 52, 0.28) !important;
+  border-color: rgba(110, 231, 138, 0.35) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .server-url-card input {
+  background: var(--bt-input-bg) !important;
+  border-color: var(--bt-input-border) !important;
+  color: var(--bt-text) !important;
+}
+
+html[data-beanthentic-theme-effective='dark'] .server-url-actions .btn-secondary {
+  background: var(--bt-surface-2) !important;
+  color: var(--bt-text) !important;
+  border: 1px solid var(--bt-border);
+}

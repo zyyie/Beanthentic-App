@@ -112,6 +112,39 @@
       box-shadow: 0 10px 24px rgba(17, 24, 39, 0.06);
       padding: 0.45rem 0.75rem;
     }
+    .pi-avatar-wrap {
+      display: flex;
+      justify-content: center;
+      padding: 0.5rem 0 0.35rem;
+    }
+    .pi-avatar {
+      width: 112px;
+      height: 112px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      display: grid;
+      place-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .pi-avatar-photo {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 999px;
+      z-index: 1;
+    }
+    .pi-avatar-initials {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: rgba(17, 24, 39, 0.45);
+      letter-spacing: 0.03em;
+    }
+    .pi-avatar.has-photo .pi-avatar-initials {
+      opacity: 0;
+    }
     .pi-row {
       padding: 0.75rem 0.1rem 0.72rem;
       border-bottom: 1px solid rgba(17, 24, 39, 0.12);
@@ -163,6 +196,12 @@
     <h1 class="pi-title"><span>Personal</span> Information</h1>
 
     <section class="pi-card" aria-label="Personal Information Details">
+      <div class="pi-avatar-wrap">
+        <div class="pi-avatar" id="pi-avatar" aria-hidden="true">
+          <img id="pi-photo" class="pi-avatar-photo" alt="" width="112" height="112" hidden decoding="async" />
+          <span id="pi-initials" class="pi-avatar-initials">—</span>
+        </div>
+      </div>
       <div class="pi-row">
         <p class="pi-label">Full Name</p>
         <p class="pi-value" id="pi-full-name">—</p>
@@ -214,6 +253,37 @@
           return '';
         }
       }
+      function keyVariants(v) {
+        var out = [];
+        var k = String(v || '').trim().toLowerCase();
+        if (!k) return out;
+        out.push(k);
+        var d = k.replace(/\D/g, '');
+        if (d) {
+          if (d.indexOf('63') === 0 && d.length >= 12) out.push('0' + d.slice(2));
+          if (d.indexOf('0') === 0 && d.length >= 11) out.push('+63' + d.slice(1));
+          if (d.length === 10 && d.charAt(0) === '9') {
+            out.push('0' + d);
+            out.push('+63' + d);
+          }
+        }
+        return Array.from(new Set(out));
+      }
+      function pickFarmerProfile() {
+        try {
+          var u = getUser();
+          var key = u && u.email ? String(u.email).trim().toLowerCase() : '';
+          var rawMap = localStorage.getItem('beanthentic_farmer_profile_map') || sessionStorage.getItem('beanthentic_farmer_profile_map');
+          var map = rawMap ? JSON.parse(rawMap) : null;
+          if (key && map && typeof map === 'object') {
+            var keys = keyVariants(key);
+            for (var i = 0; i < keys.length; i += 1) {
+              if (map[keys[i]] && typeof map[keys[i]] === 'object') return map[keys[i]];
+            }
+          }
+        } catch (_e0) {}
+        return getFarmerProfile();
+      }
       function getFarmerProfile() {
         try {
           var raw = localStorage.getItem('beanthentic_farmer_profile') || sessionStorage.getItem('beanthentic_farmer_profile');
@@ -233,6 +303,24 @@
         if (s.startsWith('09') && s.length === 11) return '+63' + s.slice(1);
         return s;
       }
+      function initialsFromName(name) {
+        var parts = String(name || '').trim().split(/\s+/).filter(Boolean);
+        if (parts.length >= 2) return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+        if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+        return '—';
+      }
+      function farmerProfilePhotoSrc(profile) {
+        if (!profile || typeof profile !== 'object') return '';
+        var raw = String(profile.profile_photo_data || profile.profile_photo || '').trim();
+        if (!raw) return '';
+        if (/^data:image\//i.test(raw) || /^https?:\/\//i.test(raw)) return raw;
+        if (raw.charAt(0) === '/' && raw.length > 4) return raw;
+        var compact = raw.replace(/\s/g, '');
+        if (/^[A-Za-z0-9+/=]+$/.test(compact) && compact.length > 240) {
+          return 'data:image/jpeg;base64,' + compact;
+        }
+        return '';
+      }
       function formatDob(raw) {
         var s = String(raw || '').trim();
         if (!s) return '—';
@@ -246,7 +334,7 @@
       }
       function render() {
         var u = getUser() || {};
-        var p = getFarmerProfile() || {};
+        var p = pickFarmerProfile() || {};
         var email = String(u.email || '').trim();
         var fullFromFarmer = String(p.name || '').trim();
         if (!fullFromFarmer) {
@@ -263,10 +351,27 @@
           if (/^\+?\d{10,14}$/.test(maybe) || /^09\d{9}$/.test(maybe)) phone = formatPhone(maybe);
         }
 
-        var dob = formatDob(p.birth_date || p.birthdate || p.date_of_birth || u.birth_date || u.birthdate || u.date_of_birth);
+        var dob = formatDob(p.birthday || p.birth_date || p.birthdate || p.date_of_birth || u.birthday || u.birth_date || u.birthdate || u.date_of_birth);
         var address = String(
           p.address || p.current_address || p.location || p.barangay || u.address || u.current_address || u.location || ''
         ).trim() || '—';
+
+        var iniEl = document.getElementById('pi-initials');
+        var photoEl = document.getElementById('pi-photo');
+        var avEl = document.getElementById('pi-avatar');
+        if (iniEl) iniEl.textContent = initialsFromName(name);
+        var photoRaw = farmerProfilePhotoSrc(p);
+        if (photoEl && avEl) {
+          if (/^data:image\//i.test(photoRaw) || /^https?:\/\//i.test(photoRaw) || (photoRaw.charAt(0) === '/' && photoRaw.length > 4)) {
+            photoEl.src = photoRaw;
+            photoEl.removeAttribute('hidden');
+            avEl.classList.add('has-photo');
+          } else {
+            try { photoEl.removeAttribute('src'); } catch (_r) {}
+            photoEl.setAttribute('hidden', '');
+            avEl.classList.remove('has-photo');
+          }
+        }
 
         var elName = document.getElementById('pi-full-name');
         var elDob = document.getElementById('pi-dob');

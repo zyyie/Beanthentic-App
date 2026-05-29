@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#25671E" />
   <script>window.__BEANTHENTIC_SESSION_GATE__ = 'protected';</script>
   <script src="js/beanthentic_session_gate.js"></script>
+  <script src="js/beanthentic_api_urls.js?v=20260527-gi"></script>
   <title>Register Farm Updates · Beanthentic Coffee</title>
   <link rel="stylesheet" href="css/base.css" />
   <link rel="stylesheet" href="css/layout.css" />
@@ -14,6 +15,11 @@
 </head>
 <body class="has-app-bottom-nav updates-page">
   <style>
+    .updates-page {
+      --gi-pale-border: #e5e7eb;
+      --gi-pale-text: #1f4f26;
+      background: #ffffff;
+    }
     .updates-page header {
       background: linear-gradient(165deg, #0f5f16 0%, #0b4d12 100%);
       border-radius: 0 0 22px 22px;
@@ -116,10 +122,7 @@
     }
     .updates-ai-analysis {
       margin: 0 0 0.7rem;
-      border: 1px solid #d8decf;
-      background: #f8faef;
-      border-radius: 10px;
-      padding: 0.62rem 0.72rem;
+      padding: 0;
       color: #1f4f26;
     }
     .updates-ai-analysis-title {
@@ -137,11 +140,12 @@
       color: #2b5f32;
     }
     .updates-upload-shell {
-      background: #dce8dd;
+      background: #ffffff;
       border-radius: 12px;
-      padding: 0.7rem 0.35rem 0.75rem;
+      padding: 0.55rem;
       margin-top: 0.4rem;
-      border: 1px solid #d3dfd5;
+      border: 1px solid var(--gi-pale-border);
+      box-shadow: 0 2px 10px rgba(17, 24, 39, 0.06);
     }
     .updates-upload-title {
       margin: 0;
@@ -226,10 +230,54 @@
       color: #1d6b2a;
       border: 1px solid #8fc99b;
     }
-    .updates-upload-status.is-error {
-      background: #fff1f1;
-      color: #9f2323;
-      border: 1px solid #efb3b3;
+    .gi-login-notice-modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(9, 58, 17, 0.33);
+      z-index: 100000;
+      padding: 1rem;
+      box-sizing: border-box;
+    }
+    .gi-login-notice-modal.is-open {
+      display: flex;
+    }
+    .gi-login-notice-card {
+      width: min(92vw, 420px);
+      background: linear-gradient(165deg, #0f5f16 0%, #0b4d12 100%);
+      color: #f8fafc;
+      border-radius: 16px;
+      box-shadow: 0 18px 40px rgba(9, 58, 17, 0.38);
+      padding: 1rem 1rem 0.85rem;
+    }
+    .gi-login-notice-brand {
+      margin: 0 0 0.55rem;
+      font-size: 0.95rem;
+      font-weight: 800;
+    }
+    .gi-login-notice-text {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.4;
+      color: #ecfdf3;
+      font-weight: 600;
+    }
+    .gi-login-notice-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 0.9rem;
+    }
+    .gi-login-notice-ok {
+      border: 1px solid rgba(13, 84, 23, 0.32);
+      border-radius: 10px;
+      background: #f0fdf4;
+      color: #14532d;
+      font-weight: 800;
+      font-family: inherit;
+      padding: 0.48rem 0.82rem;
+      cursor: pointer;
     }
     .updates-docs-box {
       border-radius: 12px;
@@ -253,156 +301,274 @@
     }
 
     /* ---------------------------------------------------------------------- */
-    /* GI contribution upload (gmail-style card)                               */
+    /* GI compose (Gmail-style)                                                */
     /* ---------------------------------------------------------------------- */
-    .gi-mail-card {
-      background: #f6f7f9;
-      border-radius: 18px;
-      padding: 1.05rem 1.05rem 1.1rem;
-      box-shadow: 0 14px 38px rgba(17, 24, 39, 0.12);
-      border: 1px solid rgba(17, 24, 39, 0.06);
-    }
-    .gi-mail-outer-title {
-      margin: 0 0 0.55rem;
-      padding: 0 0.25rem;
-      font-size: 1.05rem;
-      line-height: 1.15;
-      font-weight: 900;
-      color: #0f172a;
-      letter-spacing: -0.01em;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .gi-mail-head {
-      position: relative;
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 0.8rem;
-      margin-bottom: 0.8rem;
-    }
-    .gi-mail-title {
-      margin: 0;
-      font-size: 1.05rem;
-      line-height: 1.15;
-      font-weight: 900;
-      color: #111827;
-      letter-spacing: -0.01em;
-      white-space: nowrap;
-    }
-    .gi-mail-close {
-      width: 34px;
-      height: 34px;
-      border-radius: 999px;
-      border: 0;
+    .gi-compose-card {
       background: #ffffff;
-      color: #374151;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      box-shadow: 0 10px 26px rgba(17, 24, 39, 0.12);
-      flex: 0 0 auto;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: none;
+      border: none;
     }
-    .gi-mail-close svg { width: 18px; height: 18px; }
     .gi-mail-from {
       display: flex;
       align-items: center;
       gap: 0.65rem;
-      padding: 0.65rem 0;
-      border-top: 1px solid rgba(17, 24, 39, 0.08);
-      border-bottom: 1px solid rgba(17, 24, 39, 0.08);
-      margin: 0.25rem 0 0.8rem;
+      padding: 0.55rem 0.85rem;
+      border-bottom: 1px solid #0b4d12;
+      background: linear-gradient(165deg, #0f5f16 0%, #054d19 100%);
+      color: #ffffff;
     }
     .gi-mail-avatar {
-      width: 38px;
-      height: 38px;
+      width: 34px;
+      height: 34px;
       border-radius: 999px;
-      background: #9b6343;
+      background: linear-gradient(145deg, #c9a227 0%, #8b5e2b 100%);
+      border: 2px solid rgba(255, 255, 255, 0.85);
       color: #ffffff;
       display: grid;
       place-items: center;
-      font-weight: 900;
+      font-weight: 800;
+      font-size: 0.82rem;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
     }
     .gi-mail-from-main { min-width: 0; }
-    .gi-mail-from-name { margin: 0; font-weight: 900; font-size: 0.86rem; color: #111827; line-height: 1.1; }
-    .gi-mail-from-sub { margin: 0.08rem 0 0; font-size: 0.74rem; color: #6b7280; }
-    .gi-mail-time { margin-left: auto; font-size: 0.72rem; color: #9ca3af; white-space: nowrap; }
-    .gi-mail-body {
-      margin: 0 0 0.95rem;
-      font-size: 0.82rem;
-      line-height: 1.45;
-      color: #4b5563;
+    .gi-mail-from-name { margin: 0; font-weight: 700; font-size: 0.84rem; color: #ffffff; line-height: 1.1; }
+    .gi-mail-from-sub { margin: 0.08rem 0 0; font-size: 0.74rem; color: #d1fae0; }
+    .gi-mail-time { margin-left: auto; font-size: 0.72rem; color: #bbf7d0; white-space: nowrap; }
+    .gi-compose-editor {
+      display: block;
+      width: 100%;
+      min-height: 168px;
+      border: 0;
+      margin: 0;
+      padding: 0.85rem 0.95rem;
+      box-sizing: border-box;
+      resize: vertical;
+      font-family: inherit;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: #202124;
+      background: #ffffff;
+      outline: none;
     }
-    .gi-attachments-row {
+    .gi-compose-editor::placeholder { color: #9aa0a6; }
+    .gi-compose-attachments {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.65rem;
-      margin: 0 0 0.7rem;
-      color: #4b5563;
-      font-size: 0.78rem;
-      font-weight: 800;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      padding: 0 0.85rem 0.55rem;
     }
-    .gi-attachments-actions {
+    .gi-compose-attachments:empty { display: none; padding: 0; }
+    .gi-compose-attach-chip {
       display: inline-flex;
       align-items: center;
-      gap: 0.45rem;
-    }
-    .gi-attach-btn {
+      gap: 0.35rem;
+      max-width: 100%;
+      padding: 0.28rem 0.62rem;
+      border-radius: 999px;
+      background: #f1f3f4;
+      color: #3c4043;
+      font-size: 0.72rem;
+      font-weight: 600;
+      line-height: 1.2;
       border: 0;
-      border-radius: 10px;
-      padding: 0.46rem 0.7rem;
-      background: #1d7a2a;
-      color: #ffffff;
-      font-weight: 900;
       cursor: pointer;
-      white-space: nowrap;
+      font-family: inherit;
     }
-    .gi-attach-btn:active { transform: translateY(1px); }
-    .gi-attach-btn svg { width: 16px; height: 16px; margin-right: 0.35rem; vertical-align: -2px; }
-    .gi-attachments-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 0.75rem;
+    .gi-compose-attach-chip:hover,
+    .gi-compose-attach-chip:focus-visible {
+      background: #e8eaed;
+      outline: none;
     }
-    .gi-attachment {
-      background: #ffffff;
-      border-radius: 14px;
-      border: 1px solid rgba(17, 24, 39, 0.08);
-      overflow: hidden;
-      min-height: 118px;
-      display: flex;
-      flex-direction: column;
-    }
-    .gi-attachment-thumb {
-      flex: 1 1 auto;
-      background: linear-gradient(180deg, #f3f4f6 0%, #e5e7eb 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #6b7280;
-      font-weight: 900;
-      font-size: 0.78rem;
-      padding: 0.6rem;
-      text-align: center;
-    }
-    .gi-attachment-name {
-      padding: 0.55rem 0.65rem;
-      font-size: 0.74rem;
-      font-weight: 800;
-      color: #374151;
-      border-top: 1px solid rgba(17, 24, 39, 0.08);
+    .gi-compose-attach-chip span {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      max-width: 9.5rem;
     }
+    .updates-upload-status.is-viewable {
+      width: 100%;
+      text-align: left;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s ease;
+    }
+    .updates-upload-status.is-viewable:hover {
+      filter: brightness(0.97);
+    }
+    .gi-attach-preview {
+      position: fixed;
+      inset: 0;
+      z-index: 1200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      box-sizing: border-box;
+    }
+    .gi-attach-preview[hidden] { display: none !important; }
+    .gi-attach-preview-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(17, 24, 39, 0.55);
+    }
+    .gi-attach-preview-panel {
+      position: relative;
+      z-index: 1;
+      width: min(100%, 520px);
+      max-height: min(88vh, 720px);
+      background: #ffffff;
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 18px 40px rgba(17, 24, 39, 0.28);
+    }
+    .gi-attach-preview-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      padding: 0.55rem 0.7rem;
+      border-bottom: 1px solid #e8eaed;
+      background: #f8f9fa;
+    }
+    .gi-attach-preview-title {
+      margin: 0;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #202124;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      min-width: 0;
+    }
+    .gi-attach-preview-close {
+      border: 0;
+      background: transparent;
+      color: #5f6368;
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .gi-attach-preview-close:hover { background: #e8eaed; }
+    .gi-attach-preview-body {
+      flex: 1 1 auto;
+      min-height: 200px;
+      max-height: calc(88vh - 56px);
+      overflow: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.75rem;
+      background: #ffffff;
+    }
+    .gi-attach-preview-body img {
+      max-width: 100%;
+      max-height: 68vh;
+      object-fit: contain;
+      border-radius: 6px;
+    }
+    .gi-attach-preview-body iframe {
+      width: 100%;
+      min-height: 60vh;
+      border: 0;
+    }
+    .gi-attach-preview-fallback {
+      margin: 0;
+      padding: 1rem;
+      text-align: center;
+      font-size: 0.86rem;
+      line-height: 1.45;
+      color: #4b5563;
+    }
+    .gi-attach-preview-open {
+      display: inline-block;
+      margin-top: 0.65rem;
+      color: #1a73e8;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .gi-compose-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 0.15rem;
+      padding: 0.45rem 0.55rem 0.55rem;
+      border-top: 1px solid var(--gi-pale-border);
+      background: #ffffff;
+    }
+    .gi-compose-send-group {
+      display: inline-flex;
+      align-items: stretch;
+      border-radius: 18px;
+      overflow: hidden;
+      flex-shrink: 0;
+      box-shadow: 0 1px 3px rgba(15, 95, 22, 0.28);
+    }
+    .gi-compose-send-main {
+      border: 0;
+      background: linear-gradient(165deg, #0f5f16 0%, #0b4d12 100%);
+      color: #ffffff;
+      font-size: 0.86rem;
+      font-weight: 600;
+      padding: 0.5rem 1.15rem;
+      cursor: pointer;
+      letter-spacing: 0.01em;
+    }
+    .gi-compose-send-main:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+    .gi-compose-send-caret {
+      border: 0;
+      border-left: 1px solid rgba(255, 255, 255, 0.35);
+      background: linear-gradient(165deg, #0f5f16 0%, #0b4d12 100%);
+      color: #ffffff;
+      width: 34px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      padding: 0;
+    }
+    .gi-compose-send-caret svg { width: 14px; height: 14px; }
+    .gi-compose-attach-link {
+      flex: 1;
+      min-width: 0;
+      border: 0;
+      background: transparent;
+      color: #5f6368;
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-align: left;
+      padding: 0.35rem 0.25rem;
+      cursor: pointer;
+    }
+    .gi-compose-attach-link:hover { color: var(--gi-pale-text); }
+    .gi-compose-discard {
+      width: 34px;
+      height: 34px;
+      border: 0;
+      border-radius: 999px;
+      background: transparent;
+      color: #5f6368;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      margin-left: 0.1rem;
+    }
+    .gi-compose-discard:hover { background: #f1f3f4; }
+    .gi-compose-discard svg { width: 18px; height: 18px; }
     .gi-hidden-input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; clip-path: inset(50%); }
 
     @media (max-width: 420px) {
-      .gi-mail-card { padding: 0.95rem 0.9rem 1rem; }
-      .gi-attachments-grid { grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+      .gi-compose-editor { min-height: 148px; font-size: 0.86rem; }
+      .gi-compose-send-main { padding: 0.48rem 0.95rem; font-size: 0.82rem; }
     }
   </style>
 
@@ -436,32 +602,15 @@
     </section>
 
     <section class="updates-upload-shell" aria-label="GI document support upload">
-      <p class="gi-mail-outer-title">
-        GI Certification Application - <span id="gi-mail-farm-id-outside">Farm ID #—</span>
-      </p>
-      <div class="gi-mail-card" role="group" aria-label="GI Certification Application">
-        <div class="gi-mail-head">
-          <p class="gi-mail-title" aria-hidden="true"></p>
-          <button type="button" class="gi-mail-close" id="gi-mail-close" aria-label="Close">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M18 6L6 18"></path>
-              <path d="M6 6l12 12"></path>
-            </svg>
-          </button>
-        </div>
-
+      <div class="gi-compose-card" role="group" aria-label="Compose GI update">
         <div class="gi-mail-from" aria-label="Sender">
           <div class="gi-mail-avatar" aria-hidden="true">J</div>
           <div class="gi-mail-from-main">
             <p class="gi-mail-from-name" id="gi-mail-sender-name">Juan Dela Cruz</p>
-            <p class="gi-mail-from-sub">to me</p>
-    </div>
+            <p class="gi-mail-from-sub">to Beanthentic Admin</p>
+          </div>
           <div class="gi-mail-time" id="gi-mail-time">—</div>
-  </div>
-
-        <p class="gi-mail-body">
-          Submitted complete documentation for geographical indication certification including farm ownership papers and coffee variety verification...
-        </p>
+        </div>
 
         <form id="gi-support-upload-form" method="post" enctype="multipart/form-data" action="">
           <input
@@ -473,40 +622,72 @@
             multiple
           />
 
-          <div class="gi-attachments-row">
-            <span><span id="gi-attachments-count">0</span> Attachments · Scanned by Beanthentic</span>
-            <span class="gi-attachments-actions">
-              <label class="gi-attach-btn" id="gi-attach-btn" for="gi-support-file" role="button" tabindex="0" aria-label="Attach files">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M12 5v14"></path>
-                  <path d="M5 12h14"></path>
-                </svg>
-                Attach
-              </label>
-            </span>
-          </div>
+          <textarea
+            id="gi-compose-message"
+            class="gi-compose-editor"
+            name="gi_message"
+            rows="6"
+            placeholder="Write your GI update message here..."
+            aria-label="GI update message"
+          ></textarea>
 
-          <div class="gi-attachments-grid" id="gi-attachments-grid" aria-label="Attachments preview">
-            <!-- tiles injected by JS -->
-        </div>
+          <div class="gi-compose-attachments" id="gi-attachments-grid" aria-label="Attachments"></div>
           <p id="updates-upload-status" class="updates-upload-status" hidden></p>
+
+          <footer class="gi-compose-toolbar" aria-label="Compose actions">
+            <div class="gi-compose-send-group">
+              <button type="submit" class="gi-compose-send-main" id="gi-compose-send">Send</button>
+              <button type="button" class="gi-compose-send-caret" id="gi-compose-send-menu" aria-label="More send options" title="More send options">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </button>
+            </div>
+            <button type="button" class="gi-compose-attach-link" id="gi-tool-attach">Attach files</button>
+            <button type="button" class="gi-compose-discard" id="gi-compose-discard" aria-label="Discard draft" title="Discard draft">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+            </button>
+          </footer>
         </form>
-    </div>
+      </div>
     </section>
   </main>
+
+  <div id="gi-send-error-modal" class="gi-login-notice-modal" aria-hidden="true">
+    <div class="gi-login-notice-card" role="alertdialog" aria-modal="true" aria-labelledby="gi-send-error-brand" aria-describedby="gi-send-error-text">
+      <p id="gi-send-error-brand" class="gi-login-notice-brand">Beanthentic</p>
+      <p id="gi-send-error-text" class="gi-login-notice-text">Type a message or attach at least one file before sending.</p>
+      <div class="gi-login-notice-actions">
+        <button type="button" class="gi-login-notice-ok" id="gi-send-error-ok">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="gi-attach-preview" class="gi-attach-preview" hidden aria-hidden="true">
+    <div class="gi-attach-preview-backdrop" data-gi-preview-close></div>
+    <div class="gi-attach-preview-panel" role="dialog" aria-modal="true" aria-labelledby="gi-attach-preview-title">
+      <div class="gi-attach-preview-head">
+        <p id="gi-attach-preview-title" class="gi-attach-preview-title">Attachment</p>
+        <button type="button" class="gi-attach-preview-close" id="gi-attach-preview-close" aria-label="Close preview">×</button>
+      </div>
+      <div id="gi-attach-preview-body" class="gi-attach-preview-body"></div>
+    </div>
+  </div>
 
   <script>
     (function () {
       var fileInput = document.getElementById('gi-support-file');
       var uploadForm = document.getElementById('gi-support-upload-form');
-      var attachBtn = document.getElementById('gi-attach-btn');
+      var attachTool = document.getElementById('gi-tool-attach');
       var grid = document.getElementById('gi-attachments-grid');
-      var countEl = document.getElementById('gi-attachments-count');
       var status = document.getElementById('updates-upload-status');
-      var closeBtn = document.getElementById('gi-mail-close');
+      var discardBtn = document.getElementById('gi-compose-discard');
+      var sendBtn = document.getElementById('gi-compose-send');
+      var messageEl = document.getElementById('gi-compose-message');
       var timeEl = document.getElementById('gi-mail-time');
-      var farmIdEl = document.getElementById('gi-mail-farm-id');
-      var farmIdOuterEl = document.getElementById('gi-mail-farm-id-outside');
       var senderEl = document.getElementById('gi-mail-sender-name');
 
       if (timeEl) {
@@ -518,13 +699,11 @@
         }
       }
 
-      // Best-effort values (replace later when DB integration exists)
       try {
         var raw = localStorage.getItem('beanthentic_user') || sessionStorage.getItem('beanthentic_user');
         var u = raw ? JSON.parse(raw) : null;
         var email = (u && u.email) ? String(u.email).trim().toLowerCase() : '';
         var nameGuess = '';
-        // Prefer per-account farmer profile map (first_name/last_name) if available.
         try {
           var rawProfileMap = localStorage.getItem('beanthentic_farmer_profile_map') || sessionStorage.getItem('beanthentic_farmer_profile_map');
           var profileMap = rawProfileMap ? JSON.parse(rawProfileMap) : null;
@@ -536,7 +715,6 @@
             nameGuess = full || ((first || last) ? (first + ' ' + last).trim() : '');
           }
         } catch (_p1) {}
-        // Fallback to latest farmer profile blob.
         if (!nameGuess) {
           try {
             var rawProfile = localStorage.getItem('beanthentic_farmer_profile') || sessionStorage.getItem('beanthentic_farmer_profile');
@@ -559,18 +737,108 @@
           avatarEl.textContent = initial;
         }
       } catch (_u) {}
-      try {
-        var rawMap = localStorage.getItem('beanthentic_farmer_id_map') || sessionStorage.getItem('beanthentic_farmer_id_map');
-        var map = rawMap ? JSON.parse(rawMap) : null;
-        var rawU = localStorage.getItem('beanthentic_user') || sessionStorage.getItem('beanthentic_user');
-        var u2 = rawU ? JSON.parse(rawU) : null;
-        var email2 = (u2 && u2.email) ? String(u2.email).trim().toLowerCase() : '';
-        var fid = map && email2 && map[email2] ? String(map[email2]) : '';
-        if (farmIdEl) farmIdEl.textContent = 'Farm ID #' + (fid || '—');
-        if (farmIdOuterEl) farmIdOuterEl.textContent = 'Farm ID #' + (fid || '—');
-      } catch (_f) {}
 
-      if (!fileInput || !uploadForm || !grid || !status || !countEl) return;
+      var errorModal = document.getElementById('gi-send-error-modal');
+      var errorText = document.getElementById('gi-send-error-text');
+      var errorOk = document.getElementById('gi-send-error-ok');
+      var previewModal = document.getElementById('gi-attach-preview');
+      var previewBody = document.getElementById('gi-attach-preview-body');
+      var previewTitle = document.getElementById('gi-attach-preview-title');
+      var previewClose = document.getElementById('gi-attach-preview-close');
+      var attachedFiles = [];
+      var attachPreviewUrls = [];
+
+      if (!fileInput || !uploadForm || !grid || !status) return;
+
+      function showGiErrorPopup(message) {
+        if (errorText) errorText.textContent = message || 'Something went wrong. Please try again.';
+        if (errorModal) {
+          errorModal.classList.add('is-open');
+          errorModal.setAttribute('aria-hidden', 'false');
+        }
+      }
+
+      function closeGiErrorPopup() {
+        if (errorModal) {
+          errorModal.classList.remove('is-open');
+          errorModal.setAttribute('aria-hidden', 'true');
+        }
+      }
+
+      if (errorOk) errorOk.addEventListener('click', closeGiErrorPopup);
+      if (errorModal) {
+        errorModal.addEventListener('click', function (event) {
+          if (event.target === errorModal) closeGiErrorPopup();
+        });
+      }
+
+      function revokeAttachUrls() {
+        attachPreviewUrls.forEach(function (url) {
+          try { URL.revokeObjectURL(url); } catch (_e) {}
+        });
+        attachPreviewUrls = [];
+      }
+
+      function closeFilePreview() {
+        if (!previewModal) return;
+        previewModal.hidden = true;
+        previewModal.setAttribute('aria-hidden', 'true');
+        if (previewBody) previewBody.innerHTML = '';
+      }
+
+      function openFilePreview(file, index) {
+        if (!file || !previewModal || !previewBody) return;
+        var url = attachPreviewUrls[index];
+        if (!url) {
+          try {
+            url = URL.createObjectURL(file);
+            attachPreviewUrls[index] = url;
+          } catch (_mk) {
+            return;
+          }
+        }
+        var name = String(file.name || 'Attachment');
+        var mime = String(file.type || '').toLowerCase();
+        previewBody.innerHTML = '';
+        if (previewTitle) previewTitle.textContent = name;
+
+        if (mime.indexOf('image/') === 0) {
+          var img = document.createElement('img');
+          img.src = url;
+          img.alt = name;
+          previewBody.appendChild(img);
+        } else if (mime === 'application/pdf') {
+          var frame = document.createElement('iframe');
+          frame.src = url;
+          frame.title = name;
+          previewBody.appendChild(frame);
+        } else {
+          var msg = document.createElement('p');
+          msg.className = 'gi-attach-preview-fallback';
+          msg.textContent = 'Preview is not available for this file type.';
+          var link = document.createElement('a');
+          link.className = 'gi-attach-preview-open';
+          link.href = url;
+          link.target = '_blank';
+          link.rel = 'noopener';
+          link.textContent = 'Open file';
+          msg.appendChild(document.createElement('br'));
+          msg.appendChild(link);
+          previewBody.appendChild(msg);
+        }
+
+        previewModal.hidden = false;
+        previewModal.setAttribute('aria-hidden', 'false');
+      }
+
+      if (previewClose) previewClose.addEventListener('click', closeFilePreview);
+      if (previewModal) {
+        previewModal.addEventListener('click', function (event) {
+          if (event.target && event.target.getAttribute('data-gi-preview-close') !== null) {
+            closeFilePreview();
+          }
+        });
+      }
 
       function openPicker() {
         try { fileInput.value = ''; } catch (_rv) {}
@@ -583,75 +851,156 @@
         try { fileInput.click(); } catch (_e) {}
       }
 
-      if (attachBtn) {
-        attachBtn.addEventListener('click', function () {
-          openPicker();
-        });
-        attachBtn.addEventListener('keydown', function (event) {
-          if (event.key === 'Enter' || event.key === ' ') {
-            event.preventDefault();
-            openPicker();
-          }
-        });
+      function bindAttachTrigger(el) {
+        if (!el) return;
+        el.addEventListener('click', function () { openPicker(); });
+      }
+      bindAttachTrigger(attachTool);
+
+      function clearDraft() {
+        if (messageEl) messageEl.value = '';
+        try { fileInput.value = ''; } catch (_rv) {}
+        attachedFiles = [];
+        revokeAttachUrls();
+        closeFilePreview();
+        while (grid.firstChild) grid.removeChild(grid.firstChild);
+        status.hidden = true;
+        status.className = 'updates-upload-status';
+        status.textContent = '';
+        status.onclick = null;
       }
 
-      if (closeBtn) {
-        closeBtn.addEventListener('click', function () {
-          // Close returns to home updates header target; if history exists, use it.
-          try {
-            if (window.history.length > 1) {
-              window.history.back();
-              return;
-            }
-          } catch (_e) {}
-          try { window.location.assign('index.php#home'); } catch (_e2) { window.location.href = 'index.php#home'; }
-        });
+      if (discardBtn) discardBtn.addEventListener('click', clearDraft);
+
+      function giApiBase() {
+        try {
+          if (window.BeanthenticApiUrls && typeof window.BeanthenticApiUrls.resolveHttpApiBase === 'function') {
+            return String(window.BeanthenticApiUrls.resolveHttpApiBase() || '').replace(/\/+$/, '');
+          }
+        } catch (_ab) {}
+        try {
+          return String(
+            localStorage.getItem('beanthentic_api_base') ||
+            sessionStorage.getItem('beanthentic_api_base') ||
+            ''
+          ).replace(/\/+$/, '');
+        } catch (_st) {}
+        return '';
+      }
+
+      function giUserId() {
+        try {
+          var raw = localStorage.getItem('beanthentic_user') || sessionStorage.getItem('beanthentic_user');
+          var u = raw ? JSON.parse(raw) : null;
+          var id = u && (u.user_id != null) ? parseInt(u.user_id, 10) : 0;
+          return Number.isFinite(id) ? id : 0;
+        } catch (_uid) {
+          return 0;
+        }
       }
 
       uploadForm.addEventListener('submit', function (event) {
         event.preventDefault();
+        var text = messageEl ? String(messageEl.value || '').trim() : '';
+        var files = attachedFiles.length
+          ? attachedFiles.slice()
+          : (function () {
+              try { return Array.prototype.slice.call(fileInput.files || []); } catch (_e) { return []; }
+            })();
+        if (!text && !files.length) {
+          status.hidden = true;
+          showGiErrorPopup('Type a message or attach at least one file before sending.');
+          return;
+        }
+        var base = giApiBase();
+        var userId = giUserId();
+        if (!base || userId <= 0) {
+          showGiErrorPopup('Set Server URL in the app and sign in again before sending GI updates.');
+          return;
+        }
+        var fd = new FormData();
+        fd.append('user_id', String(userId));
+        fd.append('message', text);
+        files.forEach(function (file) {
+          fd.append('gi_support_file', file, file.name || 'attachment');
+        });
+        if (sendBtn) sendBtn.disabled = true;
+        status.hidden = false;
+        status.className = 'updates-upload-status';
+        status.textContent = 'Sending…';
+        fetch(base + '/api/gi_updates.php', { method: 'POST', body: fd })
+          .then(function (res) { return res.json().then(function (data) { return { res: res, data: data }; }); })
+          .then(function (out) {
+            if (!out.res.ok || !out.data || !out.data.ok) {
+              throw new Error((out.data && out.data.error) ? out.data.error : 'Send failed.');
+            }
+            status.className = 'updates-upload-status is-success';
+            status.textContent = out.data.message || 'GI update sent to admin for review.';
+            clearDraft();
+          })
+          .catch(function (err) {
+            status.hidden = true;
+            showGiErrorPopup(err && err.message ? err.message : 'Could not send GI update.');
+          })
+          .finally(function () {
+            if (sendBtn) sendBtn.disabled = false;
+          });
       });
 
-      function renderTiles(files) {
+      function renderAttachmentChips(files) {
+        revokeAttachUrls();
         while (grid.firstChild) grid.removeChild(grid.firstChild);
         var list = files || [];
-        if (!list.length) return;
-        list.slice(0, 6).forEach(function (file) {
-          var tile = document.createElement('div');
-          tile.className = 'gi-attachment';
-          var thumb = document.createElement('div');
-          thumb.className = 'gi-attachment-thumb';
-          var ext = '';
+        attachedFiles = list.slice(0, 8);
+        if (!attachedFiles.length) return;
+        attachedFiles.forEach(function (file, index) {
+          var url = '';
           try {
-            var name = String(file.name || '');
-            var idx = name.lastIndexOf('.');
-            ext = idx > -1 ? name.slice(idx + 1).toUpperCase() : '';
-          } catch (_e) { ext = ''; }
-          thumb.textContent = ext ? (ext + ' FILE') : 'FILE';
-          var n = document.createElement('div');
-          n.className = 'gi-attachment-name';
-          n.textContent = String(file.name || 'Attachment');
-          tile.appendChild(thumb);
-          tile.appendChild(n);
-          grid.appendChild(tile);
+            url = URL.createObjectURL(file);
+            attachPreviewUrls[index] = url;
+          } catch (_url) {}
+          var chip = document.createElement('button');
+          chip.type = 'button';
+          chip.className = 'gi-compose-attach-chip';
+          chip.setAttribute('aria-label', 'View ' + String(file.name || 'attachment'));
+          var label = document.createElement('span');
+          label.textContent = String(file.name || 'Attachment');
+          chip.appendChild(label);
+          chip.addEventListener('click', function () {
+            openFilePreview(file, index);
+          });
+          grid.appendChild(chip);
         });
+      }
+
+      function bindStatusView(files) {
+        if (!files.length) {
+          status.onclick = null;
+          status.classList.remove('is-viewable');
+          return;
+        }
+        status.classList.add('is-viewable');
+        status.onclick = function () {
+          openFilePreview(files[0], 0);
+        };
       }
 
       fileInput.addEventListener('change', function () {
         var files = [];
         try { files = Array.prototype.slice.call(fileInput.files || []); } catch (_e) { files = []; }
-        countEl.textContent = String(files.length || 0);
-        renderTiles(files);
-
+        renderAttachmentChips(files);
         if (!files.length) {
+          attachedFiles = [];
           status.hidden = true;
           status.className = 'updates-upload-status';
           status.textContent = '';
+          status.onclick = null;
           return;
         }
         status.hidden = false;
-        status.className = 'updates-upload-status is-success';
-        status.textContent = 'Files attached. Ready for upload integration.';
+        status.className = 'updates-upload-status is-success is-viewable';
+        status.textContent = files.length + ' file(s) attached. Tap to view.';
+        bindStatusView(files);
       });
     })();
   </script>
@@ -753,16 +1102,55 @@
         return 'GI process marked complete. Recommended next step: publish final documentation and maintain periodic compliance monitoring.';
       }
 
-      var progressPercent = parseAdminProgress();
-      percentEl.textContent = String(progressPercent);
-      fillEl.style.width = String(progressPercent) + '%';
-      analysisEl.textContent = generateAiAnalysis(progressPercent);
-
-      var completeLabel = document.getElementById('gi-progress-complete-label');
-      if (completeLabel) {
-        var isComplete = progressPercent >= 100;
-        completeLabel.hidden = !isComplete;
+      function applyGiProgress(percent) {
+        var progressPercent = clampPercent(percent);
+        if (progressPercent === null) progressPercent = 0;
+        percentEl.textContent = String(progressPercent);
+        fillEl.style.width = String(progressPercent) + '%';
+        analysisEl.textContent = generateAiAnalysis(progressPercent);
+        try {
+          localStorage.setItem('beanthentic_gi_progress_percent', String(progressPercent));
+        } catch (_ls) {}
+        var completeLabel = document.getElementById('gi-progress-complete-label');
+        if (completeLabel) {
+          completeLabel.hidden = progressPercent < 100;
+        }
       }
+
+      applyGiProgress(parseAdminProgress());
+
+      (function loadGiProgressFromServer() {
+        var base = '';
+        try {
+          if (window.BeanthenticApiUrls && typeof window.BeanthenticApiUrls.resolveHttpApiBase === 'function') {
+            base = String(window.BeanthenticApiUrls.resolveHttpApiBase() || '').replace(/\/+$/, '');
+          }
+        } catch (_b) {}
+        if (!base) {
+          try {
+            base = String(
+              localStorage.getItem('beanthentic_api_base') ||
+              sessionStorage.getItem('beanthentic_api_base') ||
+              ''
+            ).replace(/\/+$/, '');
+          } catch (_s) {}
+        }
+        var userId = 0;
+        try {
+          var raw = localStorage.getItem('beanthentic_user') || sessionStorage.getItem('beanthentic_user');
+          var u = raw ? JSON.parse(raw) : null;
+          userId = u && u.user_id != null ? parseInt(u.user_id, 10) : 0;
+        } catch (_u) {}
+        if (!base || userId <= 0) return;
+        fetch(base + '/api/gi_updates.php?user_id=' + encodeURIComponent(String(userId)))
+          .then(function (res) { return res.json(); })
+          .then(function (data) {
+            if (data && data.ok && data.progress_percent != null) {
+              applyGiProgress(data.progress_percent);
+            }
+          })
+          .catch(function () {});
+      })();
     })();
   </script>
 
@@ -774,11 +1162,11 @@
         </span>
         <span class="app-bottom-nav-label">Home</span>
       </a>
-      <a href="qr.php" id="nav-qr" class="app-bottom-nav-link">
+      <a href="records.php" id="nav-qr" class="app-bottom-nav-link">
         <span class="app-bottom-nav-icon-wrap" aria-hidden="true">
-          <svg class="app-bottom-nav-icon app-bottom-nav-icon--transaction" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6 7.25h9v2H6z"/><path fill="currentColor" d="M15 6 19 8.25 15 10.5z"/><path fill="currentColor" d="M9 14.25h9v2H9z"/><path fill="currentColor" d="M9 13.25 5 15.25 9 17.25z"/></svg>
+          <svg class="app-bottom-nav-icon app-bottom-nav-icon--record" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 2h6v2H9z"/><path d="M9 12h6"/><path d="M9 16h6"/><path d="M9 20h4"/></svg>
         </span>
-        <span class="app-bottom-nav-label">Transaction</span>
+        <span class="app-bottom-nav-label">Record</span>
       </a>
       <a href="register_summary.php" id="nav-register" class="app-bottom-nav-link app-bottom-nav-link--featured">
         <span class="app-bottom-nav-icon-wrap" aria-hidden="true">

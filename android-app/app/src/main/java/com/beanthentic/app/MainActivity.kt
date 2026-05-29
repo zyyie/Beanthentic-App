@@ -3,6 +3,7 @@ package com.beanthentic.app
 import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.provider.MediaStore
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
@@ -431,7 +432,7 @@ class MainActivity : AppCompatActivity() {
                 webFilePathCallback?.onReceiveValue(null)
                 webFilePathCallback = filePathCallback
 
-                val intent = try {
+                val pickIntent = try {
                     fileChooserParams?.createIntent()
                 } catch (_e: Exception) {
                     null
@@ -440,13 +441,31 @@ class MainActivity : AppCompatActivity() {
                     type = "image/*"
                 }
 
+                val captureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+                val chooser = Intent(Intent.ACTION_CHOOSER).apply {
+                    putExtra(Intent.EXTRA_INTENT, pickIntent)
+                    val captureIntents = mutableListOf<Intent>()
+                    if (captureIntent.resolveActivity(packageManager) != null) {
+                        captureIntents.add(captureIntent)
+                    }
+                    if (captureIntents.isNotEmpty()) {
+                        putExtra(Intent.EXTRA_INITIAL_INTENTS, captureIntents.toTypedArray())
+                    }
+                    putExtra(Intent.EXTRA_TITLE, "Add profile photo")
+                }
+
                 return try {
-                    fileChooserLauncher.launch(intent)
+                    fileChooserLauncher.launch(chooser)
                     true
                 } catch (_e: ActivityNotFoundException) {
-                    webFilePathCallback?.onReceiveValue(null)
-                    webFilePathCallback = null
-                    false
+                    return try {
+                        fileChooserLauncher.launch(pickIntent)
+                        true
+                    } catch (_e2: ActivityNotFoundException) {
+                        webFilePathCallback?.onReceiveValue(null)
+                        webFilePathCallback = null
+                        false
+                    }
                 }
             }
         }
@@ -562,7 +581,7 @@ class MainActivity : AppCompatActivity() {
                                 .replace("\r", " ")
 
                             val input = EditText(this@MainActivity).apply {
-                                hint = "e.g., http://192.168.1.10:5000"
+                                hint = "e.g., http://192.168.0.100:5000"
                                 setSingleLine(true)
                                 setText(escapedDefault)
                             }

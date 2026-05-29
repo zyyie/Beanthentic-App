@@ -1,3 +1,5 @@
+@import url('theme.css');
+
 /* Base styles and reset */
 * {
   box-sizing: border-box;

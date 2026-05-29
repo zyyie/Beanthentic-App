@@ -5,7 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#143d22" />
   <script>window.__BEANTHENTIC_SESSION_GATE__ = 'guest';</script>
-  <script src="js/beanthentic_session_gate.js"></script>
+  <script src="js/beanthentic_client_web.js"></script>
+  <script src="js/beanthentic_api_urls.js?v=20260515-6"></script>
+  <script src="js/beanthentic_session_gate.js?v=20260515-3"></script>
   <script>
     (function () {
       function parseUser(raw) {
@@ -194,9 +196,21 @@
     </div>
   </main>
 
+  <div id="signup-pending-loader" class="tutorial-loader login-success-loader" hidden aria-hidden="true" aria-busy="false">
+    <img
+      class="tutorial-loader-bean"
+      src="coffee_bean_loading.png"
+      alt=""
+      width="96"
+      height="96"
+      decoding="async"
+    />
+    <p class="tutorial-loader-text">Creating your account…</p>
+  </div>
+
   <script src="js/navigation.js"></script>
-  <script src="js/ui.js"></script>
   <script src="js/auth_lang.js"></script>
+  <script src="js/ui.js"></script>
   <script>
     (function () {
       function applySignupStrings() {
@@ -283,91 +297,61 @@
       function canUseServerAuth() {
         return typeof location !== 'undefined' && (location.protocol === 'http:' || location.protocol === 'https:');
       }
-      function beanthenticPhpApiUrlCandidates(apiScript) {
-        var out = [];
-        var apiPath = 'api/' + apiScript;
-        function pushU(u) {
-          var s = String(u || '').trim();
-          if (!s) return;
-          if (out.indexOf(s) < 0) out.push(s);
-        }
-        var o = '';
-        try {
-          o = (location.origin || '').replace(/\/+$/, '');
-        } catch (_o) {}
-        var p = '';
-        try {
-          p = location.pathname || '';
-        } catch (_p2) {}
-        try {
-          var custom = localStorage.getItem('beanthentic_api_base') || sessionStorage.getItem('beanthentic_api_base');
-          if (custom && String(custom).trim()) {
-            var b = String(custom).trim().replace(/\/+$/, '');
-            if (/\/api$/i.test(b)) b = b.replace(/\/api$/i, '');
-            if (b) pushU(b + '/' + apiPath);
-          }
-        } catch (_c) {}
-        try {
-          pushU(new URL(apiPath, location.href).href);
-        } catch (_e0) {}
-        try {
-          var dir = new URL('.', location.href).href.replace(/\/+$/, '');
-          if (dir) pushU(dir + '/' + apiPath);
-        } catch (_e1) {}
-        var pl = p.toLowerCase();
-        ['/android-app/app/src/main/assets/', '/beanthentic-app/android-app/app/src/main/assets/', '/app/src/main/assets/', '/src/main/assets/'].forEach(function (key) {
-          var ix = pl.indexOf(key);
-          if (ix >= 0) pushU(o + p.substring(0, ix + key.length - 1) + '/' + apiPath);
-        });
-        var ixA = pl.lastIndexOf('/assets/');
-        if (ixA >= 0) pushU(o + p.substring(0, ixA + '/assets'.length) + '/' + apiPath);
-        ['android-app/app/src/main/assets', 'Beanthentic-App/android-app/app/src/main/assets', 'beanthentic-app/android-app/app/src/main/assets', 'main/assets', 'app/src/main/assets', 'assets'].forEach(function (rel) {
-          try {
-            pushU(new URL(rel + '/' + apiPath, o + '/').href);
-          } catch (_x) {}
-        });
-        try {
-          pushU(o + '/' + apiPath);
-        } catch (_y) {}
-        pushU('http://localhost/Beanthentic-App/android-app/app/src/main/assets/' + apiPath);
-        pushU('http://127.0.0.1/Beanthentic-App/android-app/app/src/main/assets/' + apiPath);
-        return out;
-      }
-      function signupApiCandidates() {
-        if (!canUseServerAuth()) return [];
-        return beanthenticPhpApiUrlCandidates('signup.php');
-      }
-      function postJson(url, payload) {
-        return fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload || {})
-        }).then(function (res) {
-          return res.text().then(function (txt) {
-            var body = null;
-            try { body = txt ? JSON.parse(txt) : null; } catch (_p) { body = null; }
-            return { okHttp: !!res.ok, body: body };
-          });
-        });
-      }
       function signupViaApi(loginId, password) {
-        var urls = signupApiCandidates();
-        if (!urls.length) return Promise.resolve({ ok: false, skipped: true });
-        var i = 0;
-        function tryNext() {
-          if (i >= urls.length) return Promise.resolve({ ok: false, skipped: true, error: 'Cannot reach server API.' });
-          var url = urls[i++];
-          return postJson(url, { phone_number: loginId, password: String(password || '') })
-            .then(function (resObj) {
-              var body = resObj && resObj.body;
-              if (body && typeof body === 'object' && Object.prototype.hasOwnProperty.call(body, 'ok')) {
-                return body;
-              }
-              return tryNext();
-            })
-            .catch(function () { return tryNext(); });
+        if (!canUseServerAuth()) {
+          return Promise.resolve({ ok: false, skipped: true });
         }
-        return tryNext();
+        var payload = { phone_number: loginId, password: String(password || '') };
+        if (window.BeanthenticApiUrls && window.BeanthenticApiUrls.fetchApiSequential) {
+          return window.BeanthenticApiUrls.fetchApiSequential('signup.php', payload, {
+            timeoutMs: 4000,
+            maxTries: 2
+          });
+        }
+        try {
+          return fetch(new URL('api/signup.php', location.href).href, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          }).then(function (res) {
+            return res.json().then(function (body) {
+              return body && typeof body === 'object' ? body : { ok: false };
+            });
+          });
+        } catch (_e) {
+          return Promise.resolve({ ok: false, skipped: true });
+        }
+      }
+
+      function setSignupPending(pending) {
+        var btn = document.querySelector('.signup-form .login-submit-btn');
+        var overlay = document.getElementById('signup-pending-loader');
+        var loaderText = overlay ? overlay.querySelector('.tutorial-loader-text') : null;
+        if (btn) {
+          btn.disabled = !!pending;
+          btn.setAttribute('aria-busy', pending ? 'true' : 'false');
+          if (pending) {
+            if (!btn.dataset.origText) btn.dataset.origText = btn.textContent;
+            btn.textContent = 'Signing up…';
+          } else if (btn.dataset.origText) {
+            btn.textContent = btn.dataset.origText;
+          }
+        }
+        if (overlay) {
+          if (pending) {
+            overlay.hidden = false;
+            overlay.removeAttribute('aria-hidden');
+            overlay.setAttribute('aria-busy', 'true');
+            if (loaderText) loaderText.textContent = 'Creating your account…';
+          } else {
+            overlay.hidden = true;
+            overlay.setAttribute('aria-hidden', 'true');
+            overlay.setAttribute('aria-busy', 'false');
+          }
+        }
+        try {
+          document.body.classList.toggle('signup-pending', !!pending);
+        } catch (_bp) {}
       }
 
       document.addEventListener('DOMContentLoaded', function () {
@@ -395,26 +379,42 @@
             } catch (_b) {}
             return;
           }
+          setSignupPending(true);
+
+          function finishSignupFail(msg) {
+            setSignupPending(false);
+            try { window.alert(msg); } catch (_a) {}
+          }
+
           if (canUseServerAuth()) {
             signupViaApi(loginId, pw ? pw.value : '').then(function (out) {
               if (out && out.skipped) {
                 var locHint = '';
                 try {
-                  locHint = '\n\nCurrent page: ' + String(location.href || '').split('?')[0] + '\nExpected API: same folder as this page → api/signup.php';
+                  locHint = '\n\nPage: ' + String(location.href || '').split('?')[0];
                 } catch (_lh) {}
-                try {
-                  window.alert(
-                    'Cannot reach the signup API (PHP). Open this project over Apache (not a static file server only), start MySQL, and import the Beanthentic database. The app will call api/signup.php next to signup.php.' +
-                      locHint
-                  );
-                } catch (_c1) {}
+                finishSignupFail(
+                  'Cannot reach the signup API. Restart python app.py, ensure XAMPP MySQL is running, and hard-refresh (Ctrl+Shift+R).' +
+                    locHint
+                );
                 return;
               }
               if (!out || !out.ok) {
                 var msg = (out && out.error) ? String(out.error) : 'Signup failed.';
-                try { window.alert(msg); } catch (_msg) {}
+                finishSignupFail(msg);
                 return;
               }
+              try {
+                if (out.user && out.user.farmer_id && window.BeanthenticClientWeb && window.BeanthenticClientWeb.persistFarmerIdForUser) {
+                  var signupUser = {
+                    user_id: out.user.user_id,
+                    farmer_id: out.user.farmer_id,
+                    phone_number: out.user.phone_number || loginId,
+                    email: out.user.email || loginId
+                  };
+                  window.BeanthenticClientWeb.persistFarmerIdForUser(signupUser, out.user.farmer_id, loginId);
+                }
+              } catch (_fidSignup) {}
               try {
                 localStorage.setItem(NEW_SIGNUP_LOGIN_ID_KEY, loginId);
                 sessionStorage.setItem(NEW_SIGNUP_LOGIN_ID_KEY, loginId);
@@ -424,18 +424,23 @@
                 localStorage.setItem('beanthentic_api_base', apiRoot);
                 sessionStorage.setItem('beanthentic_api_base', apiRoot);
               } catch (_st) {}
+              var okOverlay = document.getElementById('signup-pending-loader');
+              if (okOverlay) {
+                var lt = okOverlay.querySelector('.tutorial-loader-text');
+                if (lt) lt.textContent = 'Success! Redirecting…';
+              }
               try {
                 window.location.assign(new URL('login.php', location.href).href);
               } catch (_e2) {
                 window.location.assign('login.php');
               }
+            }).catch(function () {
+              finishSignupFail('Signup failed. Check your connection and try again.');
             });
             return;
           }
           if (isAccountRegistered(loginId)) {
-            try {
-              window.alert('Naka-register na ang numerong ito. Mag-log in na lang o gumamit ng ibang numero.');
-            } catch (_c) {}
+            finishSignupFail('Naka-register na ang numerong ito. Mag-log in na lang o gumamit ng ibang numero.');
             return;
           }
           registerAccount(loginId, pw ? pw.value : '');

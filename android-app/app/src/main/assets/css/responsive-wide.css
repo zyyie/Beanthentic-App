@@ -1,0 +1,175 @@
+/**
+ * Wide / full-screen layouts (tablet landscape, desktop WebView, browser).
+ * Expands mobile-first shells so content uses available width instead of staying narrow.
+ */
+
+:root {
+  --bt-app-content-max: 100%;
+  --bt-app-pad-x: max(0.75rem, env(safe-area-inset-left, 0px));
+}
+
+@media (min-width: 600px) {
+  :root {
+    --bt-app-content-max: min(calc(100vw - 2rem), 840px);
+  }
+}
+
+@media (min-width: 900px) {
+  :root {
+    --bt-app-content-max: min(calc(100vw - 3rem), 1120px);
+  }
+}
+
+@media (min-width: 1200px) {
+  :root {
+    --bt-app-content-max: min(calc(100vw - 4rem), 1320px);
+  }
+}
+
+@media (min-width: 1600px) {
+  :root {
+    --bt-app-content-max: min(calc(100vw - 5rem), 1440px);
+  }
+}
+
+/* Shared app content shells */
+@media (min-width: 600px) {
+
+  body.home-page>main.home-mobile-layout,
+  body.home-page .home-top-meta,
+  .account-simple-main,
+  .account-portfolio,
+  .records-shell,
+  .txn-history-shell,
+  .faq-shell,
+  .help-main,
+  .settings-main,
+  .reg-main,
+  .updates-main,
+  .about-main,
+  .hist-main,
+  .section-main,
+  .section-wrap,
+  .social-shell,
+  .contact-main,
+  .pi-main,
+  .account-settings-main,
+  .msg-main,
+  body:not(.login-page):not(.signup-page):not(.choose-lang-page)>.auth-main,
+  body:not(.login-page):not(.signup-page):not(.choose-lang-page) main.auth-main {
+    width: min(100%, var(--bt-app-content-max)) !important;
+    max-width: var(--bt-app-content-max) !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    box-sizing: border-box;
+  }
+
+  body:not(.login-page):not(.signup-page):not(.choose-lang-page) .auth-main .auth-card,
+  body:not(.login-page):not(.signup-page):not(.choose-lang-page) .auth-main .notif-settings-shell,
+  body:not(.login-page):not(.signup-page):not(.choose-lang-page) .auth-main .activity-log-shell {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  .app-bottom-nav-inner {
+    max-width: var(--bt-app-content-max) !important;
+  }
+
+  main:not(.home-mobile-layout):not(.login-main) {
+    max-width: var(--bt-app-content-max);
+  }
+}
+
+/* Home — hero + story use horizontal space */
+@media (min-width: 600px) {
+  body.home-page .home-mobile-hero-card {
+    min-height: 16rem;
+  }
+}
+
+@media (min-width: 900px) {
+  body.home-page .home-mobile-hero-card {
+    aspect-ratio: 16 / 9;
+    min-height: 20rem;
+    max-height: min(52vh, 34rem);
+  }
+
+  body.home-page .home-mobile-story-media .home-mobile-story-title {
+    font-size: clamp(2.4rem, 3.8vw, 3.35rem);
+  }
+
+  body.home-page .home-mobile-story-media {
+    width: 50%;
+    flex: 0 0 50%;
+    gap: 1.65rem;
+  }
+
+  body.home-page .home-mobile-story-media .home-mobile-story-thumb {
+    aspect-ratio: 16 / 10;
+  }
+
+  body.home-page .home-mobile-story-row-text {
+    font-size: 1.45rem;
+    line-height: 1.48;
+  }
+}
+
+@media (min-width: 1200px) {
+  body.home-page .home-mobile-story-media {
+    width: 48%;
+    flex: 0 0 48%;
+  }
+
+  body.home-page .home-mobile-story-media .home-mobile-story-thumb {
+    aspect-ratio: 16 / 9;
+  }
+}
+
+/* Records — two columns on wide screens */
+@media (min-width: 900px) {
+  .records-list {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem 1.1rem;
+  }
+}
+
+/* Account — stats row can breathe on tablet+ */
+@media (min-width: 700px) {
+  .account-filter-row {
+    max-width: 22rem !important;
+  }
+
+  .account-stats {
+    max-width: 22rem !important;
+  }
+}
+
+@media (min-width: 900px) {
+  .account-filter-row {
+    max-width: 28rem !important;
+  }
+
+  .account-stats {
+    max-width: 28rem !important;
+  }
+}
+
+/* Messages — chat column follows app width */
+@media (min-width: 600px) {
+
+  .msg-main,
+  .msg-chat-head,
+  .msg-chat-panel,
+  .msg-input-inner {
+    max-width: var(--bt-app-content-max) !important;
+  }
+}
+
+/* GI updates compose */
+@media (min-width: 600px) {
+  .updates-main {
+    padding-left: max(1rem, env(safe-area-inset-left, 0px)) !important;
+    padding-right: max(1rem, env(safe-area-inset-right, 0px)) !important;
+  }
+}
